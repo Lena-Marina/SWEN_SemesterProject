@@ -1,6 +1,7 @@
 package at.technikum.server;
 
 import at.technikum.application.common.Application;
+import at.technikum.application.mrp.exception.ExceptionMapper;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
 import at.technikum.server.util.RequestMapper;
@@ -24,7 +25,17 @@ public class Handler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         Request request = requestMapper.fromExchange(exchange);
-        Response response = application.handle(request);
+
+        Response response;
+
+        try {
+            // Alles, was in der Application passiert, kann Exceptions werfen
+            response = application.handle(request);
+        } catch (Exception e) {
+            // ExceptionMapper wandelt jede Exception in eine Response um
+            response = ExceptionMapper.toResponse(e);
+        }
+
         send(exchange, response);
         // create Request object
         // give Request to Application

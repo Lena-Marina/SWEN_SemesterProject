@@ -1,12 +1,10 @@
 package at.technikum.server.http;
 
-import com.sun.net.httpserver.HttpExchange;
-
 public class Request {
 
     private String method;
-
     private String path;
+    private String bodyRaw;
 
     public String getMethod() {
         return method;
@@ -23,4 +21,9 @@ public class Request {
     public void setPath(String path) {
         this.path = path;
     }
+
+    public String getBodyAsString() { return bodyRaw; }
+
+    public void setBodyRaw(String body) { this.bodyRaw = body; }
+
 }

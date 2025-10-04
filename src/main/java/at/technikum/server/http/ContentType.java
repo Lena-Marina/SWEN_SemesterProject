@@ -1,7 +1,9 @@
 package at.technikum.server.http;
 
 public enum ContentType {
-    TEXT_PLAIN("text/plain");
+    TEXT_PLAIN("text/plain"),
+    TEXT_HTML("text/html"),
+    ;
 
     private final String mimeType;
 

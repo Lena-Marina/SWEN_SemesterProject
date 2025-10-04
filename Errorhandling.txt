@@ -1,0 +1,9 @@
+Wir machen eigene Exceptions in einem Exception package
+
+Exception mapper: Mappt Exceptions auf Fehlercodes
+
+Siehe seine Version
+
+
+
+Oder mit Annotations (Metadaten für Klassen) in den Exception-Klassen,

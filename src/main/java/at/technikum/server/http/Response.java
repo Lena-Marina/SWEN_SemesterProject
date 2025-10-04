@@ -3,10 +3,19 @@ package at.technikum.server.http;
 public class Response {
 
     private Status status;
-
     private ContentType contentType;
-
     private String body;
+
+    public Response () //einfacher Konstruktor wenn infos beim Erstellen noch nicht bekannt sind
+    {
+
+    }
+
+    public Response(Status status, ContentType contentType, String body) {
+        this.status = status;
+        this.contentType = contentType;
+        this.body = body;
+    }
 
     public void setStatus(Status status) {
         this.status = status;
