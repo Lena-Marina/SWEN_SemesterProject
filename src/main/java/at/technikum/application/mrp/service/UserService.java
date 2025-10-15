@@ -8,7 +8,7 @@ Services kann ich auch weiter differenzieren z.B. einen eigenen Auth-Service
 
 import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.model.User;
-import at.technikum.application.mrp.model.dto.UserCreate;
+import at.technikum.application.mrp.model.dto.UserCredentials;
 import at.technikum.application.mrp.repository.UserRepository;
 
 import java.util.UUID;
@@ -21,7 +21,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User registerUser(UserCreate dto){
+    public User registerUser(UserCredentials credentials) {
         /*
         - UserCreate (DTO) wird in ein richtiges User Objekt umgebaut + Validation (sind Daten leer?)
         - weitergabe des User objektes an die save Methode des Repositorys
@@ -29,8 +29,8 @@ public class UserService {
         */
 
         //Validation der Daten
-        if(dto.getUsername() == null || dto.getUsername().isEmpty() ||
-           dto.getPassword() == null || dto.getPassword().isEmpty()){
+        if(credentials.getUsername() == null || credentials.getUsername().isEmpty() ||
+           credentials.getPassword() == null || credentials.getPassword().isEmpty()){
             throw new IllegalArgumentException("Username and password cannot be empty");
         }
             //weitere mögliche Validationen:
@@ -39,8 +39,8 @@ public class UserService {
 
         //richtiger UserObjekt erstellen
         User newUser = new User();
-        newUser.setUsername(dto.getUsername());
-        newUser.setPassword(dto.getPassword());
+        newUser.setUsername(credentials.getUsername());
+        newUser.setPassword(credentials.getPassword());
 
         //ID erstellen
         newUser.setId(UUID.randomUUID()); //wir glauben wegen der geringen Wahrscheinlichkeit einer Koallision einfach, dass die UUID nicht bereits in der Datenbank vorkommt
@@ -54,8 +54,15 @@ public class UserService {
             throw new EntityNotFoundException("User was not saved properly");
         }
         //am Rückweg soll der User kein Passwort mehr haben -> Passwort leeren
-        safedUser.setPassword(null);
+        //ich muss ein neues User - Objekt erstellen, dem ich das Passwort nicht gebe,
+        //weil wenn ich das Passwort von von safedUser = null setze, ändert es sich auch in der Liste
+        User responseUser = new User();
+        responseUser.setId(safedUser.getId());
+        responseUser.setUsername(safedUser.getUsername());
+        responseUser.setEmail(safedUser.getEmail());
+        responseUser.setFavoriteGenre(safedUser.getFavoriteGenre());
 
-        return safedUser;
+        return responseUser;
+
     }
 }

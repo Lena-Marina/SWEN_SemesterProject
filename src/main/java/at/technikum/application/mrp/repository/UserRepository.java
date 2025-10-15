@@ -28,6 +28,15 @@ public class UserRepository implements MrpRepository<User>{
         return Optional.empty();
     }
 
+    public Optional<User> findByCredentials(String username, String password) {
+        for (User user : users) {
+            if(user.getUsername().equals(username) && user.getPassword().equals(password)){
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
+
     @Override
     public List<User> findAll() {
         return List.of();
@@ -45,10 +54,7 @@ public class UserRepository implements MrpRepository<User>{
         if (object.getEmail() != null && object.getEmail().isEmpty()) {
             object.setEmail(null);
         }
-        if (object.getFavoriteGenre() != null && object.getFavoriteGenre().isEmpty()) {
-            object.setFavoriteGenre(null);
-        }
-        if(object.getFavoriteGenre() != null && object.getFavoriteGenre().isEmpty()){
+        if (object.getFavoriteGenre() != null) {
             object.setFavoriteGenre(null);
         }
         if(object.getFavorites() != null && object.getFavorites().isEmpty()){
@@ -63,6 +69,13 @@ public class UserRepository implements MrpRepository<User>{
 
         //User zur Datenbank hinzufügen
         users.add(object);
+
+        //Debugging
+        User last = users.get(users.size() - 1);
+        System.out.println("Saved username: '" + last.getUsername() + "'");
+        System.out.println("Saved password: '" + last.getPassword() + "'");
+        System.out.println(users.get(users.size()-1).toString());
+
         //hinzugefügten User zurückgeben.
         return users.get(users.size()-1);
     }

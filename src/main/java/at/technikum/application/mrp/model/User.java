@@ -36,6 +36,19 @@ public class User {
         this.favoriteGenre = favoriteGenre;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", favoriteGenre=" + favoriteGenre +
+                ", favorites=" + (favorites != null ? favorites.size() + " items" : "[]") +
+                ", ratings=" + (ratings != null ? ratings.size() + " items" : "[]") +
+                ", recommendations=" + (recommendations != null ? recommendations.size() + " items" : "[]") +
+                '}';
+    }
+
     //Getter und Setter
     public UUID getId() {
         return id;
@@ -43,9 +56,11 @@ public class User {
     public void setId(UUID id) {
         this.id = id;
     }
+
     public String getUsername() {
         return username;
     }
+
     public void setUsername(String username) {
         //validationen?
         this.username = username;
@@ -67,11 +82,11 @@ public class User {
         this.email = email;
     }
 
-    public String getFavoriteGenre() {
+    public Genre getFavoriteGenre() {
         return favoriteGenre;
     }
 
-    public void setFavoriteGenre(String favoriteGenre) {
+    public void setFavoriteGenre(Genre favoriteGenre) {
         this.favoriteGenre = favoriteGenre;
     }
 

@@ -2,16 +2,15 @@ package at.technikum.application.mrp.controller;
 
 import at.technikum.application.common.Controller;
 import at.technikum.application.mrp.exception.NotJsonBodyException;
+import at.technikum.application.mrp.model.Token;
 import at.technikum.application.mrp.model.User;
-import at.technikum.application.mrp.model.dto.Dto;
-import at.technikum.application.mrp.model.dto.UserCreate;
+import at.technikum.application.mrp.model.dto.UserCredentials;
 import at.technikum.application.mrp.service.AuthService;
 import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
 import at.technikum.server.http.Status;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf*/
@@ -34,10 +33,10 @@ public class UserController extends Controller {
     public Response create(Request request) { //BRAUCHT ES FÜR ERSTE ABGABE
         try {
             // Request-Body → DTO konvertieren
-            UserCreate userCreate = toObject(request.getBody(), UserCreate.class);
+            UserCredentials userCredentials = toObject(request.getBody(), UserCredentials.class);
 
             // DTO an Service weitergeben und User speichern
-            User savedUser = userService.registerUser(userCreate);
+            User savedUser = userService.registerUser(userCredentials);
 
             // JSON-Response zurückgeben mit Status 201 Created
             return json(savedUser, Status.CREATED);
@@ -56,11 +55,19 @@ public class UserController extends Controller {
 
     public Response loginUser(Request request) { //BRAUCHT ES FÜR ERSTE ABGABE
 
-        //Funktion des AuthService aufrufen.
+        try {
+            // Request-Body → DTO konvertieren
+            UserCredentials userCredentials = toObject(request.getBody(), UserCredentials.class);
 
+            // DTO an Service weitergeben und User speichern
+            Token token = authService.getToken(userCredentials);
 
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion loginUser() im UserController erreicht");
+            // JSON-Response zurückgeben mit Status 200 Ok
+            return json(token, Status.OK);
+        } catch (Exception e) {
+            // JSON-Konvertierungsfehler oder Service-Fehler abfangen
+            throw new NotJsonBodyException(e.getMessage());
+        }
     }
 
 

@@ -40,20 +40,21 @@ public abstract class Controller {
     }
 
     protected Response text(String text, Status status) {
-        return r(status, ContentType.TEXT_PLAIN, text);
+        return response(status, ContentType.TEXT_PLAIN, text);
     }
 
     protected Response json(Object o, Status status) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            String json = objectMapper.writeValueAsString(o);
-            return r(status, ContentType.APPLICATION_JSON, json);
+            String jsonBody = objectMapper.writeValueAsString(o);
+            return response(status, ContentType.APPLICATION_JSON, jsonBody);
         } catch (Exception ex) {
             throw new JsonConversionException(ex. getMessage());
         }
     }
 
-    private Response r(Status status, ContentType contentType, String body) {
+
+    private Response response(Status status, ContentType contentType, String body) {
         Response response = new Response();
         response.setStatus(status);
         response.setContentType(contentType);
