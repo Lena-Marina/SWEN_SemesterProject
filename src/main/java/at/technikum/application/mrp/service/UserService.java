@@ -6,35 +6,7 @@ in den Services die Namen eher grob halten. -> Das hast du halt einfach verwechs
 Services kann ich auch weiter differenzieren z.B. einen eigenen Auth-Service
 */
 
-import at.technikum.application.common.Service;
-import at.technikum.application.mrp.model.User;
+public class UserService {
 
-import java.util.List;
 
-public class UserService implements Service<User> {
-
-    @Override
-    public void create(User object) {
-
-    }
-
-    @Override
-    public User get(User object) {
-        return null;
-    }
-
-    @Override
-    public List<User> getAll() {
-        return List.of();
-    }
-
-    @Override
-    public User update(User object) {
-        return null;
-    }
-
-    @Override
-    public User delete(User object) {
-        return null;
-    }
 }
