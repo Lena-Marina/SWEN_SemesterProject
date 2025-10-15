@@ -8,12 +8,16 @@ public class UserRouter extends SubRouter<UserController> {
 
     public UserRouter() {
         this.controller = new UserController();
-        register("/users/register", "POST", controller::registerUser); //überlegung ob nur /user in kombination mit "POST" nicht eh schon gut genug erklärt
+
+        //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
+        //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
+        register("/users/register", "POST", controller::create); //überlegung ob nur /user in kombination mit "POST" nicht eh schon gut genug erklärt
         register("/users/login", "POST", controller::loginUser); //Überlegung durch /auth/token zu ersetzen
-        register("/users/{userId}/profile", "GET", controller::getProfile);
-        register("/users/{userId}/profile", "PUT", controller::updateProfile);
-        register("/users/{userId}/ratings", "GET", controller::getRatings);
-        register("/users/{userId}/favorites", "GET", controller::getFavourites);
-        register("/users/{userId}/recommendations", "GET", controller::getRecommendations);
+        register("/profile", "GET", controller::read); //read a User
+        register("/profile", "PUT", controller::update); //Update a User
+        register("/ratings", "GET", controller::getRatings);
+        register("/favorites", "GET", controller::getFavourites);
+        register("/recommendations", "GET", controller::getRecommendations);
     }
+
 }

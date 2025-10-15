@@ -14,4 +14,33 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
+        <dependency> <!--ich konnte nur diese Version verwenden
+          m
+            -> Download Sources and Documentation
+            -> Generate Source Code
+            -> Sync/Reload
+        -->
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.20.0</version>
+        </dependency>
+    </dependencies>
+
 </project>
+
+<!--
+        hier in der pom.xml Datei sind alle Dinge die Maven für uns managed
+        es ist auch dafür verantwortlich externe Librarys in unser Projekt zu holen
+        neue Librarys können wir auf mvnrepository.com
+
+        Jackson in Version 3.0.0 verwenden:
+        https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind
+
+        Dadurch bekommen wir den Objekt-Mapper (siehe Controller sein Projekt)
+
+        Seinen Abstrakten Controller anschauen!
+
+
+-->

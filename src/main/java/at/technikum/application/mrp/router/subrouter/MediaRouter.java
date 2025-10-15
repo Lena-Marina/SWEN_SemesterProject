@@ -11,14 +11,19 @@ public class MediaRouter extends SubRouter<MediaController> {
     public MediaRouter() {
         this.controller = new MediaController();
 
-        register("/media", "GET", controller::getAllMedia);
-        register("/media", "POST", controller::createMedia);
-        register("/media/{MediaId}", "DELETE", controller::deleteMedia);
-        register("/media/{mediaId}", "PUT", controller::updateMedia);
-        register("/media/{mediaId}", "GET", controller::getMedia);
-        register("/media/{mediaId}/favorite", "POST", controller::markAsFavourite);
-        register("/media/{mediaId}/favorite", "DELETE", controller::unmarkAsFavourite);
-        register("/media/{mediaId}/rate", "POST", controller::rateMedia);
+        //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
+        //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
+        register("/favorite", "POST", controller::markAsFavourite);
+        register("/favorite", "DELETE", controller::unmarkAsFavourite);
+        register("/rate", "POST", controller::rate);
+
+        register("/media/", "DELETE", controller::delete);
+        register("/media/", "PUT", controller::update);
+        register("/media/", "GET", controller::read);
+
+        register("/media", "GET", controller::readAll);
+        register("/media", "POST", controller::create);
+
     }
 
 }

@@ -1,0 +1,33 @@
+Token Struktur: Username + token
+Der Token wird nicht in die DB gespeichert
+Stattdessen werden später immer wenn ein Token mitgeschickt wird geprüft ob
+er vom Aufbau her ein valider Token sein kann.
+
+POST /auth/token {"username": "test", "password": "test"}
+
+--> AuthController --> token(reg)
+    - JSON -> TokenRequest (DTO) //Validierung
+
+--> AuthService --> createToken(TokenRequest)
+
+   --> UserRepository ..> User findByUsername(tokenReq.username)
+  - wenn Username nicht gefunden: Exception werfen "Username oder Passwort falsch"
+  - wenn Username gefunden:
+      - is user.password == tokenReq.password
+          wenn ja:
+              - create token String (<username>-mrpToken {in Spezifikation prüfen ob das eh das richtige Format ist})
+              - token String in Token-Objekt umwandeln. (im token Konstruktor kann ich auch nochmal das Format validieren)
+
+<-- AuthController
+
+<-- 200 OK {"token": "test-mrpToken"}
+
+
+Danach wird der Token als Header mitgeschickt:
+POST/media/1/rating
+Authorization: Bearer test-mrpToken
+{
+    "rating": 4
+}
+
+--> MediaController -> createRating(req)

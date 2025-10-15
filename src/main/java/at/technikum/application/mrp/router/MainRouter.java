@@ -7,10 +7,8 @@ import at.technikum.application.mrp.router.subrouter.LeaderboardRouter;
 import at.technikum.application.mrp.router.subrouter.MediaRouter;
 import at.technikum.application.mrp.router.subrouter.RatingRouter;
 import at.technikum.application.mrp.router.subrouter.UserRouter;
-import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
-import at.technikum.server.http.Status;
 import at.technikum.application.common.Route;
 
 import java.util.ArrayList;

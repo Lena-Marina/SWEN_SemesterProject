@@ -7,45 +7,44 @@ import at.technikum.server.http.Response;
 import at.technikum.server.http.Status;
 
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf
-* nicht nur id aus dem Pfad, sondenr auch Infos aus dem Body!*/
-public class MediaController extends Controller {
+ nicht nur id aus dem Pfad, sondern auch Infos aus dem Body!*/
+public class MediaController {
 
-
-    public Response getAllMedia(Request request) {
+    public Response readAll(Request request) {
         //just for now:
         return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion getAllMedia() im MediaController erreicht");
-
     }
 
-    public Response createMedia(Request request) {
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion createMedia() im MediaController erreicht");
-    }
 
-    public Response deleteMedia(Request request) {
-        //id extrahieren
+    public Response read(Request request) {
+        //Funktion des Service aufrufen
+        //return new Response(Status.OK, ContentType.TEXT_PLAIN, "funktion read() im MediaController mit der mediaId: " + mediaID + " aufgerufen");
 
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion deleteMedia() im MediaController erreicht");
-    }
-
-    public Response updateMedia(Request request) {
-        // id extrahieren
-
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion updateMedia() im MediaController erreicht");
-    }
-
-    public Response getMedia(Request request) {
-        String mediaID = extractID(request);
-
-        if (mediaID != null) {
-            //Funktion des Service aufrufen
-            return new Response(Status.OK, ContentType.TEXT_PLAIN, "funktion getMedia() im MediaController mit der mediaId: " + mediaID + " aufgerufen");
-        }
 
         //bis bessere Lösung gefunden
         return new Response(Status.BAD_REQUEST, ContentType.TEXT_PLAIN, "Ungueltiger Pfad: " + request.getPath());
+    }
+
+
+    public Response create(Request request) {
+        //just for now:
+        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion create() im MediaController erreicht");
+    }
+
+
+    public Response update(Request request) {
+        // id extrahieren
+
+        //just for now:
+        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion update() im MediaController erreicht");
+    }
+
+
+    public Response delete(Request request) {
+        //id extrahieren
+
+        //just for now:
+        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion delete() im MediaController erreicht");
     }
 
 
@@ -63,13 +62,10 @@ public class MediaController extends Controller {
         return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion unmarkAsFavourite() im MediaController erreicht");
     }
 
-    public Response rateMedia(Request request) {
+    public Response rate(Request request) {
         //id extrahieren
 
         //just for now:
         return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion rateMedia() im MediaController erreicht");
     }
-
-
-
 }

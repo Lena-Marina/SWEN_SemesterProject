@@ -4,6 +4,7 @@ public enum Status {
 
     // 2xx: Success
     OK(200, "OK"),
+    CREATED(201, "Created"),
     NO_CONTENT(204, "No Content"),
 
     // 4xx: Client errors /*ich habe einfach immer ja gesagt, wenn IntelliJ einen Vorschlag gemacht hat TT*/
@@ -15,8 +16,6 @@ public enum Status {
 
     // 5xx: Server errors
     INTERNAL_SERVER_ERROR(500, "Internal Server Error");
-
-    ;
 
     private final int code;
     private final String message;

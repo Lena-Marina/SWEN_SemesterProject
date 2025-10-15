@@ -10,6 +10,8 @@ public class LeaderboardRouter extends SubRouter<LeaderboardController> {
         //sondern die Router bekommen ihre Controller aus dem Context (dependency Injektion)
         //damit der Router nicht verantworlich ist für die Verwaltung des Controllers
 
-        register("/leaderboard", "GET", controller::getMostActiveUsers);
+        //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
+        //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
+        register("/leaderboard", "GET", controller::read);
     }
 }

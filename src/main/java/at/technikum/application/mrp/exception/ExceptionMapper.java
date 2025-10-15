@@ -7,6 +7,8 @@ import at.technikum.server.http.Status;
 /*
 Lösung mit Anotationen gewählt, um besser auf die spätere Arbeit mit SpringBoot und anderen Frameworks
 vorbereitet zu sein.
+
+Die funktion toResponse wird momentan (09.10.2025) im (package at.technikum.server.)handler aufgerufen
 */
 
 public class ExceptionMapper {
@@ -42,5 +44,4 @@ public class ExceptionMapper {
         defaultResponse.setBody(exception.getMessage());
         return defaultResponse;
     }
-
 }

@@ -24,6 +24,7 @@ public class Route<T> {
         return pathPrefix;
     }
 
+    //mal schauen ob ich es noch brauche, wenn ich den Router ohne Regex schreibe (vllt im Controller)
     public Pattern getPathAsPattern() {
         String regex = "^" + pathPrefix.replaceAll("\\{[^/]+\\}", "([^/]+)") + "$";
         return Pattern.compile(regex);

@@ -3,7 +3,7 @@ package at.technikum.server.http;
 public enum ContentType {
     TEXT_PLAIN("text/plain"),
     TEXT_HTML("text/html"),
-    ;
+    APPLICATION_JSON(("application/json"));
 
     private final String mimeType;
 

@@ -22,6 +22,7 @@ public class Handler implements HttpHandler {
         this.requestMapper = requestMapper;
     }
 
+    //Schicke tiefer in unsere Applikation
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         Request request = requestMapper.fromExchange(exchange);
@@ -43,10 +44,16 @@ public class Handler implements HttpHandler {
         // send Response to client
     }
 
+    //Antwort an den Client (Rückweg)
     private void send(HttpExchange exchange, Response response) throws IOException {
+        //Wir sollen hier noch nachbesser, dass auch eine Exception ohne Body geschickt werden kann.
+
         exchange.getResponseHeaders().set("Content-Type", response.getContentType());
+
         byte[] bytes = response.getBody().getBytes(StandardCharsets.UTF_8);
+
         exchange.sendResponseHeaders(response.getStatusCode(), bytes.length);
+
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);
         }

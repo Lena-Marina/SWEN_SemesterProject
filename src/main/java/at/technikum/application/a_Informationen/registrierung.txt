@@ -1,0 +1,22 @@
+Post /users {"username": "test", "password": "test"}
+
+--> UserController --> create()
+    - JSON zu UserCreate (DTO - ich habe es voreillig NewUser genannt) Objekt machen
+    [- aus UserCreate einen User erstellen und diesen weitergeben + Validation hier]
+
+--> UserService --> register()
+
+    - UserCreate (DTO) wird in ein richtiges User Objekt umgebaut + Validation (sind Daten leer?)
+    - weitergabe des User objektes an die save Methode des Repositorys
+    - ID setzen. [wäre in der Version das einzige das im Service passiert]
+
+--> UserRepository --> save(User)
+    - speicherung des User-Objektes in Datenbank (momentan
+    - Rückgabe des gespeicherten Users an den Service.
+
+<-- UserService
+
+<-- UserController
+    - User -> UserCreated // ?
+
+<--201 Created {"id": 1, "username": "test"}
