@@ -21,9 +21,9 @@ public class UserController extends Controller {
     private AuthService authService;
     private UserService userService;
 
-    public UserController() {
-        this.authService = new AuthService();
-        this.userService = new UserService();
+    public UserController(UserService userService, AuthService authService) {
+        this.authService = authService;
+        this.userService = userService;
     }
 
     public Response read(Request request) {

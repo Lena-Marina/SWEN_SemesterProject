@@ -7,8 +7,8 @@ import at.technikum.server.http.Method;
 
 public class RatingRouter extends SubRouter<RatingController> {
 
-    public RatingRouter() {
-        this.controller = new RatingController();
+    public RatingRouter(RatingController ratingController) {
+        this.controller = ratingController;
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!

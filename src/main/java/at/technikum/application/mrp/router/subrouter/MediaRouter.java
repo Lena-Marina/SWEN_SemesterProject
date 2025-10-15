@@ -9,8 +9,8 @@ import at.technikum.server.http.Method;
 
 public class MediaRouter extends SubRouter<MediaController> {
 
-    public MediaRouter() {
-        this.controller = new MediaController();
+    public MediaRouter(MediaController mediaController) {
+        this.controller = mediaController;
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!

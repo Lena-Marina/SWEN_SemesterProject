@@ -7,8 +7,8 @@ import at.technikum.server.http.Method;
 
 public class UserRouter extends SubRouter<UserController> {
 
-    public UserRouter() {
-        this.controller = new UserController();
+    public UserRouter(UserController userController) {
+        this.controller = userController;
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!

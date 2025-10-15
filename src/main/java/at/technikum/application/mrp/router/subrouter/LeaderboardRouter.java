@@ -6,10 +6,8 @@ import at.technikum.server.http.Method;
 
 public class LeaderboardRouter extends SubRouter<LeaderboardController> {
 
-    public LeaderboardRouter() {
-        this.controller = new LeaderboardController(); //nein ich erstelle hier nicht den Controller,
-        //sondern die Router bekommen ihre Controller aus dem Context (dependency Injektion)
-        //damit der Router nicht verantworlich ist für die Verwaltung des Controllers
+    public LeaderboardRouter(LeaderboardController leaderboardController) {
+        this.controller = leaderboardController;
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!

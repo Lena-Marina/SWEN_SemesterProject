@@ -13,16 +13,17 @@ import at.technikum.server.http.Response;
     z.B. AppConfig oder Injektor oder ApplicationContext(z.B. in Springboot) genannt wird
 */
 public class MrpApplication implements Application {
-    private final MainRouter mainRouter;
+    private final ApplicationContext context;
+
 
     public MrpApplication() {
-        this.mainRouter = new MainRouter();
+        this.context = new ApplicationContext();
     }
 
     @Override
     public Response handle(Request request) {
 
-        return mainRouter.route(request);
+        return context.getMainRouter().route(request);
 
     }
 }
