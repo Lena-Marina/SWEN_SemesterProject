@@ -3,6 +3,7 @@ package at.technikum.application.mrp.router.subrouter;
 
 import at.technikum.application.common.SubRouter;
 import at.technikum.application.mrp.controller.MediaController;
+import at.technikum.server.http.Method;
 
 
 
@@ -13,16 +14,16 @@ public class MediaRouter extends SubRouter<MediaController> {
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
-        register("/favorite", "POST", controller::markAsFavourite);
-        register("/favorite", "DELETE", controller::unmarkAsFavourite);
-        register("/rate", "POST", controller::rate);
+        register("/favorite", Method.POST, controller::markAsFavourite);
+        register("/favorite", Method.DELETE, controller::unmarkAsFavourite);
+        register("/rate", Method.POST, controller::rate);
 
-        register("/media/", "DELETE", controller::delete);
-        register("/media/", "PUT", controller::update);
-        register("/media/", "GET", controller::read);
+        register("/media/", Method.POST, controller::delete);
+        register("/media/", Method.PUT, controller::update);
+        register("/media/", Method.GET, controller::read);
 
-        register("/media", "GET", controller::readAll);
-        register("/media", "POST", controller::create);
+        register("/media", Method.GET, controller::readAll);
+        register("/media", Method.POST, controller::create);
 
     }
 

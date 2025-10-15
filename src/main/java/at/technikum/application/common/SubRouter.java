@@ -2,6 +2,7 @@ package at.technikum.application.common;
 
 import at.technikum.application.mrp.exception.MethodNotAllowedException;
 import at.technikum.application.mrp.exception.RouteNotFoundException;
+import at.technikum.server.http.Method;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
 import java.util.*;
@@ -13,25 +14,17 @@ public abstract class SubRouter<T> implements Router {
     protected T controller;
 
 
-    protected void register(String pathPrefix, String method, Function<Request, Response> handler) {
+    protected void register(String pathPrefix, Method method, Function<Request, Response> handler) {
         routes.add(new Route<>(method, pathPrefix, handler));
     }
 
 
     @Override
     public Response route(Request request) {
-        /* Version mit Regex -> fürs nur Routen zu ressourcen-Intensiv
-        for (Route<Function<Request, Response>> route : routes) {
-            if (route.getPathAsPattern().matcher(request.getPath()).matches() //Pfade passen zusammen - werden als Regex-Patterns geprüft
-                    && route.getMethod().equalsIgnoreCase(request.getMethod())) { //Methoden passen zusammen
-                                        //Info: .equalsIgnoreCase(), vergleicht die Strings aber ohne auf Groß- und Kleinschreibung zu achten
-                return route.getTarget().apply(request);
-            }
-        }
-        */
+
         for(Route <Function<Request, Response> > route : routes) {
             if(request.getPath().contains(route.getPathPrefix())
-                && request.getMethod().equals(route.getMethod()))
+                && request.getMethod().equals(route.getMethod().getVerb()))
             {
                 return route.getTarget().apply(request);
             }

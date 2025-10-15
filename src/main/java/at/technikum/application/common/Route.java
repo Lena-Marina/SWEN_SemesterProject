@@ -1,11 +1,13 @@
 package at.technikum.application.common;
 
+import at.technikum.server.http.Method;
+
 import java.util.regex.Pattern;
 
 public class Route<T> {
     private final String pathPrefix;
     private final T target; //entweder Subrouter im Mainrouter oder Controller-Handler-Funktionen in den Subroutern
-    private final String method;
+    private final Method method;
 
 
     // Konstruktor für MainRouter ohne Methode
@@ -14,7 +16,7 @@ public class Route<T> {
     }
 
     // Konstruktor für SubRouter mit Methode
-    public Route(String method, String pathPrefix, T target) {
+    public Route(Method method, String pathPrefix, T target) {
         this.method = method;
         this.pathPrefix = pathPrefix;
         this.target = target;
@@ -34,7 +36,7 @@ public class Route<T> {
         return target;
     }
 
-    public String getMethod() {
+    public Method getMethod() {
         return method;
     }
 }
