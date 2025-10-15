@@ -16,6 +16,9 @@ import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.util.RequestMapper;
 
 public class ApplicationContext {
+    //Repositorys - Achtung in den Services muss ich immer auf die selbe Repository Instanz zugreifen,
+    //solange sie als Datenbanken fungieren, sonst klappt es ja nicht mit dem Daten reinspeichern und wieder auslesen!
+    UserRepository userRepository = new UserRepository();
 
     //Subrouters
     SubRouter<?>[] routers = new SubRouter<?>[] {
@@ -25,9 +28,9 @@ public class ApplicationContext {
             new UserRouter(
                     new UserController(
                             new UserService(
-                                    new UserRepository()),
+                                    this.userRepository),
                                     new AuthService(
-                                            new UserRepository()))),
+                                            this.userRepository))),
 
             new RatingRouter(
                     new RatingController()),
@@ -42,7 +45,6 @@ public class ApplicationContext {
     public MainRouter getMainRouter() {
         return mainRouter;
     }
-
 
 
     //HTTP

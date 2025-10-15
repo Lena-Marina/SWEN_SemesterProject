@@ -30,11 +30,22 @@ public class UserRepository implements MrpRepository<User>{
 
     public Optional<User> findByCredentials(String username, String password) {
         for (User user : users) {
+            System.out.println("Comparing saved: '" + user.getUsername() + "' / '" + user.getPassword() + "'" +
+                    " with input: '" + username + "' / '" + password + "'");
             if(user.getUsername().equals(username) && user.getPassword().equals(password)){
                 return Optional.of(user);
             }
         }
         return Optional.empty();
+    }
+
+    public boolean doesUserExist(String username) {
+        for (User user : users) {
+            if(user.getUsername().equals(username)){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -6,11 +6,13 @@ in den Services die Namen eher grob halten. -> Das hast du halt einfach verwechs
 Services kann ich auch weiter differenzieren z.B. einen eigenen Auth-Service
 */
 
+import at.technikum.application.mrp.exception.EntityAlreadyExists;
 import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCredentials;
 import at.technikum.application.mrp.repository.UserRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserService {
@@ -33,7 +35,14 @@ public class UserService {
            credentials.getPassword() == null || credentials.getPassword().isEmpty()){
             throw new IllegalArgumentException("Username and password cannot be empty");
         }
-            //weitere mögliche Validationen:
+
+        //existiert User bereits?
+        Boolean userExists = this.userRepository.doesUserExist(credentials.getUsername());
+        if(userExists){
+            throw new EntityAlreadyExists("This Username is already taken!");
+        }
+
+        //weitere mögliche Validationen:
             // - wenn wir eine Vorgabe für den Aufbau des Username oder Passwort hätten
             // - wenn der Username einzigartig sein müsste (-> Abfrage an Datenbank ob bereits existiert
 
@@ -55,7 +64,7 @@ public class UserService {
         }
         //am Rückweg soll der User kein Passwort mehr haben -> Passwort leeren
         //ich muss ein neues User - Objekt erstellen, dem ich das Passwort nicht gebe,
-        //weil wenn ich das Passwort von von safedUser = null setze, ändert es sich auch in der Liste
+        //weil wenn ich das Passwort von von safedUser = null setze, ändert es sich auch das im Repo gespeicherte Objekt
         User responseUser = new User();
         responseUser.setId(safedUser.getId());
         responseUser.setUsername(safedUser.getUsername());
@@ -63,6 +72,5 @@ public class UserService {
         responseUser.setFavoriteGenre(safedUser.getFavoriteGenre());
 
         return responseUser;
-
     }
 }

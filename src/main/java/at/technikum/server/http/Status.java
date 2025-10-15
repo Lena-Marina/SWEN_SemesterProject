@@ -13,6 +13,8 @@ public enum Status {
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
+    CONFLICT(409, "Conflict"),
+    GONE(410, "Gone"),
 
     // 5xx: Server errors
     INTERNAL_SERVER_ERROR(500, "Internal Server Error");
