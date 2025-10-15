@@ -1,14 +1,17 @@
 package at.technikum.application.mrp.controller;
 
 import at.technikum.application.common.Controller;
+import at.technikum.application.mrp.exception.NotJsonBodyException;
 import at.technikum.application.mrp.model.User;
+import at.technikum.application.mrp.model.dto.Dto;
+import at.technikum.application.mrp.model.dto.UserCreate;
 import at.technikum.application.mrp.service.AuthService;
 import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
 import at.technikum.server.http.Status;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf*/
@@ -29,15 +32,19 @@ public class UserController {
     }
 
     public Response create(Request request) { //BRAUCHT ES FÜR ERSTE ABGABE
-        //id -> wird von der Datenbank erstellt, geben wir daher nicht mit.
 
-        //Username -> im Body als Json
 
-        //Hashed Passwort -> im Body als Json allerdings nicht spezifiziert ob bereits gehashed
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            Dto userCreate = mapper.readValue(request.getBody(), UserCreate.class);
+            System.out.println(mapper.writeValueAsString(userCreate));
 
-        //e-mail -> bekommen wir hier noch gar nicht, sondern erst bei Update
+            //DTO an authService Funktion weitergeben.
+        }
+        catch(Exception e){
+            throw new NotJsonBodyException(e.getMessage());
+        }
 
-        //favorite Genre -> bekommen wir hier noch gar nicht, sondern erst bei Update
         return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion create() im UserController erreicht");
     }
 

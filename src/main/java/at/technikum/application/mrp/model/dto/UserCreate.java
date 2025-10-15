@@ -1,10 +1,10 @@
 package at.technikum.application.mrp.model.dto;
 
-public class NewUser extends Dto{
+public class UserCreate extends Dto{
     private String username;
     private String password;
 
-    public NewUser() {}
+    public UserCreate() {}
 
     public String getUsername() {
         return username;
