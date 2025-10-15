@@ -24,7 +24,7 @@ public abstract class SubRouter<T> implements Router {
 
         for(Route <Function<Request, Response> > route : routes) {
             if(request.getPath().contains(route.getPathPrefix())
-                && request.getMethod().equals(route.getMethod().getVerb()))
+            && request.getMethod() == route.getMethod())
             {
                 return route.getTarget().apply(request);
             }

@@ -3,6 +3,7 @@ package at.technikum.server.util;
 import at.technikum.server.http.Request;
 import com.sun.net.httpserver.HttpExchange;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -25,8 +26,13 @@ public class RequestMapper {
             return request;
         }
 
-        byte[] buf = is.readAllBytes();
-        request.setBody(new String(buf, StandardCharsets.UTF_8));
+        try {
+            byte[] buf = is.readAllBytes();
+            request.setBody(new String(buf, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+            request.setBody("");
+        }
 
         return request;
     }

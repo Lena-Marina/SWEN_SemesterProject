@@ -14,12 +14,7 @@ public class UserRepository implements MrpRepository<User>{
     public UserRepository() {
         //Register 1 oder 2 User zum Testen.
         this.users = new ArrayList<>();
-        this.users.add(new User("03fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "MaximiliaMusterfrau",
-                "$argon2i$v=19$m=16,t=2,p=1$eDRZeFNUaDFnRTlvYWpNbw$cM0CsGb0Gy049dQJ49AOlg", //= passwort1234
-                "maximiliaMusterfrau@beispiel.com",
-                "Thriller"
-        ));
+        //this.users.add(new User());
     }
 
     @Override

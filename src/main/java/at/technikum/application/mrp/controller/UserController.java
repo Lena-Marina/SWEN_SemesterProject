@@ -38,7 +38,7 @@ public class UserController {
         //e-mail -> bekommen wir hier noch gar nicht, sondern erst bei Update
 
         //favorite Genre -> bekommen wir hier noch gar nicht, sondern erst bei Update
-
+        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion create() im UserController erreicht");
     }
 
 
