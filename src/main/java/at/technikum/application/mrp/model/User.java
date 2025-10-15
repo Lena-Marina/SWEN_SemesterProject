@@ -1,9 +1,6 @@
 package at.technikum.application.mrp.model;
 
-import at.technikum.application.mrp.model.schema.Genre;
-
 import javax.print.attribute.standard.Media;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 

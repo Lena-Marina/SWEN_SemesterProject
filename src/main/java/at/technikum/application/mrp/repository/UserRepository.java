@@ -1,7 +1,7 @@
 package at.technikum.application.mrp.repository;
 
 import at.technikum.application.mrp.model.User;
-import at.technikum.application.mrp.model.schema.Genre;
+import at.technikum.application.mrp.model.Genre;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class UserRepository implements MrpRepository<User>{
          */
 
         //nicht bekannt Werte NULL setzen, damit in der Datenbank klar ist, dass sie unbekannt und nicht leer sind!
-        //Bsp: der User hat nicht kein favorutite Genre, sondern wir wissen nicht ob sie eines hat
+        //Bsp: der User hat nicht kein favourite Genre, sondern wir wissen nicht, ob sie eines hat
         if (object.getEmail() != null && object.getEmail().isEmpty()) {
             object.setEmail(null);
         }

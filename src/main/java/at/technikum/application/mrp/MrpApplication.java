@@ -15,7 +15,6 @@ import at.technikum.server.http.Response;
 public class MrpApplication implements Application {
     private final ApplicationContext context;
 
-
     public MrpApplication() {
         this.context = new ApplicationContext();
     }

@@ -1,4 +1,4 @@
-package at.technikum.application.mrp.model.schema;
+package at.technikum.application.mrp.model;
 
 public enum Genre {
     HORROR("horror"),
