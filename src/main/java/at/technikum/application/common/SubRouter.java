@@ -30,19 +30,14 @@ public abstract class SubRouter<T> implements Router {
             }
         }
 
-
-        //prüfen ob Pfad ohne Methode existiert:
-        /*
+        //Prüfen ob Pfad zwar existiert, aber nicht mit Methode
         for (Route<Function<Request, Response>> route : routes) {
-            boolean pathMatches = route.getPathAsPattern().matcher(request.getPath()).matches();
-            boolean methodMatches = route.getMethod().equalsIgnoreCase(request.getMethod());
-
-            if (pathMatches && !methodMatches) {
-                throw new MethodNotAllowedException(request.getPath(), request.getMethod());
+            // Prüfen, ob der Pfad exakt oder per Präfix übereinstimmt
+            if (request.getPath().contains(route.getPathPrefix())
+            && request.getMethod() != route.getMethod()) {
+                throw new MethodNotAllowedException(request.getPath(), request.getMethod().toString());
             }
         }
-
-        */
 
 
         throw new RouteNotFoundException(request.getPath());
