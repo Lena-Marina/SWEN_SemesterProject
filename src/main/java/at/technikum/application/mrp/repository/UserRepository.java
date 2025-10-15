@@ -1,6 +1,7 @@
 package at.technikum.application.mrp.repository;
 
 import at.technikum.application.mrp.model.User;
+import at.technikum.application.mrp.model.schema.Genre;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ public class UserRepository implements MrpRepository<User>{
     public UserRepository() {
         //Register 1 oder 2 User zum Testen.
         this.users = new ArrayList<>();
-        this.users.add(new User("Maximilia", "Passwort1234", "maximilia.mustermann@email.com", "Horror"));
+        this.users.add(new User("Maximilia", "Passwort1234", "maximilia.mustermann@email.com", Genre.HORROR));
     }
 
     @Override

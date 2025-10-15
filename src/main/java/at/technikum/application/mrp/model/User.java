@@ -1,5 +1,7 @@
 package at.technikum.application.mrp.model;
 
+import at.technikum.application.mrp.model.schema.Genre;
+
 import javax.print.attribute.standard.Media;
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +12,7 @@ public class User {
     private String username;
     private String password; /*Passwort darf Klartext sein!*/
     private String email;
-    private String favoriteGenre;
+    private Genre favoriteGenre;
 
     private List<Media> favorites;
     private List<Rating> ratings;
@@ -29,7 +31,7 @@ public class User {
                 String username,
                 String password,
                 String email,
-                String favoriteGenre)
+                Genre favoriteGenre)
     {
         this.username = username;
         this.password = password;
