@@ -14,7 +14,7 @@ public class UserRepository implements MrpRepository<User>{
     public UserRepository() {
         //Register 1 oder 2 User zum Testen.
         this.users = new ArrayList<>();
-        //this.users.add(new User());
+        this.users.add(new User("Maximilia", "Passwort1234", "maximilia.mustermann@email.com", "Horror"));
     }
 
     @Override
