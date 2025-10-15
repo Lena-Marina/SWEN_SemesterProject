@@ -7,7 +7,7 @@ import java.util.UUID;
 public class User {
     private UUID id; /* wir dürfen / sollen diese in der Applikations-Logik erstellen (Services?)*/
     private String username;
-    private String hashedPassword; /*Passwort darf Klartext sein!*/
+    private String password; /*Passwort darf Klartext sein!*/
     private String email;
     private String favoriteGenre;
 
@@ -15,6 +15,15 @@ public class User {
     private List<Rating> ratings;
     private List<Media> recommendations;
 
+    public User () {
+
+    }
+
+    public User(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
     public User(
                 String username,
                 String password,
@@ -22,7 +31,7 @@ public class User {
                 String favoriteGenre)
     {
         this.username = username;
-        this.hashedPassword = password;
+        this.password = password;
         this.email = email;
         this.favoriteGenre = favoriteGenre;
     }
@@ -36,6 +45,14 @@ public class User {
     }
     public String getUsername() {
         return username;
+    }
+    public void setUsername(String username) {
+        //validationen?
+        this.username = username;
+    }
+    public void setPassword(String password) {
+        //validationen?
+        this.password = password;
     }
 
 }
