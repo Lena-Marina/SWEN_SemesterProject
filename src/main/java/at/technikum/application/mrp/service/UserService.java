@@ -6,6 +6,7 @@ in den Services die Namen eher grob halten. -> Das hast du halt einfach verwechs
 Services kann ich auch weiter differenzieren z.B. einen eigenen Auth-Service
 */
 
+import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCreate;
 import at.technikum.application.mrp.repository.UserRepository;
@@ -16,11 +17,11 @@ public class UserService {
 
     private UserRepository userRepository;
 
-    UserService(/*UserRepository userRepository*/) {
+    public UserService(/*UserRepository userRepository*/) {
         this.userRepository = new UserRepository();
     }
 
-    public void registerUser(UserCreate dto){
+    public User registerUser(UserCreate dto){
         /*
         - UserCreate (DTO) wird in ein richtiges User Objekt umgebaut + Validation (sind Daten leer?)
         - weitergabe des User objektes an die save Methode des Repositorys
@@ -44,9 +45,17 @@ public class UserService {
         //ID erstellen
         newUser.setId(UUID.randomUUID()); //wir glauben wegen der geringen Wahrscheinlichkeit einer Koallision einfach, dass die UUID nicht bereits in der Datenbank vorkommt
 
-        userRepository.save(newUser);
+        User safedUser = userRepository.save(newUser);
 
         //Rückweg
+        if(safedUser.getUsername() == null || safedUser.getUsername().isEmpty()
+        || safedUser.getPassword() == null || safedUser.getPassword().isEmpty()
+        || safedUser.getId() == null){
+            throw new EntityNotFoundException("User was not saved properly");
+        }
+        //am Rückweg soll der User kein Passwort mehr haben -> Passwort leeren
+        safedUser.setPassword(null);
 
+        return safedUser;
     }
 }

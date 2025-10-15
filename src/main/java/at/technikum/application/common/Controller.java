@@ -16,23 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
     extrahiert der Controller diese Parameter aus dem Request-Objekt.
  */
 
-public interface Controller {
+public abstract class Controller {
 
-    //BasisFunktionen eines Controllers
-    public Response handle(Request request);
-
-    public Response readAll(Request request);
-
-    public Response read( Request request);
-
-    public Response create(Request request);
-
-    public Response update(Request request);
-
-    public Response delete(Request request);
-
-
-    private <T> T toObject(String content, Class<T> valueType) {
+    protected <T> T toObject(String content, Class<T> valueType) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(content, valueType);
@@ -41,13 +27,29 @@ public interface Controller {
         }
     }
 
-    private Response json(Object o, Status status) {
+    protected Response ok() {
+        return status(Status.OK);
+    }
+
+    protected Response status(Status status) {
+        return text(status.getMessage(), status);
+    }
+
+    protected Response text(String text) {
+        return text(text, Status.OK);
+    }
+
+    protected Response text(String text, Status status) {
+        return r(status, ContentType.TEXT_PLAIN, text);
+    }
+
+    protected Response json(Object o, Status status) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String json = objectMapper.writeValueAsString(o);
             return r(status, ContentType.APPLICATION_JSON, json);
         } catch (Exception ex) {
-            throw new JsonConversionException(ex.getMessage());
+            throw new JsonConversionException(ex. getMessage());
         }
     }
 
@@ -59,23 +61,8 @@ public interface Controller {
 
         return response;
     }
-
-    //Zusätzliche
-    private String extractID(Request request) {
-
-        String path = request.getPath();
-
-        String[] segments = path.split("/");
-
-        if (segments.length >= 3) {
-            return segments[2]; // 0 = "", 1 = "media" oder "user" oder "ratings", 2 = z.B.: "1234"
-        }
-
-        return null;
-    }
-
-
 }
+
 
 
 

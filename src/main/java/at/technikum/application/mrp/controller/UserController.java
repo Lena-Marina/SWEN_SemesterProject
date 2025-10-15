@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf*/
-public class UserController {
+public class UserController extends Controller {
 
     //das später mit Dependency Injektion verbessern!
     private AuthService authService;
@@ -32,20 +32,19 @@ public class UserController {
     }
 
     public Response create(Request request) { //BRAUCHT ES FÜR ERSTE ABGABE
+        try {
+            // Request-Body → DTO konvertieren
+            UserCreate userCreate = toObject(request.getBody(), UserCreate.class);
 
+            // DTO an Service weitergeben und User speichern
+            User savedUser = userService.registerUser(userCreate);
 
-        ObjectMapper mapper = new ObjectMapper();
-        try{
-            Dto userCreate = mapper.readValue(request.getBody(), UserCreate.class);
-            System.out.println(mapper.writeValueAsString(userCreate));
-
-            //DTO an authService Funktion weitergeben.
-        }
-        catch(Exception e){
+            // JSON-Response zurückgeben mit Status 201 Created
+            return json(savedUser, Status.CREATED);
+        } catch (Exception e) {
+            // JSON-Konvertierungsfehler oder Service-Fehler abfangen
             throw new NotJsonBodyException(e.getMessage());
         }
-
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion create() im UserController erreicht");
     }
 
 
@@ -79,4 +78,6 @@ public class UserController {
         //just for now:
         return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion getRecommendations() im UserController erreicht");
     }
+
+
 }

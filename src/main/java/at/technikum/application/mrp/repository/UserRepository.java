@@ -34,8 +34,36 @@ public class UserRepository implements MrpRepository<User>{
 
     @Override
     public User save(User object) {
-        //Wenn E-Mail und/oder Favortite Genre == "" muss man es in NULL übersetzen für die Datenbank
-        return null;
+        /*
+        - speicherung des User-Objektes in Datenbank (momentan
+        - Rückgabe des gespeicherten Users an den Service.
+         */
+
+        //nicht bekannt Werte NULL setzen, damit in der Datenbank klar ist, dass sie unbekannt und nicht leer sind!
+        //Bsp: der User hat nicht kein favorutite Genre, sondern wir wissen nicht ob sie eines hat
+        if (object.getEmail() != null && object.getEmail().isEmpty()) {
+            object.setEmail(null);
+        }
+        if (object.getFavoriteGenre() != null && object.getFavoriteGenre().isEmpty()) {
+            object.setFavoriteGenre(null);
+        }
+        if(object.getFavoriteGenre() != null && object.getFavoriteGenre().isEmpty()){
+            object.setFavoriteGenre(null);
+        }
+        if(object.getFavorites() != null && object.getFavorites().isEmpty()){
+            object.setFavorites(null);
+        }
+        if(object.getRatings() != null && object.getRatings().isEmpty()){
+            object.setRatings(null);
+        }
+        if(object.getRecommendations() != null && object.getRecommendations().isEmpty()){
+            object.setRecommendations(null);
+        }
+
+        //User zur Datenbank hinzufügen
+        users.add(object);
+        //hinzugefügten User zurückgeben.
+        return users.get(users.size()-1);
     }
 
     @Override

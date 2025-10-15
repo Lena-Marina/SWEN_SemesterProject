@@ -1,6 +1,7 @@
 package at.technikum.application.mrp.model;
 
 import javax.print.attribute.standard.Media;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,5 +55,51 @@ public class User {
         //validationen?
         this.password = password;
     }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFavoriteGenre() {
+        return favoriteGenre;
+    }
+
+    public void setFavoriteGenre(String favoriteGenre) {
+        this.favoriteGenre = favoriteGenre;
+    }
+
+    public List<Media> getFavorites() {
+        return favorites;
+    }
+
+    public void setFavorites(List<Media> favorites) {
+        this.favorites = favorites;
+    }
+
+    public List<Rating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<Rating> ratings) {
+        this.ratings = ratings;
+    }
+
+    public List<Media> getRecommendations() {
+        return recommendations;
+    }
+
+    public void setRecommendations(List<Media> recommendations) {
+        this.recommendations = recommendations;
+    }
+
+
 
 }
