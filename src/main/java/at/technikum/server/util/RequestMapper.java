@@ -6,6 +6,8 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import at.technikum.server.http.Method;
 
@@ -37,6 +39,21 @@ public class RequestMapper {
         } catch (IOException e) {
             e.printStackTrace();
             request.setBody("");
+        }
+
+        //Query-Parameter auslesen
+        String query = exchange.getRequestURI().getQuery();
+        if (query != null) {
+            Map<String, String> queryParams = new HashMap<>();
+            for (String param : query.split("&")) {
+                String[] pair = param.split("=");
+                if (pair.length > 1) {
+                    queryParams.put(pair[0], pair[1]);
+                } else {
+                    queryParams.put(pair[0], "");
+                }
+            }
+            request.setQueryParams(queryParams);
         }
 
         return request;

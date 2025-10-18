@@ -12,6 +12,6 @@ public class LeaderboardRouter extends SubRouter<LeaderboardController> {
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
-        register("/leaderboard", true, Method.GET, controller::read);
+        register("/leaderboard", true, Method.GET, controller::read); //check
     }
 }

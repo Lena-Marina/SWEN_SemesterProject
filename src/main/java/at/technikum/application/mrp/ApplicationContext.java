@@ -7,6 +7,7 @@ import at.technikum.application.mrp.router.MainRouter;
 import at.technikum.application.mrp.router.subrouter.*;
 import at.technikum.application.mrp.router.util.TokenValidator;
 import at.technikum.application.mrp.service.AuthService;
+import at.technikum.application.mrp.service.MediaService;
 import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.util.RequestMapper;
 
@@ -17,6 +18,7 @@ public class ApplicationContext {
 
     //Services
     UserService userService = new UserService(userRepository);
+    MediaService mediaService = new MediaService();
 
     //Allgemeine Klassen
     TokenValidator tokenValidator = new TokenValidator();
@@ -32,7 +34,8 @@ public class ApplicationContext {
 
             new UserRouter(
                     new UserController(
-                            userService
+                            userService,
+                            mediaService
                     ),
                     tokenValidator
             ),

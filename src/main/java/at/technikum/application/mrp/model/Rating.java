@@ -9,7 +9,7 @@ public class Rating {
         private int likes;
 
         private User user;       // Wer hat die Bewertung abgegeben
-        private MediaEntry media;     // Auf welchen MediaEntry sich die Bewertung bezieht
+        private Media media;     // Auf welchen MediaEntry sich die Bewertung bezieht
 
         // Getter & Setter
     }
