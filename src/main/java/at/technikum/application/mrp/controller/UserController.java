@@ -5,7 +5,6 @@ import at.technikum.application.mrp.exception.NotJsonBodyException;
 import at.technikum.application.mrp.model.Token;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCredentials;
-import at.technikum.application.mrp.service.AuthService;
 import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
@@ -17,11 +16,10 @@ import at.technikum.server.http.Status;
 public class UserController extends Controller {
 
     //das später mit Dependency Injektion verbessern!
-    private AuthService authService;
     private UserService userService;
 
-    public UserController(UserService userService, AuthService authService) {
-        this.authService = authService;
+    public UserController(UserService userService) {
+
         this.userService = userService;
     }
 
@@ -50,24 +48,6 @@ public class UserController extends Controller {
     public Response update(Request request) {
         //just for now:
         return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion update() im UserController erreicht");
-    }
-
-
-    public Response loginUser(Request request) { //BRAUCHT ES FÜR ERSTE ABGABE
-
-        try {
-            // Request-Body → DTO konvertieren
-            UserCredentials userCredentials = toObject(request.getBody(), UserCredentials.class);
-
-            // DTO an Service weitergeben und User speichern
-            Token token = authService.getToken(userCredentials);
-
-            // JSON-Response zurückgeben mit Status 200 Ok
-            return json(token, Status.OK);
-        } catch (Exception e) {
-            // JSON-Konvertierungsfehler oder Service-Fehler abfangen
-            throw new NotJsonBodyException(e.getMessage());
-        }
     }
 
 

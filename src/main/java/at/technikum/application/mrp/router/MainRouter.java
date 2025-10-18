@@ -27,14 +27,16 @@ public class MainRouter implements Router {
     private final List<Route <SubRouter> > routes = new ArrayList<>();
 
     public MainRouter(SubRouter[] routers) {
-        register("/media", routers[0]);
-        register("/users", routers[1]);
-        register("/ratings", routers[2]);
-        register("/leaderboard", routers[3]);
+        register("/media",  routers[0]);
+        register("/users",   routers[1]);
+        register("/ratings",  routers[2]);
+        register("/leaderboard",  routers[3]);
+        register("/auth", routers[4]);
     }
 
-    public void register(String pathPrefix, SubRouter router) {
-        routes.add(new Route<SubRouter>(pathPrefix, router));
+
+    public void register(String path, SubRouter router) {
+        routes.add(new Route<SubRouter>(path, router));
     }
 
     @Override

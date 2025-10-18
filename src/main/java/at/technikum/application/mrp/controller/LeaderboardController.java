@@ -11,6 +11,7 @@ public class LeaderboardController {
 
     public Response read(Request request)
     {
+
         //just for now:
         return new Response(Status.OK, ContentType.TEXT_PLAIN, "read() erreicht");
     }
