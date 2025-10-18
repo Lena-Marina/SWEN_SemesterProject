@@ -1,5 +1,6 @@
 package at.technikum.application.common;
 
+import at.technikum.application.mrp.exception.HeaderMissingException;
 import at.technikum.application.mrp.exception.InvalidTokenException;
 import at.technikum.application.mrp.exception.MethodNotAllowedException;
 import at.technikum.application.mrp.exception.RouteNotFoundException;
@@ -37,6 +38,10 @@ public abstract class SubRouter<T> implements Router {
                 //Prüfen ob Pfad geschützt, wenn ja nur wenn Token ein echter sein kann, weiter machen.
                 if(route.isProtected())
                 {
+                    if(request.getAuthorizationHeader() == null)
+                    {
+                        throw new HeaderMissingException("the Authorization-Header with your token is missing, please log in");
+                    }
                     if(!validator.isValidToken(request.getAuthorizationHeader()))
                     {
                         throw new InvalidTokenException("the Token is not valid!");

@@ -2,7 +2,6 @@ package at.technikum.application.mrp.router.subrouter;
 
 import at.technikum.application.common.SubRouter;
 import at.technikum.application.mrp.controller.AuthController;
-import at.technikum.application.mrp.controller.LeaderboardController;
 import at.technikum.application.mrp.router.util.TokenValidator;
 import at.technikum.server.http.Method;
 
