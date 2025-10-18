@@ -23,6 +23,7 @@ public class User {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.id = UUID.randomUUID();
     }
     public User(
                 String username,
@@ -34,6 +35,7 @@ public class User {
         this.password = password;
         this.email = email;
         this.favoriteGenre = favoriteGenre;
+        this.id = UUID.randomUUID();
     }
 
     @Override

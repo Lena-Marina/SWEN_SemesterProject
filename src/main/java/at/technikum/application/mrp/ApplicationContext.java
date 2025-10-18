@@ -15,8 +15,13 @@ public class ApplicationContext {
     //solange sie als Datenbanken fungieren, sonst klappt es ja nicht mit dem Daten reinspeichern und wieder auslesen!
     UserRepository userRepository = new UserRepository();
 
-    //Token Validator
+    //Services
+    UserService userService = new UserService(userRepository);
+
+    //Allgemeine Klassen
     TokenValidator tokenValidator = new TokenValidator();
+    RequestMapper requestMapper = new RequestMapper();
+
 
     //Subrouters
     SubRouter<?>[] routers = new SubRouter<?>[] {
@@ -27,9 +32,7 @@ public class ApplicationContext {
 
             new UserRouter(
                     new UserController(
-                            new UserService(
-                                    this.userRepository
-                            )
+                            userService
                     ),
                     tokenValidator
             ),
@@ -40,7 +43,9 @@ public class ApplicationContext {
             ),
 
             new LeaderboardRouter(
-                    new LeaderboardController(),
+                    new LeaderboardController(
+                            userService
+                    ),
                     tokenValidator
             ),
 
@@ -59,9 +64,5 @@ public class ApplicationContext {
     public MainRouter getMainRouter() {
         return mainRouter;
     }
-
-
-    //HTTP
-    RequestMapper requestMapper = new RequestMapper();
 
 }

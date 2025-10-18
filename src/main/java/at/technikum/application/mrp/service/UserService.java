@@ -10,6 +10,7 @@ import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCredentials;
 import at.technikum.application.mrp.repository.UserRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 public class UserService {
@@ -70,5 +71,10 @@ public class UserService {
         responseUser.setFavoriteGenre(safedUser.getFavoriteGenre());
 
         return responseUser;
+    }
+
+    public List<User> getMostAktive() {
+        List<User> mostAktiveUsers = userRepository.getMostAktive();
+        return mostAktiveUsers;
     }
 }

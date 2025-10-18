@@ -2,11 +2,14 @@ package at.technikum.application.common;
 
 import at.technikum.application.mrp.exception.JsonConversionException;
 import at.technikum.application.mrp.exception.NotJsonBodyException;
+import at.technikum.application.mrp.model.User;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
 import at.technikum.server.http.Status;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
 
 /*
     "Schnittstelle" zwischen Router und Services
@@ -53,7 +56,6 @@ public abstract class Controller {
         }
     }
 
-
     private Response response(Status status, ContentType contentType, String body) {
         Response response = new Response();
         response.setStatus(status);
@@ -61,6 +63,16 @@ public abstract class Controller {
         response.setBody(body);
 
         return response;
+    }
+
+    protected <T> Response listToJson(List<T> list, Status status) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String jsonBody = objectMapper.writeValueAsString(list);
+            return response(status, ContentType.APPLICATION_JSON, jsonBody);
+        } catch (Exception ex) {
+            throw new JsonConversionException(ex.getMessage());
+        }
     }
 }
 

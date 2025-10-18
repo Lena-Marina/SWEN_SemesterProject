@@ -100,4 +100,9 @@ public class UserRepository implements MrpRepository<User>{
     public User delete(String id) {
         return null;
     }
+
+    public List<User> getMostAktive() {
+        //Momentan retourniere ich einfach alle die es gibt -> ich weiß ja noch nichtmal was "most aktive" bedeutet
+        return users;
+    }
 }
