@@ -1,6 +1,7 @@
 package at.technikum.application.mrp.service;
 
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
 import at.technikum.application.mrp.repository.MediaRepository;
@@ -11,6 +12,7 @@ import java.util.List;
 public class MediaService {
 
     private MediaRepository mediaRepository;
+
     public MediaService(MediaRepository mediaRepository) {
         this.mediaRepository = mediaRepository;
     }
@@ -45,5 +47,18 @@ public class MediaService {
         //Repo-funktion aufrufen
 
         //erstelltes Rating oder bewertetes Media zurückgeben
+    }
+
+    public List<Media> getAllMedia(MediaQuery mediaQuery){
+        //DTO validieren
+
+        //fake Liste returnieren
+        List<Media> filteredList = new ArrayList<>(); //stattdessn Repo-Funktion aufrufen
+        filteredList.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
+        filteredList.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
+
+        //Liste validieren
+
+        return filteredList;
     }
 }
