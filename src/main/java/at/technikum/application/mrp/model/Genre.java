@@ -24,8 +24,18 @@ public enum Genre {
     }
 
 
+
     public String getVerb() {
         return verb;
+    }
+
+    public static Genre fromString(String value) {
+        for (Genre genre : Genre.values()) {
+            if (genre.getVerb().equalsIgnoreCase(value)) {
+                return genre;
+            }
+        }
+        throw new IllegalArgumentException("Unknown genre: " + value);
     }
 
 }

@@ -6,6 +6,7 @@ import at.technikum.application.mrp.model.Genre;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class UserRepository implements MrpRepository<User>{
 
@@ -15,13 +16,13 @@ public class UserRepository implements MrpRepository<User>{
     public UserRepository() {
         //Register 1 oder 2 User zum Testen.
         this.users = new ArrayList<>();
-        this.users.add(new User("Maximilia", "Passwort1234", "maximilia.mustermann@email.com", Genre.HORROR));
+        this.users.add(new User("Maximilia", "Passwort1234", "maximilia.mustermann@email.com", Genre.HORROR, UUID.fromString("03fa85f6-4571-4562-b3fc-2c963f66afa6")));
     }
 
     @Override
     public Optional<User> find(String id) {
         for (User user : users) {
-            if(user.getId().equals(id)){
+            if(user.getId().equals(UUID.fromString(id))){
                 return Optional.of(user);
             }
         }

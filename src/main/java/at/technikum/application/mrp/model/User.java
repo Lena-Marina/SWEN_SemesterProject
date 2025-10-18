@@ -29,13 +29,14 @@ public class User {
                 String username,
                 String password,
                 String email,
-                Genre favoriteGenre)
+                Genre favoriteGenre,
+                UUID id)
     {
         this.username = username;
         this.password = password;
         this.email = email;
         this.favoriteGenre = favoriteGenre;
-        this.id = UUID.randomUUID();
+        this.id = id;
     }
 
     @Override

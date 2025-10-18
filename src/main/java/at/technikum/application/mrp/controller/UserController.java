@@ -6,6 +6,7 @@ import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
 import at.technikum.application.mrp.model.dto.UserCredentials;
+import at.technikum.application.mrp.model.dto.UserUpdate;
 import at.technikum.application.mrp.service.MediaService;
 import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.http.ContentType;
@@ -30,8 +31,11 @@ public class UserController extends Controller {
     }
 
     public Response read(Request request) {
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion getProfile() im UserController erreicht");
+        String userID = request.extractId();
+
+        User user = this.userService.getUserByID(userID);
+
+        return json(user, Status.OK);
     }
 
     public Response create(Request request) { //BRAUCHT ES FÜR ERSTE ABGABE
@@ -52,19 +56,33 @@ public class UserController extends Controller {
 
 
     public Response update(Request request) {
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion update() im UserController erreicht");
+        UserUpdate update = toObject(request.getBody(), UserUpdate.class);
+        update.setUserID(request.extractId());
+
+        User updatedUser = this.userService.updateUser(update);
+
+        return  json(updatedUser, Status.OK);
     }
 
 
     public Response getRatings(Request request) {
+        String userID = request.extractId();
+
+        /*List<Ratings>*/ this.userService.getUsersRatings(userID);
+
         //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion getRatings() im UserController erreicht");
+        return new Response(Status.OK, ContentType.TEXT_PLAIN, "ratings von User mit id "+userID+ " Du hast die Funktion getRatings() im UserController erreicht");
     }
 
     public Response getFavourites(Request request) {
+        String userId = request.extractId();
+
+        List<Media> favouriteMedias = this.mediaService.getUsersFavourites(userId);
+
+        //favouriteMedias validieren
+
         //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion getFavourites() im UserController erreicht");
+        return json(favouriteMedias, Status.OK);
     }
 
     public Response getRecommendations(Request request) {

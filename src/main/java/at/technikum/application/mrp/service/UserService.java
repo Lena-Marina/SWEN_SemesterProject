@@ -6,11 +6,15 @@ Services kann ich auch weiter differenzieren z.B. einen eigenen Auth-Service
 
 import at.technikum.application.mrp.exception.EntityAlreadyExists;
 import at.technikum.application.mrp.exception.EntityNotFoundException;
+import at.technikum.application.mrp.model.Genre;
+import at.technikum.application.mrp.model.Token;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCredentials;
+import at.technikum.application.mrp.model.dto.UserUpdate;
 import at.technikum.application.mrp.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserService {
@@ -76,5 +80,54 @@ public class UserService {
     public List<User> getMostAktive() {
         List<User> mostAktiveUsers = userRepository.getMostAktive();
         return mostAktiveUsers;
+    }
+
+    public User getUserByID(String userID) {
+         //id validierung
+
+        Optional<User> optionalUser = this.userRepository.find("03fa85f6-4571-4562-b3fc-2c963f66afa6");
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get(); // das Optional umgibt den User, ich muss ihn/sie erst befreien
+
+            /*paswort leeren, aber weil user eine Referenz auf das im Repos gespeicherte Objekt ist,
+            * muss ich neues Objekt erstellen, damit das User-Objekt im Repo noch ein Passwort hat!
+            * Ändern sobals echte DB anbindung da ist*/
+            User responseUser = new User();
+            responseUser.setId(user.getId());
+            responseUser.setUsername(user.getUsername());
+            responseUser.setEmail(user.getEmail());
+            responseUser.setFavoriteGenre(user.getFavoriteGenre());
+
+            return responseUser;
+        }
+        else{
+            throw new EntityNotFoundException("User with id " + userID + " was not found");
+        }
+
+
+    }
+
+    public User updateUser(UserUpdate update) {
+        //DTO validieren.
+
+        User updatedUser = /*repo methode aufrufen*/new User();
+        updatedUser.setUsername("Data vanUpington");
+        updatedUser.setEmail(update.getEmail());
+        updatedUser.setFavoriteGenre(Genre.fromString(update.getFavoriteGenre()));
+
+        //updatedUser valideren
+
+        return updatedUser;
+    }
+
+    public /*List<Rating>*/void getUsersRatings(String userID) {
+        //id validieren
+
+        //repo Funktion aufrufen
+
+        //erhaltene Liste validieren
+
+        //validierte Liste zurückgeben.
     }
 }
