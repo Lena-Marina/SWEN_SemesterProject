@@ -1,13 +1,19 @@
 package at.technikum.application.mrp.service;
 
-import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
+import at.technikum.application.mrp.repository.MediaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MediaService {
+
+    private MediaRepository mediaRepository;
+    public MediaService(MediaRepository mediaRepository) {
+        this.mediaRepository = mediaRepository;
+    }
 
     public List<Media> getRecommendation(RecommendationRequest dto)
     {
@@ -30,5 +36,14 @@ public class MediaService {
     {
         //schauen ob Media id existiert
         //vermutlich auch eher das markierte Media zurückgeben
+    }
+
+    public void createRating(RatingInput ratingInput)
+    {
+        //DTO validieren
+
+        //Repo-funktion aufrufen
+
+        //erstelltes Rating oder bewertetes Media zurückgeben
     }
 }

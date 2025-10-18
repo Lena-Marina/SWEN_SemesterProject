@@ -1,6 +1,7 @@
 package at.technikum.application.mrp.controller;
 
 import at.technikum.application.common.Controller;
+import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.service.MediaService;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
@@ -9,7 +10,7 @@ import at.technikum.server.http.Status;
 
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf
  nicht nur id aus dem Pfad, sondern auch Infos aus dem Body!*/
-public class MediaController {
+public class MediaController extends Controller {
 
     private MediaService mediaService;
 
@@ -78,9 +79,18 @@ public class MediaController {
     }
 
     public Response rate(Request request) {
-        //id extrahieren
+
+
+        //Dto erstellen
+        RatingInput rating_dto = toObject(request.getBody(), RatingInput.class);
+
+        //id setzen
+        rating_dto.setMediaId(request.extractId());
+
+        //DTO an Service weitergeben.
+        this.mediaService.createRating(rating_dto);
 
         //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion rateMedia() im MediaController erreicht");
+        return new Response(Status.CREATED, ContentType.TEXT_PLAIN, "Rating Submitted");
     }
 }

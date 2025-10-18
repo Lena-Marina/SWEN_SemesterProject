@@ -12,6 +12,14 @@ public class Rating {
         private Media media;     // Auf welchen MediaEntry sich die Bewertung bezieht
 
         // Getter & Setter
+
+        public void setId(String id){
+            this.id=id;
+        }
+
+        public String getId(){
+            return this.id;
+        }
     }
 
 
