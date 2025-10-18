@@ -5,7 +5,7 @@ public enum Status {
     // 2xx: Success
     OK(200, "OK"),
     CREATED(201, "Created"),
-    NO_CONTENT(204, "No Content"),
+    UNMARKED(204, "unmarked"),
 
     // 4xx: Client errors /*ich habe einfach immer ja gesagt, wenn IntelliJ einen Vorschlag gemacht hat TT*/
     BAD_REQUEST(400, "Bad Request"),

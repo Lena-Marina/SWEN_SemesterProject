@@ -18,4 +18,17 @@ public class MediaService {
 
         return recommendations;
     }
+
+    public void markAsFavorite(String id)
+    {
+        //schauen ob Media Id existieren
+        //vermutlich auch eher das markierte Media zurückgeben
+
+    }
+
+    public void unmarkAsFavorite(String id)
+    {
+        //schauen ob Media id existiert
+        //vermutlich auch eher das markierte Media zurückgeben
+    }
 }

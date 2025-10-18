@@ -28,7 +28,9 @@ public class ApplicationContext {
     //Subrouters
     SubRouter<?>[] routers = new SubRouter<?>[] {
             new MediaRouter(
-                    new MediaController(),
+                    new MediaController(
+                            mediaService
+                    ),
                     tokenValidator
             ),
 

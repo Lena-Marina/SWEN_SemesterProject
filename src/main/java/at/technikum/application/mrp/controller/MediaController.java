@@ -1,6 +1,7 @@
 package at.technikum.application.mrp.controller;
 
 import at.technikum.application.common.Controller;
+import at.technikum.application.mrp.service.MediaService;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
@@ -9,6 +10,12 @@ import at.technikum.server.http.Status;
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf
  nicht nur id aus dem Pfad, sondern auch Infos aus dem Body!*/
 public class MediaController {
+
+    private MediaService mediaService;
+
+    public MediaController(MediaService mediaService) {
+        this.mediaService = mediaService;
+    }
 
     public Response readAll(Request request) {
         //just for now:
@@ -49,17 +56,25 @@ public class MediaController {
 
 
     public Response markAsFavourite(Request request) {
-        //id und favourite extrahieren
+        //id extrahieren
+        String id = request.extractId();
+
+        //Service Funktion aufrufen.
+        this.mediaService.markAsFavorite(id);
 
         //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion markAsFavourite() im MediaController erreicht");
+        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Media with id " + id +" marked as favourite - Du hast die Funktion markAsFavourite() im MediaController erreicht");
     }
 
     public Response unmarkAsFavourite(Request request) {
         //id  extrahieren
+        String id = request.extractId();
+
+        //Service Funktion aufrufen
+        this.mediaService.unmarkAsFavorite(id);
 
         //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion unmarkAsFavourite() im MediaController erreicht");
+        return new Response(Status.UNMARKED, ContentType.TEXT_PLAIN, "Media with id " + id +" unmarked as favorite Du hast die Funktion unmarkAsFavourite() im MediaController erreicht");
     }
 
     public Response rate(Request request) {
