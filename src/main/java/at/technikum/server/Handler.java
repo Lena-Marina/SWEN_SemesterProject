@@ -27,6 +27,9 @@ public class Handler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         Request request = requestMapper.fromExchange(exchange);
 
+        //Debugging Request an Konsole ausgeben:
+        System.out.println(request);
+
         Response response;
 
         try {

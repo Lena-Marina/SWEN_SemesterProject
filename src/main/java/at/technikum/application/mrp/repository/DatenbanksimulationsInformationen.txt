@@ -1,5 +1,1 @@
-ich verwende Argon2 zum hashen
-als Salt verwende ich: x4YxSTh1gE9oajMo
 
-NEU: es ist okay, wenn wir das Passwort im Klartext verwenden,
-da in der Realität das Passwort ja schon vor dem Abschicken gehashed werden würde.

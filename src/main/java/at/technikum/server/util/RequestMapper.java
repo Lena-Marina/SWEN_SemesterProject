@@ -20,6 +20,11 @@ public class RequestMapper {
         request.setMethod(Method.valueOf(exchange.getRequestMethod()));
         request.setPath(exchange.getRequestURI().getPath());
 
+        //Header (im Moment nur Authenticate) auslesen
+        String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
+        request.setAuthorizationHeader(authHeader);
+
+        //body auslesen
         InputStream is = exchange.getRequestBody();
 
         if (is == null) {

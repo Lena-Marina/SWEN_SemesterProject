@@ -5,7 +5,7 @@ public class Request {
     private Method method;
     private String path;
     private String body;
-    //private Map<String, String> header; //alle header speichern oder "ich brauche eh nur den authorisation header" ->also wäre auch nur ein String für diesen okay
+    private String authorizationHeader; //alle header speichern oder "ich brauche eh nur den authorisation header" ->also wäre auch nur ein String für diesen okay
 
     public Method getMethod() {
         return method;
@@ -30,7 +30,24 @@ public class Request {
     public String getBody() {
         return body;
     }
+    public String getAuthorizationHeader() {
+        return authorizationHeader;
+    }
 
+    public void setAuthorizationHeader(String authorizationHeader) {
+        this.authorizationHeader = authorizationHeader;
+    }
+
+    //Debugging: ganzen Request ausgeben
+    @Override
+    public String toString() {
+        return "Request {" +
+                "\n  method = " + method +
+                ",\n  path = '" + path + '\'' +
+                ",\n  authorizationHeader = '" + authorizationHeader + '\'' +
+                ",\n  body = '" + body + '\'' +
+                "\n}";
+    }
 
 
 
