@@ -26,7 +26,7 @@ public abstract class Controller {
         try {
             return objectMapper.readValue(content, valueType);
         } catch (Exception ex) {
-            throw new NotJsonBodyException(ex.getMessage());
+            throw new NotJsonBodyException("der Body enthält kein JSON!"/*ex.getMessage()*/);
         }
     }
 
@@ -52,7 +52,7 @@ public abstract class Controller {
             String jsonBody = objectMapper.writeValueAsString(o);
             return response(status, ContentType.APPLICATION_JSON, jsonBody);
         } catch (Exception ex) {
-            throw new JsonConversionException(ex. getMessage());
+            throw new JsonConversionException("Ich kann aus diesem Objekt kein JSON machen!"/*ex.getMessage()*/);
         }
     }
 

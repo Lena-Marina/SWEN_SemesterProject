@@ -1,6 +1,7 @@
 package at.technikum.application.mrp.service;
 
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
@@ -60,5 +61,69 @@ public class MediaService {
         //Liste validieren
 
         return filteredList;
+    }
+
+    public Media updateMedia(MediaInput mediaDTO){
+
+        //DTO validieren
+
+        //Repo-Funktion aufrufen
+        Media media = new Media(); //eigentlich mittels repository zurückbekommen!
+
+        //for now echot es nur was es rein bekommen hat
+        media.setId(mediaDTO.getId());
+        media.setTitle(mediaDTO.getTitle());
+        media.setDescription(mediaDTO.getDescription());
+        media.setAgeRestriction(mediaDTO.getAgeRestriction());
+        media.setReleaseYear(mediaDTO.getReleaseYear());
+
+        //media validieren
+
+        return media;
+    }
+
+    public Media deleteMedia(String mediaID) {
+        //id validieren
+
+        Media deletedMedia = new Media(); //Repofunktion aufrufen
+        deletedMedia.setId(mediaID);
+        deletedMedia.setTitle("Das gelöschte Medium");
+
+        //deletedMedia validieren
+
+        return deletedMedia;
+    }
+
+    public Media getMediaByID(String mediaID) {
+        //mediaID validieren
+
+
+        //RepoFunktion aufrufen
+        Media media = new Media();
+        media.setId(mediaID);
+        media.setTitle("Media mit ID " + mediaID);
+
+        //media Validieren
+
+        return media;
+    }
+
+    public Media createMedia(MediaInput mediaDTO) {
+
+        //DTO validieren
+
+        //Repo funktion aufrufen
+        Media media = new Media(); //eigentlich mittels repository zurückbekommen!
+
+        //for now echot es nur was es rein bekommen hat
+        media.setId(mediaDTO.getId());
+        media.setTitle(mediaDTO.getTitle());
+        media.setDescription(mediaDTO.getDescription());
+        media.setAgeRestriction(mediaDTO.getAgeRestriction());
+        media.setReleaseYear(mediaDTO.getReleaseYear());
+
+        //media validieren
+
+        return media;
     }
 }

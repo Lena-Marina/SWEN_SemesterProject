@@ -2,6 +2,7 @@ package at.technikum.application.mrp.controller;
 
 import at.technikum.application.common.Controller;
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.service.MediaService;
@@ -55,30 +56,56 @@ public class MediaController extends Controller {
 
 
     public Response read(Request request) {
+        String mediaID = request.extractId();
 
-        return new Response(Status.NOT_FOUND, ContentType.TEXT_PLAIN, "Not Found");
+        Media media = this.mediaService.getMediaByID(mediaID);
+
+        //media validieren
+
+        return json(media, Status.OK);
     }
 
 
     public Response create(Request request) {
+        MediaInput  mediaInput = toObject(request.getBody(),  MediaInput.class);
+
+        //DTO an service weitergeben
+        Media createdMedia = mediaService.createMedia(mediaInput);
+
+        //created Media validieren
+
         //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion create() im MediaController erreicht");
+        return this.json(createdMedia, Status.CREATED);
     }
 
 
     public Response update(Request request) {
-        // id extrahieren
+        MediaInput  mediaInput = toObject(request.getBody(),  MediaInput.class);
+        mediaInput.setId(request.extractId());
 
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion update() im MediaController erreicht");
+        //DTO an Service weitergeben
+        Media updatedMedia = mediaService.updateMedia(mediaInput);
+
+        //updatedMedia validieren
+
+
+        return json(updatedMedia, Status.OK);
+
     }
 
 
     public Response delete(Request request) {
         //id extrahieren
+        String mediaID = request.extractId();
 
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Du hast die Funktion delete() im MediaController erreicht");
+        //ServiceFunktion aufrufen
+        Media deletedMedia = this.mediaService.deleteMedia(mediaID);
+
+        //deletedMedia validieren
+
+        //und erneut war ich ein Trottel, weil 204 keinen Body hat, aber ich lasse es mal so, weil es für mich
+        //mehr sinn macht, das gelöschte Medium zurückzugeben, falls die Userin das Löschen rückgängig machen will.
+        return json(deletedMedia, Status.UNMARKED);
     }
 
 
