@@ -1,6 +1,6 @@
 package at.technikum.application.mrp.model.dto;
 
-public class UserCredentials extends Dto{
+public class UserCredentials {
     private String username;
     private String password;
 

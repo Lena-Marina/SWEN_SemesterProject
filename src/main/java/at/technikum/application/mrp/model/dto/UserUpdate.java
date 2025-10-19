@@ -1,6 +1,6 @@
 package at.technikum.application.mrp.model.dto;
 
-public class UserUpdate extends Dto{
+public class UserUpdate {
     private String userID;
     private String eMail;
     private String favGenre;

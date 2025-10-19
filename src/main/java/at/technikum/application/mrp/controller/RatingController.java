@@ -40,7 +40,7 @@ public class RatingController extends Controller {
         //validation des deleted Rating
 
         //Response mit deleted Rating im Body erstellen - Response 204 ist definiert, dass er keinen Body mitschickt!
-        return new Response(Status.UNMARKED, ContentType.TEXT_PLAIN, "Rating mit id " + deletedRating.getId() + " gelöscht. - Du hast die Funktion delete() im RatingController erreicht");
+        return new Response(Status.UNMARKED,  ContentType.TEXT_PLAIN , "Rating mit id " + deletedRating.getId() + " gelöscht. - Du hast die Funktion delete() im RatingController erreicht");
         //wenn Erfolg: Status: 204  Rating deleted
     }
 

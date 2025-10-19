@@ -13,11 +13,11 @@ public class RatingRouter extends SubRouter<RatingController> {
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
-        register("/confirm", true, Method.POST, controller::confirmComment);
-        register("/like", true, Method.POST, controller::likeRating);
+        register("/confirm", true, Method.POST, controller::confirmComment); //check
+        register("/like", true, Method.POST, controller::likeRating); //check
 
-        register("/ratings/", true, Method.PUT, controller::update);
-        register("/ratings/", true,  Method.DELETE, controller::delete);
+        register("/ratings/", true, Method.PUT, controller::update); //check
+        register("/ratings/", true,  Method.DELETE, controller::delete); //check
 
     }
 

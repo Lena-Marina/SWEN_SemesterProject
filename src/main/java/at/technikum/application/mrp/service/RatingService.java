@@ -15,7 +15,7 @@ public class RatingService {
     {
         //logik
 
-        //an Repo-Funktion aufrufen.
+        //Repo-Funktion aufrufen.
     }
 
     public void likeRating(String id)
@@ -48,6 +48,8 @@ public class RatingService {
     public /*Comment*/ void confirmComment(String id)
     {
         //Repofunktin aufrufen
+
+        //validieren
 
         //Comment zurückgeben
     }

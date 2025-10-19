@@ -1,0 +1,767 @@
+{
+	"info": {
+		"_postman_id": "9fb32579-111c-4535-af97-60ad6bf2da6e",
+		"name": "MediaRatingPlatform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44116029",
+		"_collection_link": "https://lena-767837.postman.co/workspace/My-Workspace~e7fd8d5c-221a-46d0-8f25-f76db61ff58b/collection/44116029-9fb32579-111c-4535-af97-60ad6bf2da6e?action=share&source=collection_link&creator=44116029"
+	},
+	"item": [
+		{
+			"name": "Media",
+			"item": [
+				{
+					"name": "getAllMedia",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}media?title=something",
+							"host": [
+								"{{baseURL}}media"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "something"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create Media entry",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"mein Titel\",\r\n  \"description\": \"eine beschreibung des Mediums\",\r\n  \"mediaType\": \"Buch\",\r\n  \"releaseYear\": 1998,\r\n  \"genres\": [\r\n    \"string\"\r\n  ],\r\n  \"ageRestriction\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}media",
+							"host": [
+								"{{baseURL}}media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete Media",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}media/{{mediaId}}",
+							"host": [
+								"{{baseURL}}media"
+							],
+							"path": [
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Media by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}media/{{mediaId}}",
+							"host": [
+								"{{baseURL}}media"
+							],
+							"path": [
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update media entry",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Das geupdatete Medium\",\r\n  \"description\": \"string\",\r\n  \"mediaType\": \"string\",\r\n  \"releaseYear\": 2004,\r\n  \"genres\": [\r\n    \"string\"\r\n  ],\r\n  \"ageRestriction\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}media/{{mediaId}}",
+							"host": [
+								"{{baseURL}}media"
+							],
+							"path": [
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Register new User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"Lena\",\r\n  \"password\": \"Passwort1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}users/register",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update User Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"neue_email@email.com\",\r\n  \"favoriteGenre\": \"Comedy\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}users/{{userId}}/profile",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"{{userId}}",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get User Rating History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}users/{{userId}}/ratings",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"{{userId}}",
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user Favorites",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}users/{{userId}}/favorites",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"{{userId}}",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Maximilia Musterfrau",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}users/03fa85f6-4571-4562-b3fc-2c963f66afa6/profile",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"03fa85f6-4571-4562-b3fc-2c963f66afa6",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rating",
+			"item": [
+				{
+					"name": "rate Media Entry",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"stars\": 5,\r\n  \"comment\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}media/{{mediaId}}/rate",
+							"host": [
+								"{{baseURL}}media"
+							],
+							"path": [
+								"{{mediaId}}",
+								"rate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "like a Rating",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}ratings/{{ratingId}}/like",
+							"host": [
+								"{{baseURL}}ratings"
+							],
+							"path": [
+								"{{ratingId}}",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update a rating",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"stars\": 5,\r\n  \"comment\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}ratings/{{ratingId}}",
+							"host": [
+								"{{baseURL}}ratings"
+							],
+							"path": [
+								"{{ratingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete rating",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}ratings/{{ratingId}}",
+							"host": [
+								"{{baseURL}}ratings"
+							],
+							"path": [
+								"{{ratingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "confirm rating comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}ratings/{{ratingId}}/confirm",
+							"host": [
+								"{{baseURL}}ratings"
+							],
+							"path": [
+								"{{ratingId}}",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Favorites",
+			"item": [
+				{
+					"name": "mark as favorite",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}media/{{mediaId}}/favorite",
+							"host": [
+								"{{baseURL}}media"
+							],
+							"path": [
+								"{{mediaId}}",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "unmark as favorite",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}media/{{mediaId}}/favorite",
+							"host": [
+								"{{baseURL}}media"
+							],
+							"path": [
+								"{{mediaId}}",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Recommendation",
+			"item": [
+				{
+					"name": "get recommendation with genre",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/users/{{userId}}/recommendations?type=genre",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"{{userId}}",
+								"recommendations"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "genre"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get recommendation with content",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/users/{{userId}}/recommendations?type=content",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users",
+								"{{userId}}",
+								"recommendations"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "content"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Leaderboard",
+			"item": [
+				{
+					"name": "get most active Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer Maximilia-mrpToken",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}leaderboard",
+							"host": [
+								"{{baseURL}}leaderboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error-Requests",
+			"item": [
+				{
+					"name": "Route with wrong Method",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}leaderboard",
+							"host": [
+								"{{baseURL}}leaderboard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "not enough params for register User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"Lena\",\r\n  \"password\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}users/register",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login with not existing user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"Niemand\",\r\n  \"password\": \"Passwort1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}users/login",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth Header missing",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}users/{{userId}}/ratings",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"{{userId}}",
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Token wrong",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer token-token",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}users/{{userId}}/ratings",
+							"host": [
+								"{{baseURL}}users"
+							],
+							"path": [
+								"{{userId}}",
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "login User / getToken",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"Maximilia\",\r\n  \"password\": \"Passwort1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}auth/token",
+							"host": [
+								"{{baseURL}}auth"
+							],
+							"path": [
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:8080/"
+		},
+		{
+			"key": "mediaId",
+			"value": "1234",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1234",
+			"type": "string"
+		},
+		{
+			"key": "ratingId",
+			"value": "1234",
+			"type": "string"
+		}
+	]
+}

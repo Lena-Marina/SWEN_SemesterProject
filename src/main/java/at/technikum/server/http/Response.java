@@ -17,6 +17,10 @@ public class Response {
         this.body = body;
     }
 
+    public Response(Status status) {
+        this.status = status;
+    }
+
     public void setStatus(Status status) {
         this.status = status;
     }

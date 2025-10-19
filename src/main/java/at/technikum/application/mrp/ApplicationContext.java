@@ -23,6 +23,14 @@ public class ApplicationContext {
     UserService userService = new UserService(userRepository);
     MediaService mediaService = new MediaService(mediaRepository);
     RatingService ratingService = new RatingService(mediaRepository);
+    AuthService authService = new AuthService(userRepository);
+
+    //Controller
+    MediaController mediaController = new MediaController(mediaService);
+    UserController userController = new UserController(userService, mediaService);
+    RatingController ratingController = new RatingController(ratingService);
+    LeaderboardController leaderboardController = new LeaderboardController(userService);
+    AuthController authController = new AuthController(authService);
 
     //Allgemeine Klassen
     TokenValidator tokenValidator = new TokenValidator();
@@ -31,49 +39,17 @@ public class ApplicationContext {
 
     //Subrouters
     SubRouter<?>[] routers = new SubRouter<?>[] {
-            new MediaRouter(
-                    new MediaController(
-                            mediaService
-                    ),
-                    tokenValidator
-            ),
-
-            new UserRouter(
-                    new UserController(
-                            userService,
-                            mediaService
-                    ),
-                    tokenValidator
-            ),
-
-            new RatingRouter(
-                    new RatingController(
-                            ratingService
-                    ),
-                    tokenValidator
-            ),
-
-            new LeaderboardRouter(
-                    new LeaderboardController(
-                            userService
-                    ),
-                    tokenValidator
-            ),
-
-            new AuthRouter(
-                    new AuthController(
-                            new AuthService(
-                                    this.userRepository)
-                    ),
-                    tokenValidator
-            )
+            new MediaRouter(mediaController, tokenValidator),
+            new UserRouter(userController, tokenValidator),
+            new RatingRouter(ratingController, tokenValidator),
+            new LeaderboardRouter(leaderboardController, tokenValidator),
+            new AuthRouter(authController, tokenValidator)
     };
 
-    //Router
-    MainRouter mainRouter = new MainRouter(routers); //media - user - rating -leaderboard
+    //Main-Router
+    MainRouter mainRouter = new MainRouter(routers); //[0]media - [1]user - [2]rating -[3]leaderboard - [4]auth
 
     public MainRouter getMainRouter() {
         return mainRouter;
     }
-
 }
