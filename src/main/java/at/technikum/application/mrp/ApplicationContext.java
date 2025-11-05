@@ -1,5 +1,6 @@
 package at.technikum.application.mrp;
 
+import at.technikum.application.common.ConnectionPool;
 import at.technikum.application.common.SubRouter;
 import at.technikum.application.mrp.controller.*;
 import at.technikum.application.mrp.repository.MediaRepository;
@@ -14,10 +15,19 @@ import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.util.RequestMapper;
 
 public class ApplicationContext {
+    //ConnectionPool -> alle Repos bekommen Zugriff auf den ConnectionPool
+    private final ConnectionPool connectionPool = new ConnectionPool(
+            "postgresql",
+            "localhost",
+            5432,
+            "swen1user",
+            "swen1db", // secretManager.get("DB_PW")
+            "mrpdb");
+
     //Repositorys - Achtung in den Services muss ich immer auf die selbe Repository Instanz zugreifen,
     //solange sie als Datenbanken fungieren, sonst klappt es ja nicht mit dem Daten reinspeichern und wieder auslesen!
-    UserRepository userRepository = new UserRepository();
-    MediaRepository mediaRepository = new MediaRepository();
+    UserRepository userRepository = new UserRepository(connectionPool);
+    MediaRepository mediaRepository = new MediaRepository(connectionPool);
 
     //Services
     UserService userService = new UserService(userRepository);
@@ -49,7 +59,10 @@ public class ApplicationContext {
     //Main-Router
     MainRouter mainRouter = new MainRouter(routers); //[0]media - [1]user - [2]rating -[3]leaderboard - [4]auth
 
+
+
     public MainRouter getMainRouter() {
         return mainRouter;
     }
+
 }

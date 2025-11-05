@@ -1,0 +1,12 @@
+Referenzieren innerhalb einer Klasse auf eine andere mit ganzen Klassen
+z.B. User in Media:
+private User creator;  // statt nur die UserId zu speichern
+
+Aber nur, wenn wir die Referenz auch wirklich brauchen, sonst ist es unnötiger Speicher und DB zugriff
+
+Token nicht speichern (auch wenn es in der Angabe anders steht)
+    Echte Welt: kiklo? -> keycloak
+
+
+
+

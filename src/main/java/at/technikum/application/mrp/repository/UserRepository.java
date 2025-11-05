@@ -1,5 +1,6 @@
 package at.technikum.application.mrp.repository;
 
+import at.technikum.application.common.ConnectionPool;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.Genre;
 
@@ -10,11 +11,14 @@ import java.util.UUID;
 
 public class UserRepository implements MrpRepository<User>{
 
+    private final ConnectionPool connectionPool;
+
     //Als Simulation unserer Datenbank eine Liste an Usern.
     private List<User> users;
 
-    public UserRepository() {
+    public UserRepository(ConnectionPool connectionPool) {
         //Register 1 oder 2 User zum Testen.
+        this.connectionPool = connectionPool;
         this.users = new ArrayList<>();
         this.users.add(new User("Maximilia", "Passwort1234", "maximilia.mustermann@email.com", Genre.HORROR, UUID.fromString("03fa85f6-4571-4562-b3fc-2c963f66afa6")));
     }

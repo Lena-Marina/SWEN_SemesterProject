@@ -1,11 +1,18 @@
 package at.technikum.application.mrp.repository;
 
+import at.technikum.application.common.ConnectionPool;
 import at.technikum.application.mrp.model.Media;
 
 import java.util.List;
 import java.util.Optional;
 
 public class MediaRepository implements MrpRepository<Media>{
+    private final ConnectionPool connectionPool;
+
+    public MediaRepository(ConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
+    }
+
 
     @Override
     public Optional<Media> find(String id) {

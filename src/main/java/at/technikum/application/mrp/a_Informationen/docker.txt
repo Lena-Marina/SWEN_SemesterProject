@@ -1,0 +1,88 @@
+Um Quellcode auszuführen brauchen wir:
+- Copiler
+- runtime
+- libraries
+
+- Operating System mit Kernel
+- Hardware
+
+Docker fasst uns code, compiler, runtime und libraries in Containern zusammen,
+damit, wenn wir den Code teilen, die Person die ihn ausführen will,
+nicht alles selber zusammen sammeln muss.
+
+Beispiel: Ablauf, wenn wir hier auf "compile" klicken:
+
+FROM startsystem(z.B. ubuntu oder alpine)
+
+RUN apt install Library(z.B. git)
+
+RUN apt install Javaversion(z.B. jdk-21)
+
+RUN apt install maven-3
+
+COPY /src /                 //nimm diesen Source Ordner und kopiere ihn in diesen Container
+
+RUN mvn package pom.xml
+
+CMD ["java", "-jar", "target/...jar"]
+
+
+Satt selber herauszufinden welche Javaversion wir brauchen, welchen Compiler usw,
+wird von Docker einfach das Docker-Image ausgeführt.
+
+
+Image zu Container wie Klasse zu Objekt
+
+Image: Eine Vorlage oder Bauplan eines Containers.
+ Enthält alles, was nötig ist, um Container zu erstellen (Code, Bibliotheken, Umgebung)
+
+Container: Eine laufende Instanz eines Images.
+ Mehrere Container können vom selben Image gestartet werden.
+
+Wir sprechen bei Docker immer von Virtualisisierung,
+es unterscheidet sich aber von virutellen Maschienen - nicht verwechseln.
+(VM = Ressourcen unterteilung, Container = )
+
+wir verwenden Docker um unser DB zu starten,
+wir müssen sie nicht konfigurieren.
+
+
+compose.yml
+//hier definiere ich meine services
+    service:
+        postgresdb:
+            image: postgress: z.B. 18 oder 18.0 oder latest
+            environment:
+                POSTGRES_PASSWORD: swen1db
+                POSTGRES_USER: swen1user
+                POSTGRES_DB: mrpdp
+            ports:
+                - 5432:5432
+            volumes: //extern
+                swen1v: /var/lib/postgresql
+
+    volumes: //intern
+        swen1v: //so wie es dasteht ist das die Erlaubnis für die DB sachen auf meinem PC zu speichern.
+
+//mit dem Terminal in den Ordner gehen in dem die compose.yml datei ist.
+
+docker compose up ? was ist das  ?
+
+
+Container neu bauen:
+docker compose up --build
+
+
+docker compose up
+    Info: Auf Windows muss Docker Desktop gestartet sein, bevor du docker compose up benutzt.
+    passiert Folgendes:
+    Docker liest die docker-compose.yml.
+    Alle darin definierten Services (Container) werden gebaut, falls nötig.
+    Alle Container werden gestartet und laufen im Vordergrund (du siehst die Logs direkt im Terminal).
+    Mit Ctrl+C stoppst du die Container wieder.
+
+
+
+
+
+

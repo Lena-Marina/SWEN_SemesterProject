@@ -32,6 +32,7 @@ public class RatingService {
         //dto validieren
 
         //Repo Funktion aufrufen
+        //check if Rating belongs to user -> ich brauche als parameter auch noch die User ID
 
         //etwas zurückgeben
     }
@@ -39,6 +40,7 @@ public class RatingService {
     public Rating deleteRating(String id)
     {
         //Repofunktion aufrufen!
+        //check if Rating belongs to user -> ich brauche als parameter sowohl User Id als auch Rating ID
 
         Rating deletedRating = new Rating();
         deletedRating.setId(id);

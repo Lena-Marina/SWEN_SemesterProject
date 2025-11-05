@@ -1,0 +1,42 @@
+Java hat eingebautes JDBC (Java DataBase Connection)
+
+Der JDBC ist es egal welche DB wir nehmen
+    Daher müssen wir ein weiteres Package installieren, dass sich mit unserer DB auskennt
+       Wir verwenden PostGrs -> Postgrs Driver
+            Dependency in POM einfügen
+
+
+ConnectionPool Klasse
+    Eine DB kann nur eine begrenzte Anzahl an Connections anbieten.
+    Wir erstellen also z.B. 10 und handeln die im ConnectionPool, (das funktioniert in unserem Beispiel noch nicht -> wenn müsste ich die getConnectionMethode anpassen und vmtl ein Array aus Connections anlegen?)
+    Wenn eine Anfrage eine Connection braucht, schauen wir ob gerade eine Connection frei ist.
+
+Wo leben Geheime Variablen?
+    nicht im Quellcode!
+    Möglichkeit 1: als Argumente beim Starten der Applikation übergeben.
+    Möglichkeit 2: geheime Management DB (Anderer Name: Wall) | Auf diese haben nur sehr wenige Personen Zugriff
+                    Zugriff für alle anderen nur mit Lesezugriff
+
+ConnectionPool Klasse: wir tuen in der Application so, als würden wir die Argumente von der geheimen DB bekommen,
+aber für das Semester schreiben wir sie einfach in den Quellcode
+
+
+den ConnectionPool brauchen wir in den Repositorys.
+
+in den Repos mit Optionals arbeiten, weil es ja sein kann, dass das gesuchte nicht in der DB ist.
+
+SQL abfrage kann generell abgespeichert werden -> ? (Prepaired Statement) verwenden um SQL-Injektion zu verhindern.
+
+Wichtig Connection auch wieder zu schließen
+    Da zwischen den Öffnen und Schließen viel Passieren kann, müssen wir sicher gehen, dass trotzdem geschlossen wird.
+    dafür können wir einen Try-Ressource-Block verwenden (siehe ToDoRepository)
+
+Info: index Datenbank prepared statement startet bei 1 nicht bei 0
+
+Wir haben eine Query-Console in IntelliJ -> ich kann über intelliJ mit der DB kommunizieren
+
+Also Änderungen anschauen in:
+POM.xml
+TodoApplication
+ConnectionPool - neue Klasse
+TodoRepository
