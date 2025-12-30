@@ -1,6 +1,7 @@
 package at.technikum.application.mrp.repository;
 
 import at.technikum.application.common.ConnectionPool;
+import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.User;
@@ -108,6 +109,21 @@ public class UserRepository implements MrpRepository<User>{
 
     public List<User> getMostAktive() {
         //Momentan retourniere ich einfach alle die es gibt -> ich weiß ja noch nichtmal was "most aktive" bedeutet
+        List<User> users = new ArrayList<>();
+
+        String sql = "SELECT * FROM users";
+
+        try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql))
+        {
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                users.add(mapToUser(rs));
+            }
+        }
+        catch (SQLException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
+
         return users;
     }
 
