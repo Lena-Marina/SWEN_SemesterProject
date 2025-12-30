@@ -27,7 +27,7 @@ public class UserService {
 
     public User registerUser(UserCredentials credentials) {
         /*
-        - UserCreate (DTO) wird in ein richtiges User Objekt umgebaut + Validation (sind Daten leer?)
+        - UserCreate (DTO) wird in ein richtiges User Objekt umgebaut + Validation (sind Daten leer? Ansosnten haben wir keine Vorgaben wie Username und Passwort aufgebaut sein müssen)
         - weitergabe des User objektes an die save Methode des Repositorys
         - ID setzen.
         */
@@ -56,8 +56,9 @@ public class UserService {
         //ID erstellen
         newUser.setId(UUID.randomUUID()); //wir glauben wegen der geringen Wahrscheinlichkeit einer Koallision einfach, dass die UUID nicht bereits in der Datenbank vorkommt
 
-        User safedUser = userRepository.save(newUser);
+        Optional<User> safedUser = userRepository.create(newUser);
 
+        //Erstmal mit Optional umgehen!
         //Rückweg
         if(safedUser.getUsername() == null || safedUser.getUsername().isEmpty()
         || safedUser.getPassword() == null || safedUser.getPassword().isEmpty()

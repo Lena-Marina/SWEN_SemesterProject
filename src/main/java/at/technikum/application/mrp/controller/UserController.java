@@ -20,12 +20,10 @@ import java.util.List;
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf*/
 public class UserController extends Controller {
 
-    //das später mit Dependency Injektion verbessern!
     private UserService userService;
     private MediaService mediaService;
 
     public UserController(UserService userService,  MediaService mediaService) {
-
         this.userService = userService;
         this.mediaService = mediaService;
     }
@@ -38,7 +36,7 @@ public class UserController extends Controller {
         return json(user, Status.OK);
     }
 
-    public Response create(Request request) { //BRAUCHT ES FÜR ERSTE ABGABE
+    public Response create(Request request) {
         try {
             // Request-Body → DTO konvertieren
             UserCredentials userCredentials = toObject(request.getBody(), UserCredentials.class);

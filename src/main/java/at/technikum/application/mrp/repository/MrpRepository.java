@@ -9,7 +9,7 @@ public interface MrpRepository<T> {
 
     List<T> findAll(); //warum Nicht Optional? -> wenn wir nichts finden, ist es einfach eine leere Liste
 
-    T save(T object);
+    Optional<T> create(T object);
 
     T update(T object); //diese Funktion existiert nicht immer
 

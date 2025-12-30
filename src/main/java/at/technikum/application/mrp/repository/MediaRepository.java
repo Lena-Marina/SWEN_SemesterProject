@@ -25,7 +25,7 @@ public class MediaRepository implements MrpRepository<Media>{
     }
 
     @Override
-    public Media save(Media object) {
+    public Optional<Media> create(Media object) {
         return null;
     }
 

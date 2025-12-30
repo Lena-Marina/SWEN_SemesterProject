@@ -1,0 +1,19 @@
+Parse don't validate -> Teil des Domain Driven Developement
+
+Bereits beim Erstellen von objekten Sicherstellen, dass etwas korrekt ist
+
+Z.B. domain->stars
+
+statt überall wo stars gesetzt werden auf > 0 und < 5 zu validieren,
+wird stattdessen ein Stern-Objekt (Rich Value Objekt) definiert, dass wenn es erstellt wird, > 0 und < 5 sein muss!
+
+primitive Datentypen werden basically durch eigene DomainObjekte ersetzt
+
+Dadurch geht aber die klare Differenzierung zwischend den Schichten verloren?
+    Daher bräuchte es z.B. auf Data-Layer ebene eigene
+
+Unsere Anwendung ist zu klein um diesen Aufwand zu rechtfertigen,
+aber es ist eine gute Information, dass das eine Herangehensweise ist.
+
+
+

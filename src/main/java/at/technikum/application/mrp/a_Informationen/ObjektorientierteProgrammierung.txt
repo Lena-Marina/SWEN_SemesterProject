@@ -1,0 +1,6 @@
+Was lernen wir zu beginn?
+Datenkapseln -> Vererbung -> Polymorphismus
+
+Youtube: "Casey Muratori - The Big OOPs: Anatomy of a Thirty-five-year mistake - BSC 2025"
+von Better software Conference
+

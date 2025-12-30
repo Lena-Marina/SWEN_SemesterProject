@@ -24,8 +24,7 @@ public class ApplicationContext {
             "swen1db", // secretManager.get("DB_PW")
             "mrpdb");
 
-    //Repositorys - Achtung in den Services muss ich immer auf die selbe Repository Instanz zugreifen,
-    //solange sie als Datenbanken fungieren, sonst klappt es ja nicht mit dem Daten reinspeichern und wieder auslesen!
+    //Repositorys erhalten den ConnectionPool
     UserRepository userRepository = new UserRepository(connectionPool);
     MediaRepository mediaRepository = new MediaRepository(connectionPool);
 
