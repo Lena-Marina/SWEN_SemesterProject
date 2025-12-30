@@ -41,15 +41,18 @@ public class UserRepository implements MrpRepository<User>{
     }
 
     public Optional<User> findByCredentials(String username, String password) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT * FROM users WHERE username = ? AND hasehd_pw = ?";
         try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
         {
-            ResultSet rs = stmt.executeQuery();
-            if (!rs.next()) {
-                return Optional.empty(); // User existiert nicht
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    return Optional.empty();
+                }
+                //Sollte ich noch die Listen befüllen?
+                return Optional.of(mapToUser(rs));
             }
-            //Hier sollte ich auch noch die Listen befüllen, wenn ich den User gefunden habe, oder? -> kommt darauf an wofür ich ihn suche i guess
-            return Optional.of(mapToUser(rs));
         }
         catch (SQLException e) {
             throw new EntityNotFoundException(e.getMessage());
@@ -57,12 +60,20 @@ public class UserRepository implements MrpRepository<User>{
     }
 
     public boolean doesUserExist(String username) {
-        for (User user : users) {
-            if(user.getUsername().equals(username)){
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
+        {
+            try(ResultSet rs = stmt.executeQuery();)
+            {
+                if (!rs.next()) {
+                    return false;
+                }
                 return true;
             }
         }
-        return false;
+        catch (SQLException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
     }
 
     @Override
