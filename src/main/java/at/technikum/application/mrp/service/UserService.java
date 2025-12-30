@@ -4,10 +4,10 @@ package at.technikum.application.mrp.service;
 Services kann ich auch weiter differenzieren z.B. einen eigenen Auth-Service
 */
 
-import at.technikum.application.mrp.exception.EntityAlreadyExists;
+import at.technikum.application.mrp.exception.EntityAlreadyExistsException;
 import at.technikum.application.mrp.exception.EntityNotFoundException;
+import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Genre;
-import at.technikum.application.mrp.model.Token;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCredentials;
 import at.technikum.application.mrp.model.dto.UserUpdate;
@@ -27,9 +27,13 @@ public class UserService {
 
     public User registerUser(UserCredentials credentials) {
         /*
-        - UserCreate (DTO) wird in ein richtiges User Objekt umgebaut + Validation (sind Daten leer? Ansosnten haben wir keine Vorgaben wie Username und Passwort aufgebaut sein müssen)
+        - UserCreate (DTO) wird in ein richtiges User Objekt umgebaut
+            + Validation (sind Daten leer? Ansosnten haben wir keine Vorgaben wie Username und Passwort aufgebaut sein müssen)
+        - ID erstellen.
         - weitergabe des User objektes an die save Methode des Repositorys
-        - ID setzen.
+        - zurückerhalten eines Optionals
+            + Validation dessen bevor das gespeicherte User-Objekt zurückgegeben wird
+
         */
 
         //Validation der Daten
@@ -41,7 +45,7 @@ public class UserService {
         //existiert User bereits?
         Boolean userExists = this.userRepository.doesUserExist(credentials.getUsername());
         if(userExists){
-            throw new EntityAlreadyExists("This Username is already taken!");
+            throw new EntityAlreadyExistsException("This Username is already taken!");
         }
 
         //weitere mögliche Validationen:
@@ -58,24 +62,25 @@ public class UserService {
 
         Optional<User> safedUser = userRepository.create(newUser);
 
-        //Erstmal mit Optional umgehen!
         //Rückweg
-        if(safedUser.getUsername() == null || safedUser.getUsername().isEmpty()
-        || safedUser.getPassword() == null || safedUser.getPassword().isEmpty()
-        || safedUser.getId() == null){
+        if(safedUser.isEmpty())
+        {
+            throw new EntityNotSavedCorrectlyException("Unable to save user");
+        }
+
+        //Optional "auspacken"
+        User unpackedSafeduser = safedUser.get();
+
+        if(unpackedSafeduser.getUsername() == null || unpackedSafeduser.getUsername().isEmpty()
+        || unpackedSafeduser.getPassword() == null || unpackedSafeduser.getPassword().isEmpty()
+        || unpackedSafeduser.getId() == null){
             throw new EntityNotFoundException("User was not saved properly");
         }
-        //am Rückweg soll der User kein Passwort mehr haben -> Passwort leeren
-        //ich muss ein neues User - Objekt erstellen, dem ich das Passwort nicht gebe,
-        //weil wenn ich das Passwort von safedUser = null setze, ändert es sich auch das im Repo gespeicherte Objekt, weil Referenz
-        //sollte bei tatsächlicher DB-Anbindung nicht mehr notwendig sein!
-        User responseUser = new User();
-        responseUser.setId(safedUser.getId());
-        responseUser.setUsername(safedUser.getUsername());
-        responseUser.setEmail(safedUser.getEmail());
-        responseUser.setFavoriteGenre(safedUser.getFavoriteGenre());
 
-        return responseUser;
+        //am Rückweg soll der User kein Passwort mehr haben -> Passwort leeren bevor er zurück gegeben wird
+        unpackedSafeduser.setPassword(null);
+
+        return unpackedSafeduser;
     }
 
     public List<User> getMostAktive() {

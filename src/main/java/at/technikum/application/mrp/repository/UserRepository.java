@@ -91,17 +91,18 @@ public class UserRepository implements MrpRepository<User>{
         //User zur Datenbank hinzufügen
         // - dabei SQL Injektion mittels Prepared Statement (Vorgehen siehe Folien 'CRUD Operations') verhindern
 
-        String sql = "INSERT INTO users (username, hashed_pw) VALUES (?, ?)"; //all die Dinge die ich nicht mitgebe, z.B. E-Mail, Favorite Genre usw. werden in der DB NULL oder auf ihre Default-Werte gesetzt
+        String sql = "INSERT INTO users (username, hashed_pw, user_id) VALUES (?, ?, ?)"; //all die Dinge die ich nicht mitgebe, z.B. E-Mail, Favorite Genre usw. werden in der DB NULL oder auf ihre Default-Werte gesetzt
 
         try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql)){
             stmt.setString(1, object.getUsername());
             stmt.setString(2, object.getPassword());
+            stmt.setString(3, object.getId().toString());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new EntityNotSavedCorrectlyException(e.getMessage());
         }
 
-        // hinzugefügten User zurückgeben -> ihn aus der DB holen | username hat eine eine unique-constraint
+        // hinzugefügten User zurückgeben -> ihn aus der DB holen | username hat eine unique-constraint
         sql = "SELECT * FROM users WHERE username = ?";
         try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql))
         {
