@@ -5,6 +5,7 @@ import at.technikum.application.mrp.model.Media;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MediaRepository implements MrpRepository<Media>{
     private final ConnectionPool connectionPool;
@@ -15,7 +16,7 @@ public class MediaRepository implements MrpRepository<Media>{
 
 
     @Override
-    public Optional<Media> find(String id) {
+    public Optional<Media> find(UUID id) {
         return Optional.empty();
     }
 
@@ -35,7 +36,7 @@ public class MediaRepository implements MrpRepository<Media>{
     }
 
     @Override
-    public Media delete(String id) {
+    public Media delete(UUID id) {
         return null;
     }
 }

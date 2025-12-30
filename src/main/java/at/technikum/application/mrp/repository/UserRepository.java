@@ -24,24 +24,36 @@ public class UserRepository implements MrpRepository<User>{
     }
 
     @Override
-    public Optional<User> find(String id) {
-        for (User user : users) {
-            if(user.getId().equals(UUID.fromString(id))){
-                return Optional.of(user);
+    public Optional<User> find(UUID id) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+
+        try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql))
+        {
+            ResultSet rs = stmt.executeQuery();
+            if (!rs.next()) {
+                return Optional.empty(); // User existiert nicht
             }
+            //Hier sollte ich auch noch die Listen befüllen, wenn ich den User gefunden habe, oder? -> kommt darauf an wofür ich ihn suche i guess
+            return Optional.of(mapToUser(rs));
+        } catch (Exception e) {
+            throw new EntityNotFoundException(e.getMessage());
         }
-        return Optional.empty();
     }
 
     public Optional<User> findByCredentials(String username, String password) {
-        for (User user : users) {
-            System.out.println("Comparing saved: '" + user.getUsername() + "' / '" + user.getPassword() + "'" +
-                    " with input: '" + username + "' / '" + password + "'");
-            if(user.getUsername().equals(username) && user.getPassword().equals(password)){
-                return Optional.of(user);
+        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
+        {
+            ResultSet rs = stmt.executeQuery();
+            if (!rs.next()) {
+                return Optional.empty(); // User existiert nicht
             }
+            //Hier sollte ich auch noch die Listen befüllen, wenn ich den User gefunden habe, oder? -> kommt darauf an wofür ich ihn suche i guess
+            return Optional.of(mapToUser(rs));
         }
-        return Optional.empty();
+        catch (SQLException e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
     }
 
     public boolean doesUserExist(String username) {
@@ -103,7 +115,7 @@ public class UserRepository implements MrpRepository<User>{
     }
 
     @Override
-    public User delete(String id) {
+    public User delete(UUID id) {
         return null;
     }
 
@@ -126,6 +138,8 @@ public class UserRepository implements MrpRepository<User>{
 
         return users;
     }
+
+
 
     private User mapToUser(ResultSet rs) throws SQLException{
         User user = new User();

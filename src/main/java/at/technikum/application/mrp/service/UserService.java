@@ -86,7 +86,7 @@ public class UserService {
     public User getUserByID(String userID) {
          //id validierung
 
-        Optional<User> optionalUser = this.userRepository.find("03fa85f6-4571-4562-b3fc-2c963f66afa6");
+        Optional<User> optionalUser = this.userRepository.find(UUID.fromString("03fa85f6-4571-4562-b3fc-2c963f66afa6"));
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get(); // das Optional umgibt den User, ich muss ihn/sie erst befreien
