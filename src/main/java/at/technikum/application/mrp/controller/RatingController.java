@@ -22,7 +22,7 @@ public class RatingController extends Controller {
         //Dto erstellen
         RatingInput dto = toObject(request.getBody(), RatingInput.class);
         //id extrahieren und dto zufügen
-        dto.setMediaId(request.extractId());
+        dto.setMediaId(request.extractIdAsString());
 
         //Aufruf Service Funktion
         this.ratingService.changeRating(dto);
@@ -33,7 +33,7 @@ public class RatingController extends Controller {
 
     public Response delete(Request request) { //deleteRating
 
-        String ratingId = request.extractId();
+        String ratingId = request.extractIdAsString();
 
         Rating deletedRating = this.ratingService.deleteRating(ratingId);
 
@@ -46,7 +46,7 @@ public class RatingController extends Controller {
 
     public Response likeRating(Request request) {
         //just for now:
-        String id = request.extractId();
+        String id = request.extractIdAsString();
 
         //später vermutlich geliktes Rating zurückgeben
         this.ratingService.likeRating(id);
@@ -60,7 +60,7 @@ public class RatingController extends Controller {
     //nicht CRUD-konforme Funktionen:
     public Response confirmComment(Request request) {
 
-        String ratingId = request.extractId();
+        String ratingId = request.extractIdAsString();
 
         //später: return Comment
         this.ratingService.confirmComment(ratingId);

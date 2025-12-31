@@ -9,6 +9,7 @@ import at.technikum.application.mrp.model.User;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +26,11 @@ public class UserRepository implements MrpRepository<User>{
 
     @Override
     public Optional<User> find(UUID id) {
-        String sql = "SELECT * FROM users WHERE id = ?";
+        String sql = "SELECT * FROM users WHERE user_id = ?";
 
         try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql))
         {
-
+            stmt.setObject(1, id);
             ResultSet rs = stmt.executeQuery();
             if (!rs.next()) {
                 return Optional.empty(); // User existiert nicht
@@ -132,8 +133,31 @@ public class UserRepository implements MrpRepository<User>{
 
 
     @Override
-    public User update(User object) {
-        return null;
+    public Optional<User> update(User object) { /*Pfad: users/profile PUT*/
+        //über die id
+        String sql = "UPDATE users SET email = ?, fav_genre = ? WHERE user_id = ?";
+
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
+        {
+            stmt.setString(1, object.getEmail());
+
+            if (object.getFavoriteGenre() != null) {
+                stmt.setString(2, object.getFavoriteGenre().name());
+            } else {
+                stmt.setNull(2, Types.VARCHAR);
+            }
+            stmt.setObject(3, object.getId());
+
+            stmt.executeUpdate();
+
+        }
+        catch(SQLException e)
+        {
+            throw  new EntityNotSavedCorrectlyException(e.getMessage());
+        }
+
+        //geupdatete User*in zurückgeben:
+        return find(object.getId());
     }
 
     @Override
@@ -184,7 +208,7 @@ public class UserRepository implements MrpRepository<User>{
         //fav Genre ist ein Enum, daher der extra Wrap - Ein Enum darf niemals Null sein, deshalb brauche ich die extra Abfrage!
         String favGenre = rs.getString("fav_genre");
         if (favGenre != null) {
-            user.setFavoriteGenre(Genre.valueOf(favGenre));
+            user.setFavoriteGenre(Genre.valueOf(favGenre)); //Das ist der Name des Genres!, da dieser unique ist, suchen wir in den DB über den namen!
         }
 
         // Listen leer initialisieren

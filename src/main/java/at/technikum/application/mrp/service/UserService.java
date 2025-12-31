@@ -132,15 +132,58 @@ public class UserService {
 
     public User updateUser(UserUpdate update) {
         //DTO validieren.
+            //darf fav Genre oder email empty sein?
+                //ich denke ja, weil ich könnte ja nur eines updaten
+                    //dann darf ich in der DB aber nur updaten, wenn dort nicht bereits etwas steht
+                        //sonst würde ich einen Eintrag ja wieder mit NULL überschreiben!
 
-        User updatedUser = /*repo methode aufrufen*/new User();
-        updatedUser.setUsername("Data vanUpington");
-        updatedUser.setEmail(update.getEmail());
-        updatedUser.setFavoriteGenre(Genre.fromString(update.getFavoriteGenre()));
+        //Id darf jedenfalls nicht NULL sein!
+        if(update.getUserID() == null){
+            throw new IllegalArgumentException("UserID cannot be empty");
+        }
+
+        Optional<User> userOpt = this.userRepository.find(update.getUserID());
+
+        if (userOpt.isEmpty()) { //der User muss existieren, um geupdated zu werden
+            throw new EntityNotFoundException("User not found");
+        }
+
+        //User aus Optional entpacken
+        User existingUser = userOpt.get(); //dieser wird, eventuell geupdated an die eigentliche Repo-Funktion dann weitergegeben
+
+        //E-Mail wenn kein Update gekommen ist, aber bereits ein Eintrag existiert
+        String email = update.getEmail();
+        if (email == null || email.isBlank()) {
+            email = existingUser.getEmail();
+        }
+
+        //fav Genre, wenn kein Update gekommen ist, aber bereits ein Eintrag existiert!
+        Genre favoriteGenre = update.getFavoriteGenre();
+        if (favoriteGenre == null) {
+            favoriteGenre = existingUser.getFavoriteGenre(); //es kann sein, dass wieder null drüber gespielt wird, wenn das in der DB sowieso schon so war
+        }
+
+        existingUser.setEmail(email);
+        existingUser.setFavoriteGenre(favoriteGenre);
+
+        //Repo Methode aufrufen
+        Optional<User> updatedUserOpt = this.userRepository.update(existingUser);
 
         //updatedUser valideren
+        if(!updatedUserOpt.isPresent()){
+            throw new EntityNotFoundException("User was not updated because they do not exist!");
+        }
 
-        return updatedUser;
+        User updatedUser = updatedUserOpt.get();
+
+        if((updatedUser.getFavoriteGenre().equals(existingUser.getFavoriteGenre()))
+            && (updatedUser.getEmail().equals(existingUser.getEmail()))
+                && (updatedUser.getId().equals(existingUser.getId()))
+        ){
+            return updatedUser;
+        }
+
+        throw new EntityNotSavedCorrectlyException("User not safed correctly");
     }
 
     public /*List<Rating>*/void getUsersRatings(String userID) {

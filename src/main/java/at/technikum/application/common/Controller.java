@@ -26,7 +26,7 @@ public abstract class Controller {
         try {
             return objectMapper.readValue(content, valueType);
         } catch (Exception ex) {
-            throw new NotJsonBodyException("der Body enthält kein JSON!"/*ex.getMessage()*/);
+            throw new NotJsonBodyException("der Body enthält kein JSON!" + ex.getMessage());
         }
     }
 

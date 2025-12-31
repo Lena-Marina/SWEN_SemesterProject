@@ -16,7 +16,7 @@ public class UserRouter extends SubRouter<UserController> {
         register("/users/register", false, Method.POST, controller::create); //Done
         //register("/users/login", Method.POST, controller::loginUser); //wurde durch /auth/token ersetzt
         register("/profile", true, Method.GET, controller::read);
-        register("/profile", true, Method.PUT, controller::update);
+        register("/profile", true, Method.PUT, controller::update); //Done
         register("/ratings", true, Method.GET, controller::getRatings);
         register("/favorites", true, Method.GET, controller::getFavourites);
         register("/recommendations",true,  Method.GET, controller::getRecommendations);

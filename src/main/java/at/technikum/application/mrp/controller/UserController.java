@@ -14,6 +14,7 @@ import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
 import at.technikum.server.http.Status;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -29,7 +30,7 @@ public class UserController extends Controller {
     }
 
     public Response read(Request request) {
-        String userID = request.extractId();
+        String userID = request.extractIdAsString();
 
         User user = this.userService.getUserByID(userID);
 
@@ -60,8 +61,16 @@ public class UserController extends Controller {
 
 
     public Response update(Request request) {
-        UserUpdate update = toObject(request.getBody(), UserUpdate.class);
-        update.setUserID(request.extractId());
+
+        //DEBUGGING
+        System.out.println("---------------------------------");
+        System.out.println("DEBUG | RAW BODY: " + request.getBody());
+        System.out.println("DEBUG | ID: " + request.extractIdAsString());
+
+        // Request-Body → DTO konvertieren
+        UserUpdate update = toObject(request.getBody(), UserUpdate.class); //hier drinnen wirft es fehler... aber warum?
+
+        update.setUserID(request.extractIdAsUUID());
 
         User updatedUser = this.userService.updateUser(update);
 
@@ -70,7 +79,7 @@ public class UserController extends Controller {
 
 
     public Response getRatings(Request request) {
-        String userID = request.extractId();
+        String userID = request.extractIdAsString();
 
         /*List<Ratings>*/ this.userService.getUsersRatings(userID);
 
@@ -79,7 +88,7 @@ public class UserController extends Controller {
     }
 
     public Response getFavourites(Request request) {
-        String userId = request.extractId();
+        String userId = request.extractIdAsString();
 
         List<Media> favouriteMedias = this.mediaService.getUsersFavourites(userId);
 
@@ -92,7 +101,7 @@ public class UserController extends Controller {
     public Response getRecommendations(Request request) {
 
         //User ID aus Pfad filtern
-        String id = request.extractId(); //throwed eine Exception wenn es nicht klappt
+        String id = request.extractIdAsString(); //throwed eine Exception wenn es nicht klappt
 
         //querys filtern | möglichkeiten: genre und content - schauen ob type mitgegeben wurde.
 

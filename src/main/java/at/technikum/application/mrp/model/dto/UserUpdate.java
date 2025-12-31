@@ -1,31 +1,35 @@
 package at.technikum.application.mrp.model.dto;
 
+import at.technikum.application.mrp.model.Genre;
+
+import java.util.UUID;
+
 public class UserUpdate {
-    private String userID;
-    private String eMail;
-    private String favGenre;
+    private UUID userID;
+    private String email;
+    private Genre favoriteGenre;
 
     public UserUpdate(){};
 
     //SETTER
-    public void setUserID(String userID){
+    public void setUserID(UUID userID){
         this.userID=userID;
     }
     public void setEmail(String eMail){
-        this.eMail = eMail;
+        this.email = eMail;
     }
-    public void setFavoriteGenre(String favGenre){
-        this.favGenre = favGenre;
+    public void setFavoriteGenre(Genre favGenre){
+        this.favoriteGenre = favGenre;
     }
 
     //GETTER
-    public String getUserID() {
+    public UUID getUserID() {
         return userID;
     }
     public String getEmail(){
-        return eMail;
+        return email;
     }
-    public String getFavoriteGenre(){
-        return favGenre;
+    public Genre getFavoriteGenre(){
+        return favoriteGenre;
     }
 }

@@ -31,7 +31,7 @@ public class MediaRepository implements MrpRepository<Media>{
     }
 
     @Override
-    public Media update(Media object) {
+    public Optional<Media> update(Media object) {
         return null;
     }
 

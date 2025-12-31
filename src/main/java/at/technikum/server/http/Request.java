@@ -51,7 +51,7 @@ public class Request {
         this.queryParams = queryParams;
     }
 
-    public String extractId() { //Momentan mache ich es noch als String, weil ich nicht weiß wie ich
+    public String extractIdAsString() { //Momentan mache ich es noch als String, weil ich nicht weiß wie ich
         //die echten UUIDs in Postmann geben soll
         String[] parts = this.path.split("/");
         if (parts.length > 2 && !parts[2].isEmpty()) {
@@ -60,6 +60,20 @@ public class Request {
             throw new IllegalArgumentException("Path does not contain a valid ID: " + this.path);
         }
     }
+
+    public UUID extractIdAsUUID() {
+        String[] parts = this.path.split("/");
+
+        if (parts.length > 2 && parts[2] != null && !parts[2].isBlank()) {
+            try {
+                return UUID.fromString(parts[2]);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid UUID in path: " + parts[2]);
+            }
+        }
+        throw new IllegalArgumentException("Path does not contain a valid ID: " + this.path);
+    }
+
 
     //Debugging: ganzen Request ausgeben
     @Override

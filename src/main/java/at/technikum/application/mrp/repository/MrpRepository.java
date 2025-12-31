@@ -12,7 +12,7 @@ public interface MrpRepository<T> {
 
     Optional<T> create(T object);
 
-    T update(T object); //diese Funktion existiert nicht immer
+    Optional<T> update(T object); //diese Funktion existiert nicht immer
 
     T delete(UUID id);
 }

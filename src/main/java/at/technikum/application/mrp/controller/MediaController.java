@@ -56,7 +56,7 @@ public class MediaController extends Controller {
 
 
     public Response read(Request request) {
-        String mediaID = request.extractId();
+        String mediaID = request.extractIdAsString();
 
         Media media = this.mediaService.getMediaByID(mediaID);
 
@@ -81,7 +81,7 @@ public class MediaController extends Controller {
 
     public Response update(Request request) {
         MediaInput  mediaInput = toObject(request.getBody(),  MediaInput.class);
-        mediaInput.setId(request.extractId());
+        mediaInput.setId(request.extractIdAsString());
 
         //DTO an Service weitergeben
         Media updatedMedia = mediaService.updateMedia(mediaInput);
@@ -96,7 +96,7 @@ public class MediaController extends Controller {
 
     public Response delete(Request request) {
         //id extrahieren
-        String mediaID = request.extractId();
+        String mediaID = request.extractIdAsString();
 
         //ServiceFunktion aufrufen
         Media deletedMedia = this.mediaService.deleteMedia(mediaID);
@@ -111,7 +111,7 @@ public class MediaController extends Controller {
 
     public Response markAsFavourite(Request request) {
         //id extrahieren
-        String id = request.extractId();
+        String id = request.extractIdAsString();
 
         //Service Funktion aufrufen.
         this.mediaService.markAsFavorite(id);
@@ -122,7 +122,7 @@ public class MediaController extends Controller {
 
     public Response unmarkAsFavourite(Request request) {
         //id  extrahieren
-        String id = request.extractId();
+        String id = request.extractIdAsString();
 
         //Service Funktion aufrufen
         this.mediaService.unmarkAsFavorite(id);
@@ -136,7 +136,7 @@ public class MediaController extends Controller {
         RatingInput rating_dto = toObject(request.getBody(), RatingInput.class);
 
         //id setzen
-        rating_dto.setMediaId(request.extractId());
+        rating_dto.setMediaId(request.extractIdAsString());
 
         //DTO an Service weitergeben.
         this.mediaService.createRating(rating_dto);
