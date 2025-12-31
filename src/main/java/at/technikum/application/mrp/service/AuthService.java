@@ -24,6 +24,7 @@ public class AuthService {
             throw new IllegalArgumentException("Username and password cannot be empty");
         }
 
+        //ToDo wenn in user/register ebenfalls umgesetzt: Passwort hashen!
         Optional<User> foundUser = userRepository.findByCredentials(credentials.getUsername(), credentials.getPassword());
 
         if (foundUser.isPresent()) {

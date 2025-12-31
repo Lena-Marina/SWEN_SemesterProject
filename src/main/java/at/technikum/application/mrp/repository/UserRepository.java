@@ -42,7 +42,7 @@ public class UserRepository implements MrpRepository<User>{
     }
 
     public Optional<User> findByCredentials(String username, String password) {
-        String sql = "SELECT * FROM users WHERE username = ? AND hasehd_pw = ?";
+        String sql = "SELECT * FROM users WHERE username = ? AND hashed_pw = ?";
         try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
         {
             stmt.setString(1, username);
@@ -51,7 +51,7 @@ public class UserRepository implements MrpRepository<User>{
                 if (!rs.next()) {
                     return Optional.empty();
                 }
-                //Sollte ich noch die Listen befüllen?
+                //Sollte ich noch die Listen befüllen? -> muss ich nicht, da ich eigentlich nur prüfen muss ob Username und Passwort in der DB sind
                 return Optional.of(mapToUser(rs));
             }
         }

@@ -13,8 +13,8 @@ public class UserRouter extends SubRouter<UserController> {
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
-        register("/users/register", false, Method.POST, controller::create); //doing
-        //register("/users/login", Method.POST, controller::loginUser); //Überlegung durch /auth/token zu ersetzen -> wurde gemacht
+        register("/users/register", false, Method.POST, controller::create); //Done
+        //register("/users/login", Method.POST, controller::loginUser); //wurde durch /auth/token ersetzt
         register("/profile", true, Method.GET, controller::read);
         register("/profile", true, Method.PUT, controller::update);
         register("/ratings", true, Method.GET, controller::getRatings);

@@ -12,6 +12,6 @@ public class AuthRouter extends SubRouter<AuthController> {
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
-        register("/token", false, Method.GET, controller::getToken);
+        register("/token", false, Method.GET, controller::getToken); //ersetzt user/login  //Done
     }
 }
