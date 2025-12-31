@@ -55,11 +55,20 @@ public class UserService {
         //richtiger UserObjekt (nicht DTO) erstellen
         User newUser = new User();
         newUser.setUsername(credentials.getUsername());
-        newUser.setPassword(credentials.getPassword());
+        newUser.setPassword(credentials.getPassword()); //passwort hashen!
 
         //ID erstellen
         newUser.setId(UUID.randomUUID()); //wir glauben wegen der geringen Wahrscheinlichkeit einer Koallision einfach, dass die UUID nicht bereits in der Datenbank vorkommt
 
+        //DEBUGGING
+        System.out.println("---------------------------------");
+        System.out.println("DEBUG in UserService::registerUser() ");
+        System.out.println("DEBUG: username = " + newUser.getUsername());
+        System.out.println("DEBUG: password = " + newUser.getPassword());
+        System.out.println("DEBUG: user_id = " + newUser.getId());
+
+
+        //Repo funktion aufrufen
         Optional<User> safedUser = userRepository.create(newUser);
 
         //Rückweg
@@ -79,6 +88,13 @@ public class UserService {
 
         //am Rückweg soll der User kein Passwort mehr haben -> Passwort leeren bevor er zurück gegeben wird
         unpackedSafeduser.setPassword(null);
+
+        //DEBUGGING
+        System.out.println("---------------------------------");
+        System.out.println("DEBUG zurückgegebener User in UserService::registerUser() ");
+        System.out.println("DEBUG: username = " + newUser.getUsername());
+        System.out.println("DEBUG: password = " + newUser.getPassword());
+        System.out.println("DEBUG: user_id = " + newUser.getId());
 
         return unpackedSafeduser;
     }

@@ -29,6 +29,7 @@ public class UserRepository implements MrpRepository<User>{
 
         try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql))
         {
+
             ResultSet rs = stmt.executeQuery();
             if (!rs.next()) {
                 return Optional.empty(); // User existiert nicht
@@ -63,6 +64,8 @@ public class UserRepository implements MrpRepository<User>{
         String sql = "SELECT * FROM users WHERE username = ?";
         try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
         {
+            stmt.setString(1, username);
+
             try(ResultSet rs = stmt.executeQuery();)
             {
                 if (!rs.next()) {
@@ -96,8 +99,10 @@ public class UserRepository implements MrpRepository<User>{
         try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql)){
             stmt.setString(1, object.getUsername());
             stmt.setString(2, object.getPassword());
-            stmt.setString(3, object.getId().toString());
+            stmt.setObject(3, object.getId());
+
             stmt.executeUpdate();
+
         } catch (SQLException e) {
             throw new EntityNotSavedCorrectlyException(e.getMessage());
         }
@@ -106,6 +111,11 @@ public class UserRepository implements MrpRepository<User>{
         sql = "SELECT * FROM users WHERE username = ?";
         try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql))
         {
+            //DEBUGGING
+            System.out.println("---------------------------------");
+            System.out.println("DEBUG in UserRepository::create() ");
+            System.out.println("DEBUG: username = " + object.getUsername());
+
             stmt.setString(1, object.getUsername());
             ResultSet rs = stmt.executeQuery();
             if (!rs.next()) {
@@ -162,12 +172,20 @@ public class UserRepository implements MrpRepository<User>{
         }
 
         // einfache Strings
+        //DEBUGGING
+        System.out.println("---------------------------------");
+        System.out.println("DEBUG in UserRepository::mapToUser() ");
+        System.out.println("DEBUG: username = " + rs.getString("username"));
+
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("hashed_pw"));
         user.setEmail(rs.getString("email"));
 
-        //fav Genre ist ein Enum, daher der extra Wrap
-        user.setFavoriteGenre(Genre.valueOf(rs.getString("fav_genre")));
+        //fav Genre ist ein Enum, daher der extra Wrap - Ein Enum darf niemals Null sein, deshalb brauche ich die extra Abfrage!
+        String favGenre = rs.getString("fav_genre");
+        if (favGenre != null) {
+            user.setFavoriteGenre(Genre.valueOf(favGenre));
+        }
 
         // Listen leer initialisieren
         user.setFavorites(new ArrayList<>());

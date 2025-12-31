@@ -41,6 +41,12 @@ public class UserController extends Controller {
             // Request-Body → DTO konvertieren
             UserCredentials userCredentials = toObject(request.getBody(), UserCredentials.class);
 
+            //DEBUGGING
+            System.out.println("---------------------------------");
+            System.out.println("DEBUG in UserController::create() ");
+            System.out.println("DEBUG: username = " + userCredentials.getUsername());
+            System.out.println("DEBUG: password = " + userCredentials.getPassword());
+
             // DTO an Service weitergeben und User speichern
             User savedUser = userService.registerUser(userCredentials);
 

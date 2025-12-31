@@ -9,8 +9,8 @@ wird stattdessen ein Stern-Objekt (Rich Value Objekt) definiert, dass wenn es er
 
 primitive Datentypen werden basically durch eigene DomainObjekte ersetzt
 
-Dadurch geht aber die klare Differenzierung zwischend den Schichten verloren?
-    Daher bräuchte es z.B. auf Data-Layer ebene eigene
+Dadurch geht aber die klare Differenzierung zwischen den Schichten verloren?
+    Daher bräuchte es z.B. auf Data-Layer Ebene eigene
 
 Unsere Anwendung ist zu klein um diesen Aufwand zu rechtfertigen,
 aber es ist eine gute Information, dass das eine Herangehensweise ist.
