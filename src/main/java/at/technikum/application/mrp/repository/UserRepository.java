@@ -20,7 +20,6 @@ public class UserRepository implements MrpRepository<User>{
     private final ConnectionPool connectionPool;
 
     public UserRepository(ConnectionPool connectionPool) {
-        //Register 1 oder 2 User zum Testen.
         this.connectionPool = connectionPool;
     }
 
@@ -32,6 +31,7 @@ public class UserRepository implements MrpRepository<User>{
         {
             stmt.setObject(1, id);
             ResultSet rs = stmt.executeQuery();
+
             if (!rs.next()) {
                 return Optional.empty(); // User existiert nicht
             }

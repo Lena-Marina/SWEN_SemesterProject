@@ -7,6 +7,7 @@ Services kann ich auch weiter differenzieren z.B. einen eigenen Auth-Service
 import at.technikum.application.mrp.exception.EntityAlreadyExistsException;
 import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
+import at.technikum.application.mrp.exception.InvalidEntityException;
 import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCredentials;
@@ -105,29 +106,35 @@ public class UserService {
     }
 
     public User getUserByID(String userID) {
-         //id validierung
+        UUID uuid;
 
-        Optional<User> optionalUser = this.userRepository.find(UUID.fromString("03fa85f6-4571-4562-b3fc-2c963f66afa6"));
+        //id validierung -> Ist es überhaupt eine UUID?
+        try {
+            uuid = UUID.fromString(userID);
+        }
+        catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("UserID is not a valid UUID" + e.getMessage());
+        }
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get(); // das Optional umgibt den User, ich muss ihn/sie erst befreien
+        //Repo-Funktion aufrufen
+        Optional<User> userOpt = this.userRepository.find(uuid);
 
-            /*paswort leeren, aber weil user eine Referenz auf das im Repos gespeicherte Objekt ist,
-            * muss ich neues Objekt erstellen, damit das User-Objekt im Repo noch ein Passwort hat!
-            * Ändern sobals echte DB anbindung da ist*/
-            User responseUser = new User();
-            responseUser.setId(user.getId());
-            responseUser.setUsername(user.getUsername());
-            responseUser.setEmail(user.getEmail());
-            responseUser.setFavoriteGenre(user.getFavoriteGenre());
+        if (userOpt.isPresent()) {
+            User user = userOpt.get(); // das Optional umgibt den User, ich muss ihn/sie erst befreien
 
-            return responseUser;
+            //Passwort nicht zurückgeben
+            user.setPassword(null);
+
+            //Sonstige validierung? username muss existieren! Rest darf eigentlich NULL sein
+            if(user.getUsername() == null || user.getUsername().isEmpty()){
+                throw new InvalidEntityException("Username is empty");
+            }
+
+            return user;
         }
         else{
             throw new EntityNotFoundException("User with id " + userID + " was not found");
         }
-
-
     }
 
     public User updateUser(UserUpdate update) {
