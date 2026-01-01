@@ -17,7 +17,7 @@ public class Media {
         private Integer ageRestriction;
         private UUID creatorId;
 
-        private List<User> favoritedBy; // Users, die dieses Medium als Favorit markiert haben
+        private List<UUID> favoritedBy; // UUIDS der Users, die dieses Medium als Favorit markiert haben
         private List<Rating> ratings;
 
         public Media(UUID id, String title, String mediaType, int releaseYear, int ageRestriction) {
@@ -92,11 +92,11 @@ public class Media {
         this.ageRestriction = ageRestriction;
     }
 
-    public List<User> getFavoritedBy() {
+    public List<UUID> getFavoritedBy() {
         return favoritedBy;
     }
 
-    public void setFavoritedBy(List<User> favoritedBy) {
+    public void setFavoritedBy(List<UUID> favoritedBy) {
         this.favoritedBy = favoritedBy;
     }
 

@@ -144,14 +144,30 @@ public class MediaService {
         return updatedMedia;
     }
 
-    public Media deleteMedia(String mediaID) {
-        //id validieren
+    public Media deleteMedia(UUID mediaID, String deleterName) {
 
-        Media deletedMedia = new Media(); //Repofunktion aufrufen
-        //deletedMedia.setId(mediaID);
-        deletedMedia.setTitle("Das gelöschte Medium");
+        //MediaID validieren -> Ist es eine valide UUID? --> muss sein, denn sonst hätte ich sie nicht als UUID entgegen nehmen können
 
-        //deletedMedia validieren
+        //deleterID über namen herausfinden
+        UUID deleterID = this.userRepository.getIdViaName(deleterName);
+
+        //creatorID über mediaID herausfinden
+        UUID creatorID = this.mediaRepository.getCreatorIdViaMediaEntryID(mediaID);
+
+        //deleterID und creatirID müssen gleich sein
+        if(!deleterID.equals(creatorID))
+        {
+            throw new UnauthorizedException("only the creator of a mediaEntry may destroy it");
+        }
+
+
+        Media deletedMedia = this.mediaRepository.delete(mediaID); //Repofunktion aufrufen
+
+        //Validation -> was gehört hier geprüft? Basis Sachen dürfen nicht leer sein, Listen schon
+        // die andere Frage ist, was bedeutet es, wenn hier etwas unvollständig ist?
+        // ich will keine Exception werfen, denn dann ist alles verloren.
+        // wenn ein Teil der Informationen beim Löschen verloren gegangen ist,
+        // ist das nicht immer noch besser als wenn alle verloren gegangen sind?
 
         return deletedMedia;
     }

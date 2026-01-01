@@ -13,6 +13,7 @@ import at.technikum.server.http.Response;
 import at.technikum.server.http.Status;
 
 import java.util.List;
+import java.util.UUID;
 
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf
  nicht nur id aus dem Pfad, sondern auch Infos aus dem Body!*/
@@ -104,17 +105,22 @@ public class MediaController extends Controller {
 
 
     public Response delete(Request request) {
-        //id extrahieren
-        String mediaID = request.extractIdAsString();
+        //media_id extrahieren
+        UUID mediaID = request.extractIdAsUUID();
+
+        //creator_id extrahieren
+        String deleterName = request.extractNameFromHeader();
 
         //ServiceFunktion aufrufen
-        Media deletedMedia = this.mediaService.deleteMedia(mediaID);
+        Media deletedMedia = this.mediaService.deleteMedia(mediaID, deleterName);
 
-        //deletedMedia validieren
+        //deletedMedia validieren -> Nein, Validation mache ich im Service
 
-        //und erneut war ich ein Trottel, weil 204 keinen Body hat, aber ich lasse es mal so, weil es für mich
-        //mehr sinn macht, das gelöschte Medium zurückzugeben, falls die Userin das Löschen rückgängig machen will.
-        return json(deletedMedia, Status.UNMARKED);
+        // Laut Spezifikationen wird hier eigentlich 204 verlangt,
+        // Aber: wir haben im Unterricht besprochen, dass es Sinn macht das gelöschte
+        // wieder zurück zu schicken, falls der/die User:In das Löschen Rückgängig machen möchte
+        // Daher musste ich den Status Code ändern, da 204 ja keinen Body erlaubt
+        return json(deletedMedia, Status.OK);
     }
 
 
