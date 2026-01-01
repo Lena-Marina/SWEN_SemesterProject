@@ -2,6 +2,7 @@ package at.technikum.application.mrp.service;
 
 import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
+import at.technikum.application.mrp.exception.UnauthorizedException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
@@ -72,18 +73,75 @@ public class MediaService {
     }
 
     public Media updateMedia(MediaInput mediaDTO){
-
+        /*Ich hätte es genrell so verstanden, dass alle Informationen die ab jetzt
+        * in der DB sein sollen mit dem Request geliefert werden - nicht nur Änderungen
+        * Dass also auch alte Informationen wieder mitgeschickt werden.
+        * (z.B. Wenn der MediaEntry früher das Genre HORROR hatte
+        * und jetzt das Genre COMEDY ergänzt werden soll,
+        * enthält der Request ein Array, dass sowohl HORROR als auch COMEDY enthält
+        * Daher: ich habe alle alten genre-verknüpfungen gelöscht und neue erstellt
+        *
+        * Ich prüfe also NICHT, was bereits in der DB vorhanden ist und ergänze nur,
+        * das ich annehme, dass auch Genres entfernt werden können.*/
         //DTO validieren
+        if(mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
+                || mediaDTO.getDescription() == null || mediaDTO.getDescription().isBlank()
+                || mediaDTO.getReleaseYear() == null
+                || mediaDTO.getAgeRestriction() == null
+                || mediaDTO.getCreatorName() == null || mediaDTO.getCreatorName().isBlank()
+        ){
+            throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
+        }
 
-        //Repo-Funktion aufrufen
-        Media media = new Media(); //eigentlich mittels repository zurückbekommen!
+        //check ob Anfragesteller auch creator ist
+        String originalCreatorName = this.mediaRepository.getCreatorNameByMediaID(mediaDTO.getId());
 
-        //for now echot es nur was es rein bekommen hat
+        //DEBUGGING
+        System.out.println("---------------------------------");
+        System.out.println("DEBUG Freigabe des Updatens eines Media Entrys in MediaService::updateMedia() ");
+        System.out.println("DEBUG: originalCreatorName= " + originalCreatorName);
+        System.out.println("DEBUG: creatorNameNow = " + mediaDTO.getCreatorName());
 
+        if(!(originalCreatorName.equals(mediaDTO.getCreatorName())))
+        {
+            throw new UnauthorizedException("users can only edit their own Media_Entrys");
+        }
 
+        //Media Objekt aus DTO erstellen
+        Media media = new Media();
+        media.setId(mediaDTO.getId());
+        media.setTitle(mediaDTO.getTitle());
+        media.setDescription(mediaDTO.getDescription());
+        media.setReleaseYear(mediaDTO.getReleaseYear());
+        media.setAgeRestriction(mediaDTO.getAgeRestriction());
+        media.setMediaType(mediaDTO.getMediaType());
+        media.setGenres(mediaDTO.getGenres());
+        //Creator_ID ermitteln
+        UUID creatorId = this.userRepository.getIdViaName(mediaDTO.getCreatorName());
+        media.setCreatorID(creatorId);
+
+        //MediaEntry mittels Repo-Funktion updaten
+        Optional<Media> updatedMediaOpt = this.mediaRepository.update(media);
+
+        //geupdatetes Media validieren -> Optional entpacken usw
         //media validieren
+        if(!updatedMediaOpt.isPresent()){
+            throw new EntityNotSavedCorrectlyException("saved media was not returned from DB");
+        }
 
-        return media;
+        Media updatedMedia = updatedMediaOpt.get();
+
+        if(updatedMedia.getId() == null
+                || updatedMedia.getCreatorID() == null
+                || updatedMedia.getTitle() == null || updatedMedia.getTitle().isBlank()
+                || updatedMedia.getDescription() == null || updatedMedia.getDescription().isBlank()
+                || updatedMedia.getMediaType() == null || updatedMedia.getMediaType().isBlank()
+        )
+        {
+            throw new EntityNotSavedCorrectlyException("updated Media does not contain all necessary fields");
+        }
+
+        return updatedMedia;
     }
 
     public Media deleteMedia(String mediaID) {

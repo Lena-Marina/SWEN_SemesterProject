@@ -90,15 +90,16 @@ public class MediaController extends Controller {
     public Response update(Request request) {
         MediaInput  mediaInput = toObject(request.getBody(),  MediaInput.class);
 
+        //Media_ID aus dem Request ermitteln
+        mediaInput.setId(request.extractIdAsUUID());
+
+        //Name creator_ermitteln, um validieren zu können, dass die Person den Eintrag überhaupt ändern darf
+        mediaInput.setCreatorName(request.extractNameFromHeader());
 
         //DTO an Service weitergeben
         Media updatedMedia = mediaService.updateMedia(mediaInput);
 
-        //updatedMedia validieren -> Nein im Service!
-
-
         return json(updatedMedia, Status.OK);
-
     }
 
 

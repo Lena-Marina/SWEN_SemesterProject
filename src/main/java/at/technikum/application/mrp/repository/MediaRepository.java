@@ -144,11 +144,113 @@ public class MediaRepository implements MrpRepository<Media>{
         }
     }
 
+    public String getCreatorNameByMediaID(UUID mediaID) {
+        String sql = """
+        SELECT u.username
+        FROM media_entry m
+        JOIN users u ON m.creator_id = u.user_id
+        WHERE m.media_id = ?
+        """;
+
+        try (PreparedStatement stmt = this.connectionPool
+                .getConnection()
+                .prepareStatement(sql)) {
+
+            stmt.setObject(1, mediaID);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("username");
+            }
+
+            throw new EntityNotFoundException(
+                    "Media_Entry with Id " + mediaID + " not found"
+            );
+
+        } catch (SQLException e) {
+            throw new EntityNotFoundException(
+                    "Error fetching creator name for media_id " + mediaID,
+                    e
+            );
+        }
+    }
+
 
     @Override
     public Optional<Media> update(Media object) {
-        return null;
+
+        try (Connection conn = connectionPool.getConnection()) {
+            conn.setAutoCommit(false); //damit nicht jedes SQL Statement sofort commited wird, sondern wir entweder alles ändern oder gar nichts
+
+            // 1. is_genre Verbindungen löschen
+            try (PreparedStatement stmt =
+                         conn.prepareStatement("DELETE FROM is_genre WHERE media_id = ?")) {
+
+                stmt.setObject(1, object.getId());
+                stmt.executeUpdate();
+            }
+
+            // 2. media_entry aktualisieren
+            String sql = """
+            UPDATE media_entry
+            SET title = ?, description = ?, type = ?, release_year = ?, age_restriction = ?
+            WHERE media_id = ?
+        """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                stmt.setString(1, object.getTitle());
+                stmt.setString(2, object.getDescription());
+                stmt.setString(3, object.getMediaType());
+                stmt.setInt(4, object.getReleaseYear());
+                stmt.setInt(5, object.getAgeRestriction());
+                stmt.setObject(6, object.getId());
+
+                int updatedRows = stmt.executeUpdate();
+                if (updatedRows == 0) {
+                    throw new EntityNotFoundException(
+                            "Media with id " + object.getId() + " not found");
+                }
+            }
+
+            // 3. neue is_genre Verbindungen herstellen
+            if (object.getGenres() != null) {
+                for (Genre genre : object.getGenres()) {
+
+                    UUID genreId;
+                    try (PreparedStatement stmt =
+                                 conn.prepareStatement("SELECT genre_id FROM genre WHERE name = ?")) {
+
+                        stmt.setString(1, genre.name());
+                        ResultSet rs = stmt.executeQuery();
+
+                        if (!rs.next()) {
+                            throw new EntityNotSavedCorrectlyException(
+                                    "Genre not found: " + genre.name());
+                        }
+                        genreId = rs.getObject("genre_id", UUID.class);
+                    }
+
+                    try (PreparedStatement stmt =
+                                 conn.prepareStatement(
+                                         "INSERT INTO is_genre (media_id, genre_id) VALUES (?, ?)")) {
+
+                        stmt.setObject(1, object.getId());
+                        stmt.setObject(2, genreId);
+                        stmt.executeUpdate();
+                    }
+                }
+            }
+
+            conn.commit();
+            return find(object.getId());
+
+        } catch (SQLException e) {
+            throw new EntityNotSavedCorrectlyException(e.getMessage());
+        }
     }
+
 
     @Override
     public Media delete(UUID id) {

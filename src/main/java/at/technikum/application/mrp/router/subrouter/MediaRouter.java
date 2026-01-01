@@ -20,7 +20,7 @@ public class MediaRouter extends SubRouter<MediaController> {
         register("/rate", true, Method.POST, controller::rate);
 
         register("/media/", true, Method.DELETE, controller::delete);
-        register("/media/", true, Method.PUT, controller::update);
+        register("/media/", true, Method.PUT, controller::update); //done
         register("/media/",true,  Method.GET, controller::read);
 
         register("/media",true,  Method.GET, controller::readAll);
