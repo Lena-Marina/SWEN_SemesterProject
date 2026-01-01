@@ -52,10 +52,18 @@ public class MediaService {
 
     }
 
-    public void unmarkAsFavorite(String id)
+    public void unmarkAsFavorite(UUID mediaID, String username)
     {
-        //schauen ob Media id existiert
-        //vermutlich auch eher das markierte Media zurückgeben
+        //user_id herausfinden
+        UUID userID = userRepository.getIdViaName(username);
+
+        if(userID == null)
+        {
+            throw new IllegalArgumentException(username + " not in DB");
+        }
+
+        this.favoriteRepository.unMarkAsFavorite(mediaID, userID);
+
     }
 
     public void createRating(RatingInput ratingInput)

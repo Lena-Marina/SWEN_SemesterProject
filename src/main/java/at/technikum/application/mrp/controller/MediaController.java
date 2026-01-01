@@ -139,14 +139,18 @@ public class MediaController extends Controller {
     }
 
     public Response unmarkAsFavourite(Request request) {
-        //id  extrahieren
-        String id = request.extractIdAsString();
+        //media_id  extrahieren
+        UUID mediaID = request.extractIdAsUUID();
+
+        //user_id extrahieren
+        String username = request.extractNameFromHeader();
+
 
         //Service Funktion aufrufen
-        this.mediaService.unmarkAsFavorite(id);
+        this.mediaService.unmarkAsFavorite(mediaID, username);
 
-        //just for now:
-        return new Response(Status.UNMARKED, ContentType.TEXT_PLAIN, "Media with id " + id +" unmarked as favorite Du hast die Funktion unmarkAsFavourite() im MediaController erreicht");
+        //wenn bisher kein Fehler:
+        return new Response(Status.UNMARKED, ContentType.TEXT_PLAIN, "Media with id " + mediaID +" unmarked as favorite by user: " + username);
     }
 
     public Response rate(Request request) {
