@@ -2,10 +2,13 @@ package at.technikum.application.mrp.controller;
 
 import at.technikum.application.common.Controller;
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
+import at.technikum.application.mrp.model.dto.RatingCreated;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.service.MediaService;
+import at.technikum.application.mrp.service.RatingService;
 import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
@@ -21,11 +24,13 @@ public class MediaController extends Controller {
 
     private MediaService mediaService;
     private UserService userService;
+    private RatingService ratingService;
 
-    public MediaController(MediaService mediaService, UserService userService) {
+    public MediaController(MediaService mediaService, UserService userService, RatingService ratingService) {
 
         this.mediaService = mediaService;
         this.userService = userService;
+        this.ratingService = ratingService;
     }
 
     public Response readAll(Request request) {
@@ -154,16 +159,23 @@ public class MediaController extends Controller {
     }
 
     public Response rate(Request request) {
+        //DEBUGGING
+        System.out.println("---------------------------------");
+        System.out.println("DEBUG in MediaController::rate() ");
+
         //Dto erstellen
         RatingInput rating_dto = toObject(request.getBody(), RatingInput.class);
 
-        //id setzen
-        rating_dto.setMediaId(request.extractIdAsString());
+        //Media_id setzen
+        rating_dto.setMediaId(request.extractIdAsUUID());
+
+        //userNamen herausfinden
+        rating_dto.setCreatorName(request.extractNameFromHeader());
 
         //DTO an Service weitergeben.
-        this.mediaService.createRating(rating_dto);
+        RatingCreated savedRatingDTO = this.ratingService.createRating(rating_dto);
 
-        //just for now:
-        return new Response(Status.CREATED, ContentType.TEXT_PLAIN, "Rating Submitted");
+        // JSON-Response zurückgeben mit Status 201 Created
+        return json(savedRatingDTO, Status.CREATED);
     }
 }

@@ -4,20 +4,21 @@ package at.technikum.application.mrp.model;
 import java.util.UUID;
 
 public class Rating {
-    private String id;
+    private UUID ratingId;
     private int stars;       // 1-5
     private String comment;
     private boolean confirmed;  // Kommentare müssen bestätigt werden
 
-    private UUID user;       // Wer hat die Bewertung abgegeben
+    private UUID creatorId;       // Wer hat die Bewertung abgegeben
     private Media media;     // Auf welchen MediaEntry sich die Bewertung bezieht
 
-    // Getter & Setter
-    public void setId(String id){
-            this.id=id;
+    // SETTER
+    public void setId(UUID id){
+            this.ratingId=id;
         }
-        public String getId(){
-            return this.id;
+
+        public UUID getId(){
+            return this.ratingId;
         }
 
     public void setStars(int stars) {
@@ -35,12 +36,37 @@ public class Rating {
         this.confirmed = confirmed;
     }
 
-    public void setUser(UUID userId) {
-        this.user = userId;
+    public void setCreatorId(UUID userId) {
+        this.creatorId = userId;
     }
 
     public void setMedia(Media deletedMedia) {
         this.media = deletedMedia;
+    }
+
+    //GETTER
+    public UUID getRatingId() {
+        return ratingId;
+    }
+
+    public int getStars() {
+        return stars;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public boolean getConfirmed() {
+        return confirmed;
+    }
+
+    public UUID getCreatorID() {
+        return creatorId;
+    }
+
+    public Media getMedia() {
+        return media;
     }
 }
 

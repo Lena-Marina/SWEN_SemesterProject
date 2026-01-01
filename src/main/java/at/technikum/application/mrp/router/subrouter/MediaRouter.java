@@ -17,7 +17,7 @@ public class MediaRouter extends SubRouter<MediaController> {
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
         register("/favorite", true, Method.POST, controller::markAsFavourite); //done
         register("/favorite", true, Method.DELETE, controller::unmarkAsFavourite); //done
-        register("/rate", true, Method.POST, controller::rate);
+        register("/rate", true, Method.POST, controller::rate); //done
 
         register("/media/", true, Method.DELETE, controller::delete); //done
         register("/media/", true, Method.PUT, controller::update); //done

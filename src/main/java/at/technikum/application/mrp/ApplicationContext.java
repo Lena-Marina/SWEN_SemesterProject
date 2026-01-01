@@ -5,6 +5,7 @@ import at.technikum.application.common.SubRouter;
 import at.technikum.application.mrp.controller.*;
 import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.MediaRepository;
+import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
 import at.technikum.application.mrp.router.MainRouter;
 import at.technikum.application.mrp.router.subrouter.*;
@@ -29,15 +30,16 @@ public class ApplicationContext {
     UserRepository userRepository = new UserRepository(connectionPool);
     MediaRepository mediaRepository = new MediaRepository(connectionPool);
     FavoriteRepository favoriteRepository = new FavoriteRepository(connectionPool);
+    RatingRepository ratingRepository = new RatingRepository(connectionPool);
 
     //Services
     UserService userService = new UserService(userRepository);
     MediaService mediaService = new MediaService(mediaRepository, userRepository, favoriteRepository);
-    RatingService ratingService = new RatingService(mediaRepository);
+    RatingService ratingService = new RatingService(ratingRepository, mediaRepository, userRepository);
     AuthService authService = new AuthService(userRepository);
 
     //Controller
-    MediaController mediaController = new MediaController(mediaService, userService);
+    MediaController mediaController = new MediaController(mediaService, userService, ratingService);
     UserController userController = new UserController(userService, mediaService);
     RatingController ratingController = new RatingController(ratingService);
     LeaderboardController leaderboardController = new LeaderboardController(userService);

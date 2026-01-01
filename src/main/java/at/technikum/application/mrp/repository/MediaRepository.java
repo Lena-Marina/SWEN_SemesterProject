@@ -329,11 +329,11 @@ public class MediaRepository implements MrpRepository<Media> {
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     Rating rating = new Rating();
-                    rating.setId(rs.getString("rating_id"));
+                    rating.setId(rs.getObject("rating_id", UUID.class));
                     rating.setStars(rs.getInt("stars"));
                     rating.setComment(rs.getString("comment"));
                     rating.setConfirmed(rs.getBoolean("confirmed"));
-                    rating.setUser(rs.getObject("creator_id", UUID.class));
+                    rating.setCreatorId(rs.getObject("creator_id", UUID.class));
                     rating.setMedia(deletedMedia);
                     ratings.add(rating);
                 }

@@ -1,9 +1,12 @@
 package at.technikum.application.mrp.model.dto;
 
+import java.util.UUID;
+
 public class RatingInput {
-    String mediaId;
+    UUID mediaId;
     int stars;
     String comment;
+    String creatorName;
 
     public RatingInput()
     {
@@ -11,7 +14,7 @@ public class RatingInput {
     }
 
     //SETTER
-    public void setMediaId(String mediaId)
+    public void setMediaId(UUID mediaId)
     {
         this.mediaId = mediaId;
     }
@@ -32,9 +35,19 @@ public class RatingInput {
         this.comment = comment;
     }
 
-    //GETTEr
-    public String getMediaId()
+    public void setCreatorName(String creatorName){
+        this.creatorName = creatorName;
+    }
+
+    //GETTER
+    public UUID getMediaId()
     {
         return mediaId;
     }
+
+    public Integer getStars() { return stars; }
+
+    public String getComment() { return comment; }
+
+    public String getCreatorName(){ return  creatorName; }
 }

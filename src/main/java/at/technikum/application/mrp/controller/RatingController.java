@@ -22,7 +22,7 @@ public class RatingController extends Controller {
         //Dto erstellen
         RatingInput dto = toObject(request.getBody(), RatingInput.class);
         //id extrahieren und dto zufügen
-        dto.setMediaId(request.extractIdAsString());
+        dto.setMediaId(request.extractIdAsUUID());
 
         //Aufruf Service Funktion
         this.ratingService.changeRating(dto);

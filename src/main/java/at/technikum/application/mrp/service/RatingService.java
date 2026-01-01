@@ -1,21 +1,100 @@
 package at.technikum.application.mrp.service;
 
+import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
+import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
+import at.technikum.application.mrp.model.dto.RatingCreated;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.repository.MediaRepository;
+import at.technikum.application.mrp.repository.RatingRepository;
+import at.technikum.application.mrp.repository.UserRepository;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 public class RatingService {
+    private RatingRepository ratingRepository;
     private MediaRepository mediaRepository;
+    private UserRepository userRepository;
 
-    public RatingService(MediaRepository mediaRepository) {
+    public RatingService(RatingRepository ratingRepository, MediaRepository mediaRepository,  UserRepository userRepository) {
+        this.ratingRepository = ratingRepository;
         this.mediaRepository = mediaRepository;
+        this.userRepository = userRepository;
     }
 
-    public void createRating(RatingInput rating_dto)
+    public RatingCreated createRating(RatingInput ratingDTO)
     {
-        //logik
+        // DTO validieren -> Comment darf NULL sein!
+        if(ratingDTO.getMediaId() == null
+            || ratingDTO.getStars() == null
+            || ratingDTO.getCreatorName() == null || ratingDTO.getCreatorName().equals(""))
+        {
+            throw new IllegalArgumentException("RatingDTO misses either stars, mediaId or creatorName");
+        }
+
+        // aus DTO -> Rating erstellen
+        Rating rating = new Rating();
+        rating.setId(UUID.randomUUID());
+        rating.setStars(ratingDTO.getStars());
+        rating.setComment(ratingDTO.getComment());
+        rating.setConfirmed(false); //er wird ja neu erstellt --> noch nicht confirmed
+        //media ist ein media Objekt -> es erhält nur die UUID, da nur diese Relevant für das Speichern des Ratings ist
+        Media media = new Media();
+        media.setId(ratingDTO.getMediaId());
+        rating.setMedia(media);
+        //user-id finden wir über den Namen aus dem Token
+        rating.setCreatorId(this.userRepository.getIdViaName(ratingDTO.getCreatorName()));
 
         //Repo-Funktion aufrufen.
+        Optional<Rating> createdRatingOpt = this.ratingRepository.create(rating);
+
+        //Optional validieren
+        if(!createdRatingOpt.isPresent())
+        {
+            throw new EntityNotSavedCorrectlyException("Rating not saved correctly");
+        }
+
+        /* Folgendes Probelm ist aufgetreten: Beim Serialisieren des Ratings (im Controller)
+        * Ist das nicht möglich, da versucht wird das Media in Rating ebenfalls zu serialisieren.
+        * Zu dem Media haben wir aber nicht alle Informationen (nur die ID)
+        * Lösungesmöglichkeiten:
+        * 1.) Tatsächlich das ganze Media in der DB abfragen
+        *   -> ich mag diese Lösung nicht, da es mir wie ein unnötiger DB Zugriff vorkommt
+        * 2.) Nicht einen Response, sondern ein DTO zurückgeben, welches nicht ein ganzes Media,
+        * sondern nur die UUID des Medias enthält.
+        *   -> Das Entspricht zwar nicht ganz der Schichtenlogik, die wir besprochen haben,
+        *   kommt mir in diesem Fall aber wie die bessere Lösung vor?*/
+
+        //Rating das vom Repo zurückgegeben wird befreien
+        Rating createdRating = createdRatingOpt.get();
+
+
+        // Validieren, dass dessen Inhalte mit denen die gespeichert werden sollten übereinstimmen
+        if (!createdRating.getId().equals(rating.getId())
+                || !createdRating.getMedia().getId().equals(rating.getMedia().getId())
+                || createdRating.getStars() != rating.getStars()
+                || !Objects.equals(createdRating.getComment(), rating.getComment())
+                || createdRating.getConfirmed() != rating.getConfirmed()
+                || !createdRating.getCreatorID().equals(rating.getCreatorID())
+        ) {
+            throw new EntityNotSavedCorrectlyException(
+                    "saved Rating differs from rating that should have been saved");
+        }
+
+
+        //Das Rating in das passende RatingCreated DTO übertragen -> Damit via JSON zurückgegeben werden kann
+        RatingCreated createdRatingDTO = new RatingCreated();
+        createdRatingDTO.setRatingId(createdRating.getId());
+        createdRatingDTO.setStars(createdRating.getStars());
+        createdRatingDTO.setComment(createdRating.getComment());
+        createdRatingDTO.setConfirmed(createdRating.getConfirmed());
+        createdRatingDTO.setMediaId(createdRating.getMedia().getId()); //das ist die einzig relevante Zeile wegen der ich das mache
+        createdRatingDTO.setCreatorId(createdRating.getCreatorID());
+
+        //erstelltes zurückgeben
+        return createdRatingDTO;
     }
 
     public void likeRating(String id)
@@ -43,7 +122,7 @@ public class RatingService {
         //check if Rating belongs to user -> ich brauche als parameter sowohl User Id als auch Rating ID
 
         Rating deletedRating = new Rating();
-        deletedRating.setId(id);
+        deletedRating.setId(UUID.fromString(id));
         return deletedRating;
     }
 
