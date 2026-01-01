@@ -6,6 +6,7 @@ import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.service.MediaService;
+import at.technikum.application.mrp.service.UserService;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
@@ -18,9 +19,12 @@ import java.util.List;
 public class MediaController extends Controller {
 
     private MediaService mediaService;
+    private UserService userService;
 
-    public MediaController(MediaService mediaService) {
+    public MediaController(MediaService mediaService, UserService userService) {
+
         this.mediaService = mediaService;
+        this.userService = userService;
     }
 
     public Response readAll(Request request) {
@@ -67,12 +71,16 @@ public class MediaController extends Controller {
 
 
     public Response create(Request request) {
+        // Request -> DTO
         MediaInput  mediaInput = toObject(request.getBody(),  MediaInput.class);
+
+        //Namen des Creators aus dem auth-Header extrahieren
+        mediaInput.setCreatorName(request.extractNameFromHeader());
 
         //DTO an service weitergeben
         Media createdMedia = mediaService.createMedia(mediaInput);
 
-        //created Media validieren
+        //createdMedia validieren
 
         //just for now:
         return this.json(createdMedia, Status.CREATED);
@@ -81,12 +89,12 @@ public class MediaController extends Controller {
 
     public Response update(Request request) {
         MediaInput  mediaInput = toObject(request.getBody(),  MediaInput.class);
-        mediaInput.setId(request.extractIdAsString());
+
 
         //DTO an Service weitergeben
         Media updatedMedia = mediaService.updateMedia(mediaInput);
 
-        //updatedMedia validieren
+        //updatedMedia validieren -> Nein im Service!
 
 
         return json(updatedMedia, Status.OK);

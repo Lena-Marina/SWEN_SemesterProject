@@ -2,23 +2,25 @@ package at.technikum.application.mrp.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Media {
     //Ids in der Datenbank und Somit auch heir sollten nicht einfach selbstinkrementierende Ints sein,
     //sondern z.B. UUIDs wir werden uns mit Strings behelfen, welche UUIDS repräsentieren
     //es gibt in der Realität auch einen Datentyp für UUIDS
-        private String id;
+        private UUID id;
         private String title;
         private String description;
         private String mediaType; // z.B. "movie", "series", "book"
-        private int releaseYear;
+        private Integer releaseYear;
         private List<Genre> genres;
-        private int ageRestriction;
+        private Integer ageRestriction;
+        private UUID creatorId;
 
         private List<User> favoritedBy; // Users, die dieses Medium als Favorit markiert haben
         private List<Rating> ratings;
 
-        public Media(String id, String title, String mediaType, int releaseYear, int ageRestriction) {
+        public Media(UUID id, String title, String mediaType, int releaseYear, int ageRestriction) {
             this.id = id;
             this.title = title;
             this.mediaType = mediaType;
@@ -34,11 +36,11 @@ public class Media {
         }
 
     // Getter & Setter
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -105,5 +107,9 @@ public class Media {
     public void setRatings(List<Rating> ratings) {
         this.ratings = ratings;
     }
+
+    public UUID getCreatorID() { return creatorId; }
+
+    public void setCreatorID(UUID creatorID) { this.creatorId = creatorID; }
 
 }

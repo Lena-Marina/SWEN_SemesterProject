@@ -1,8 +1,17 @@
 package at.technikum.application.mrp.repository;
 
 import at.technikum.application.common.ConnectionPool;
+import at.technikum.application.mrp.exception.EntityNotFoundException;
+import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
+import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.dto.MediaInput;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,7 +26,52 @@ public class MediaRepository implements MrpRepository<Media>{
 
     @Override
     public Optional<Media> find(UUID id) {
-        return Optional.empty();
+        String sql = "SELECT * FROM media_entry WHERE media_id = ?";
+
+        try(PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql))
+        {
+            stmt.setObject(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next()) {
+                return Optional.empty(); // User existiert nicht
+            }
+
+            return Optional.of(mapToMedia(rs));
+        } catch (Exception e) {
+            throw new EntityNotFoundException(e.getMessage());
+        }
+    }
+
+    private Media mapToMedia(ResultSet rs) throws SQLException {
+        Media media = new Media();
+
+        // UUIDs aus DB auslesen
+        String mediaIdStr = rs.getString("media_id");
+        if (mediaIdStr != null) {
+            media.setId(UUID.fromString(mediaIdStr));
+        }
+
+        String creatorIdStr = rs.getString("creator_id");
+        if (creatorIdStr != null) {
+            media.setCreatorID(UUID.fromString(creatorIdStr));
+        }
+
+        // einfache Strings
+        media.setTitle(rs.getString("title"));
+        media.setDescription(rs.getString("description"));
+        media.setMediaType(rs.getString("type"));
+
+        // int-Werte
+        media.setReleaseYear(rs.getInt("release_year"));
+        media.setAgeRestriction(rs.getInt("age_restriction"));
+
+        // Todo: leere Listen befüllen initialisieren
+        media.setGenres(new ArrayList<>());
+        media.setFavoritedBy(new ArrayList<>());
+        media.setRatings(new ArrayList<>());
+
+        return media;
     }
 
     @Override
@@ -27,8 +81,69 @@ public class MediaRepository implements MrpRepository<Media>{
 
     @Override
     public Optional<Media> create(Media object) {
-        return null;
+
+        try (Connection conn = connectionPool.getConnection();){
+            conn.setAutoCommit(false);
+
+            // media_entry
+            String sql = """
+            INSERT INTO media_entry
+            (media_id, creator_id, title, description, type, release_year, age_restriction)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                // ? befüllen
+                stmt.setObject(1, object.getId());
+                stmt.setObject(2, object.getCreatorID());
+                stmt.setString(3, object.getTitle());
+                stmt.setString(4, object.getDescription());
+                stmt.setString(5, object.getMediaType());
+                stmt.setInt(6, object.getReleaseYear());
+                stmt.setInt(7, object.getAgeRestriction());
+
+                //statement ausführen
+                stmt.executeUpdate();
+            }
+
+            if (object.getGenres() != null) {
+                for (Genre genre : object.getGenres()) { //für jedes Genre einen Eintrag in is_genre erstellen
+                    //zunächst muss die genre_id ermittelt werden
+                    UUID genreId;
+                    try (PreparedStatement stmt = conn.prepareStatement("SELECT genre_id FROM genre WHERE name = ?")) {
+                        // ? befüllen
+                        stmt.setString(1, genre.name());
+
+                        // Statement ausführen
+                        ResultSet rs = stmt.executeQuery();
+
+                        if (!rs.next()) {
+                            throw new EntityNotSavedCorrectlyException(
+                                    "Genre not found: " + genre.name());
+                        }
+                        genreId = rs.getObject("genre_id", UUID.class);
+                    }
+                    //jetzt wird der is_genre Eintrag erstellt
+                    try (PreparedStatement stmt =
+                                 conn.prepareStatement("INSERT INTO is_genre (media_id, genre_id) VALUES (?, ?)")) {
+
+                        // ? befüllen
+                        stmt.setObject(1, object.getId());
+                        stmt.setObject(2, genreId);
+                        // statement ausführen
+                        stmt.executeUpdate();
+                    }
+                }
+            }
+
+            conn.commit();
+            return find(object.getId()); /*ich sollte eigentlich jetzt das Objekt aus der DB abfragen und ds dann zurückgeben damit auch wirklich geprüft wird ob es abgespeichert wurde*/
+
+        } catch (SQLException e) {
+            throw new EntityNotSavedCorrectlyException(e.getMessage());
+        }
     }
+
 
     @Override
     public Optional<Media> update(Media object) {

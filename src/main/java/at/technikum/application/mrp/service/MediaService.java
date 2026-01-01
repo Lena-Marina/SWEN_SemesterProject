@@ -1,30 +1,37 @@
 package at.technikum.application.mrp.service;
 
+import at.technikum.application.mrp.exception.EntityNotFoundException;
+import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
 import at.technikum.application.mrp.repository.MediaRepository;
+import at.technikum.application.mrp.repository.UserRepository;
 
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class MediaService {
 
     private MediaRepository mediaRepository;
+    private UserRepository userRepository;
 
-    public MediaService(MediaRepository mediaRepository) {
+    public MediaService(MediaRepository mediaRepository,  UserRepository userRepository) {
         this.mediaRepository = mediaRepository;
-
+        this.userRepository = userRepository;
     }
 
     public List<Media> getRecommendation(RecommendationRequest dto)
     {
        //just for now - Mockdaten/ später unterscheidung nach type und weitergabe an Repo:
         List<Media> recommendations = new ArrayList<>();
-        recommendations.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
-        recommendations.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
+        //recommendations.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
+        //recommendations.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
 
         return recommendations;
     }
@@ -56,8 +63,8 @@ public class MediaService {
 
         //fake Liste returnieren
         List<Media> filteredList = new ArrayList<>(); //stattdessn Repo-Funktion aufrufen
-        filteredList.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
-        filteredList.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
+        //filteredList.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
+        //filteredList.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
 
         //Liste validieren
 
@@ -72,11 +79,7 @@ public class MediaService {
         Media media = new Media(); //eigentlich mittels repository zurückbekommen!
 
         //for now echot es nur was es rein bekommen hat
-        media.setId(mediaDTO.getId());
-        media.setTitle(mediaDTO.getTitle());
-        media.setDescription(mediaDTO.getDescription());
-        media.setAgeRestriction(mediaDTO.getAgeRestriction());
-        media.setReleaseYear(mediaDTO.getReleaseYear());
+
 
         //media validieren
 
@@ -87,7 +90,7 @@ public class MediaService {
         //id validieren
 
         Media deletedMedia = new Media(); //Repofunktion aufrufen
-        deletedMedia.setId(mediaID);
+        //deletedMedia.setId(mediaID);
         deletedMedia.setTitle("Das gelöschte Medium");
 
         //deletedMedia validieren
@@ -101,7 +104,7 @@ public class MediaService {
 
         //RepoFunktion aufrufen
         Media media = new Media();
-        media.setId(mediaID);
+        //media.setId(mediaID);
         media.setTitle("Media mit ID " + mediaID);
 
         //media Validieren
@@ -110,30 +113,77 @@ public class MediaService {
     }
 
     public Media createMedia(MediaInput mediaDTO) {
-
         //DTO validieren
+        if(mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
+                || mediaDTO.getDescription() == null || mediaDTO.getDescription().isBlank()
+                || mediaDTO.getReleaseYear() == null
+                || mediaDTO.getAgeRestriction() == null
+                || mediaDTO.getCreatorName() == null || mediaDTO.getCreatorName().isBlank()
+        ){
+            throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
+        }
+        //Genre validieren? Braucht es ein Genre oder darf es auch keines haben? Ich denke es darf keines haben, dann taucht es halt bei Suchen nach Genre nicht auf
 
-        //Repo funktion aufrufen
-        Media media = new Media(); //eigentlich mittels repository zurückbekommen!
+        //Media_ID dazugeben
+        mediaDTO.setId(UUID.randomUUID());
 
-        //for now echot es nur was es rein bekommen hat
+        //Creator_ID ermitteln
+        UUID creatorId = this.userRepository.getIdViaName(mediaDTO.getCreatorName());
+
+
+        //DEBUGGING
+        System.out.println("---------------------------------");
+        System.out.println("DEBUG erhaltenes DTO in MediaService::createMedia() ");
+        System.out.println("DEBUG: ID= " + mediaDTO.getId());
+        System.out.println("DEBUG: title = " + mediaDTO.getTitle());
+        System.out.println("DEBUG: description = " + mediaDTO.getDescription());
+        System.out.println("DEBUG: mediaType= " + mediaDTO.getMediaType());
+        System.out.println("DEBUG: releaseYear= " + mediaDTO.getReleaseYear());
+        System.out.println("DEBUG: Genres = " + mediaDTO.getGenres());
+        System.out.println("DEBUG: AgeRestriction = " + mediaDTO.getAgeRestriction());
+        System.out.println("DEBUG: CreatorID = " + creatorId);
+
+        //Repo Funktion erwartet ein Media Objekt, nicht das DTO (Weil ich ja mit Templates gearbeitet habe, lässt sich das jetzt auch nicht so leicht ändern
+        Media media = new Media();
         media.setId(mediaDTO.getId());
         media.setTitle(mediaDTO.getTitle());
         media.setDescription(mediaDTO.getDescription());
-        media.setAgeRestriction(mediaDTO.getAgeRestriction());
         media.setReleaseYear(mediaDTO.getReleaseYear());
+        media.setAgeRestriction(mediaDTO.getAgeRestriction());
+        media.setMediaType(mediaDTO.getMediaType());
+        media.setGenres(mediaDTO.getGenres());
+        media.setCreatorID(creatorId);
+
+
+        //Repo funktion aufrufen
+        Optional<Media> createdMediaOpt = this.mediaRepository.create(media);
 
         //media validieren
+        if(!createdMediaOpt.isPresent()){
+            throw new EntityNotSavedCorrectlyException("saved media was not returned from DB");
+        }
 
-        return media;
+        Media createdMedia = createdMediaOpt.get();
+
+        if(createdMedia.getId() == null
+                || createdMedia.getCreatorID() == null
+                || createdMedia.getTitle() == null || createdMedia.getTitle().isBlank()
+                || createdMedia.getDescription() == null || createdMedia.getDescription().isBlank()
+                || createdMedia.getMediaType() == null || createdMedia.getMediaType().isBlank()
+        )
+        {
+            throw new EntityNotSavedCorrectlyException("saved Media does not contain all necessary fields");
+        }
+
+        return createdMedia;
     }
 
     public List<Media> getUsersFavourites(String userId) {
 
         //fake Liste returnieren
         List<Media> favourites = new ArrayList<>(); //stattdessn Repo-Funktion aufrufen
-        favourites.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
-        favourites.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
+        //favourites.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
+        //favourites.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
 
         return favourites;
 

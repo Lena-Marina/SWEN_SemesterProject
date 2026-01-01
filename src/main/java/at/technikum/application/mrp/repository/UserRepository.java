@@ -35,7 +35,7 @@ public class UserRepository implements MrpRepository<User>{
             if (!rs.next()) {
                 return Optional.empty(); // User existiert nicht
             }
-            //Hier sollte ich auch noch die Listen befüllen, wenn ich den User gefunden habe, oder? -> kommt darauf an wofür ich ihn suche i guess
+
             return Optional.of(mapToUser(rs));
         } catch (Exception e) {
             throw new EntityNotFoundException(e.getMessage());
@@ -185,6 +185,29 @@ public class UserRepository implements MrpRepository<User>{
         return users;
     }
 
+    public UUID getIdViaName(String name){
+        String sql = "SELECT user_id FROM users WHERE username = ?";
+
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
+        {
+            // ? füllen
+            stmt.setString(1, name);
+
+            // Anfrage senden
+            ResultSet rs = stmt.executeQuery();
+
+            // Resultat auswerten und zurückgeben
+            if (rs.next()) {
+                return rs.getObject("user_id", UUID.class);
+            }
+
+            // kein Datensatz gefunden
+            throw new EntityNotFoundException("User with name '" + name + "' not found");
+
+        }catch(SQLException e){
+            throw new EntityNotFoundException(e.getMessage());
+        }
+    }
 
 
     private User mapToUser(ResultSet rs) throws SQLException{

@@ -100,6 +100,7 @@ public class UserService {
         return unpackedSafeduser;
     }
 
+
     public List<User> getMostAktive() {
         List<User> mostAktiveUsers = userRepository.getMostAktive();
         return mostAktiveUsers;

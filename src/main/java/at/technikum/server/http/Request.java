@@ -1,5 +1,7 @@
 package at.technikum.server.http;
 
+import at.technikum.application.mrp.model.User;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -72,6 +74,28 @@ public class Request {
             }
         }
         throw new IllegalArgumentException("Path does not contain a valid ID: " + this.path);
+    }
+
+    public String extractNameFromHeader()
+    {
+        if (authorizationHeader == null || authorizationHeader.isBlank()) {
+            throw new IllegalStateException("Authorization header is missing");
+        }
+
+        String tokenPart = authorizationHeader;
+
+        // Falls Bearer in authHeader ist, muss es entfernt werden
+        if (authorizationHeader.startsWith("Bearer ")) {
+            tokenPart = authorizationHeader.substring("Bearer ".length());
+        }
+
+        // jetzt Name aus Name-mrpToken herausholen
+        int dashIndex = tokenPart.indexOf('-');
+        if (dashIndex <= 0) {
+            throw new IllegalStateException("Invalid authorization token format");
+        }
+
+        return tokenPart.substring(0, dashIndex);
     }
 
 

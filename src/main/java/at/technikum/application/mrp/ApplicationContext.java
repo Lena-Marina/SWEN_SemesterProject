@@ -30,12 +30,12 @@ public class ApplicationContext {
 
     //Services
     UserService userService = new UserService(userRepository);
-    MediaService mediaService = new MediaService(mediaRepository);
+    MediaService mediaService = new MediaService(mediaRepository, userRepository);
     RatingService ratingService = new RatingService(mediaRepository);
     AuthService authService = new AuthService(userRepository);
 
     //Controller
-    MediaController mediaController = new MediaController(mediaService);
+    MediaController mediaController = new MediaController(mediaService, userService);
     UserController userController = new UserController(userService, mediaService);
     RatingController ratingController = new RatingController(ratingService);
     LeaderboardController leaderboardController = new LeaderboardController(userService);
