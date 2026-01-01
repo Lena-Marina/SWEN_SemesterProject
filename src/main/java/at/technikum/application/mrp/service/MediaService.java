@@ -1,6 +1,5 @@
 package at.technikum.application.mrp.service;
 
-import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.exception.UnauthorizedException;
 import at.technikum.application.mrp.model.Media;
@@ -8,10 +7,10 @@ import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
+import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.UserRepository;
 
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +20,12 @@ public class MediaService {
 
     private MediaRepository mediaRepository;
     private UserRepository userRepository;
+    private FavoriteRepository favoriteRepository;
 
-    public MediaService(MediaRepository mediaRepository,  UserRepository userRepository) {
+    public MediaService(MediaRepository mediaRepository,  UserRepository userRepository, FavoriteRepository favoriteRepository) {
         this.mediaRepository = mediaRepository;
         this.userRepository = userRepository;
+        this.favoriteRepository = favoriteRepository;
     }
 
     public List<Media> getRecommendation(RecommendationRequest dto)
@@ -37,10 +38,17 @@ public class MediaService {
         return recommendations;
     }
 
-    public void markAsFavorite(String id)
+    public void markAsFavorite(UUID mediaID, String username)
     {
-        //schauen ob Media Id existieren
-        //vermutlich auch eher das markierte Media zurückgeben
+        // user_id herausfinden
+        UUID userID = userRepository.getIdViaName(username);
+
+        if(userID == null)
+        {
+            throw new IllegalArgumentException(username + " not in DB");
+        }
+
+        this.favoriteRepository.markAsFavorite(mediaID, userID);
 
     }
 

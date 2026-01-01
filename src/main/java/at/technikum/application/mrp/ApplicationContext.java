@@ -3,6 +3,7 @@ package at.technikum.application.mrp;
 import at.technikum.application.common.ConnectionPool;
 import at.technikum.application.common.SubRouter;
 import at.technikum.application.mrp.controller.*;
+import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.UserRepository;
 import at.technikum.application.mrp.router.MainRouter;
@@ -27,10 +28,11 @@ public class ApplicationContext {
     //Repositorys erhalten den ConnectionPool
     UserRepository userRepository = new UserRepository(connectionPool);
     MediaRepository mediaRepository = new MediaRepository(connectionPool);
+    FavoriteRepository favoriteRepository = new FavoriteRepository(connectionPool);
 
     //Services
     UserService userService = new UserService(userRepository);
-    MediaService mediaService = new MediaService(mediaRepository, userRepository);
+    MediaService mediaService = new MediaService(mediaRepository, userRepository, favoriteRepository);
     RatingService ratingService = new RatingService(mediaRepository);
     AuthService authService = new AuthService(userRepository);
 

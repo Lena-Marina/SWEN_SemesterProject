@@ -125,14 +125,17 @@ public class MediaController extends Controller {
 
 
     public Response markAsFavourite(Request request) {
-        //id extrahieren
-        String id = request.extractIdAsString();
+        //Media-id extrahieren
+        UUID mediaID = request.extractIdAsUUID();
+
+        //User-name extrahieren
+        String username = request.extractNameFromHeader();
 
         //Service Funktion aufrufen.
-        this.mediaService.markAsFavorite(id);
+        this.mediaService.markAsFavorite(mediaID, username);
 
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Media with id " + id +" marked as favourite - Du hast die Funktion markAsFavourite() im MediaController erreicht");
+        //wenn bisher keine Exception geworfen wurde positive Rückmeldung:
+        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Media with id " + mediaID +" marked as favourite by user:  " + username);
     }
 
     public Response unmarkAsFavourite(Request request) {
