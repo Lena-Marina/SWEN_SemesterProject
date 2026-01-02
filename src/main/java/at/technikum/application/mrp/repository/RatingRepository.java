@@ -23,7 +23,30 @@ public class RatingRepository implements MrpRepository<Rating>{
 
     @Override
     public Optional<Rating> find(UUID id) {
-        return Optional.empty();
+        //DB abfrage
+        String sql = "SELECT * FROM ratings WHERE rating_id = ?";
+
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
+        {
+            // ? befüllen
+            stmt.setObject(1,id);
+
+            // Statement ausführen
+            ResultSet rs = stmt.executeQuery();
+
+           // Sichergehen, dass es ein Rating mit der ID gibt, bevor versucht wird es zu mappen
+            if (!rs.next()) {
+                return Optional.empty();
+            }
+
+            //Optional von Rating zurückgeben
+            return Optional.of(mapToRating(rs));
+
+
+        }catch(SQLException e){
+            throw new EntityNotFoundException("Rating not found" + e.getMessage());
+        }
+
     }
 
     @Override
@@ -100,5 +123,38 @@ public class RatingRepository implements MrpRepository<Rating>{
     @Override
     public Rating delete(UUID id) {
         return null;
+    }
+
+    public void confirm(UUID ratingID)
+    {
+        String sql = "UPDATE ratings SET confirmed = ? WHERE rating_id = ?";
+
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql)){
+            // ? Befüllen
+            stmt.setBoolean(1, true); //brauche hier auch ein ? nicht um SQL Injektion zu verhindern, sondern um sicher zu gehen, dass ein Boolean gespeichert wird
+            stmt.setObject(2, ratingID);
+
+            // statement ausführen
+            stmt.executeUpdate();
+        }
+        catch(SQLException e)
+        {
+            throw new EntityNotSavedCorrectlyException("Could not confirm Comment: " + e.getMessage());
+        }
+    }
+
+    private  Rating mapToRating(ResultSet rs) throws SQLException
+    {
+        Rating rating = new Rating();
+
+        rating.setId(rs.getObject("rating_id", UUID.class));
+        rating.setComment(rs.getString("comment"));
+        rating.setStars(rs.getInt("stars"));
+        rating.setConfirmed(rs.getBoolean("confirmed"));
+        rating.setCreatorId(rs.getObject("creator_id", UUID.class));
+
+        //Media aus DB holen und auch setzen?
+
+        return rating;
     }
 }

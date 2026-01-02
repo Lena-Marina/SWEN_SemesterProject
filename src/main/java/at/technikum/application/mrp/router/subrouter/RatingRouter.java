@@ -13,11 +13,11 @@ public class RatingRouter extends SubRouter<RatingController> {
 
         //ACHTUNG: die Reihenfolge der Registrierungen ist wichtig,
         //je allgemeiner ein Pfad-Abschnitt ist, desto später muss er registriert werden!
-        register("/confirm", true, Method.POST, controller::confirmComment);
-        register("/like", true, Method.POST, controller::likeRating);
+        register("/confirm", true, Method.POST, controller::confirmComment); // 1. //nur eigene
+        register("/like", true, Method.POST, controller::likeRating); // 2. //nicht die eigenen //nur 1 like pro rating
 
-        register("/ratings/", true, Method.PUT, controller::update);
-        register("/ratings/", true,  Method.DELETE, controller::delete);
+        register("/ratings/", true, Method.PUT, controller::update); // 3. //nicht vergessen: comment wieder unconfirmen //Darf nur von Ersteller*In gemacht werden!
+        register("/ratings/", true,  Method.DELETE, controller::delete); // 4. wsl Rating wieder zurückgeben damit Löschen theoretisch Rückgängig gemacht werden könnte
 
     }
 

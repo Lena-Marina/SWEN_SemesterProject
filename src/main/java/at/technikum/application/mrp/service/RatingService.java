@@ -1,8 +1,11 @@
 package at.technikum.application.mrp.service;
 
+import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
+import at.technikum.application.mrp.exception.UnauthorizedException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
+import at.technikum.application.mrp.model.dto.CommentConfirm;
 import at.technikum.application.mrp.model.dto.RatingCreated;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.repository.MediaRepository;
@@ -126,12 +129,37 @@ public class RatingService {
         return deletedRating;
     }
 
-    public /*Comment*/ void confirmComment(String id)
+    public void confirmComment(CommentConfirm commentDTO)
     {
-        //Repofunktin aufrufen
+        //commentDTO validieren
+            //UUID muss bereits eine sein
+            //username auf emptyness prüfen
+        if(commentDTO.getCreatorName().isEmpty() || commentDTO.getCreatorName().equals(""))
+        {
+            throw new IllegalArgumentException("In order to confirm comment, Creator name in Auth Header can not be empty");
+        }
 
-        //validieren
+        // user_id zu username herausfinden
+        UUID creatorId = this.userRepository.getIdViaName(commentDTO.getCreatorName());
 
-        //Comment zurückgeben
+        // Sicherstellen, dass die Person die den Comment confirmed auch der:die Ersteller:In ist
+            //find gibt es noch nicht, wird ein Optional von einem Rating zurückgeben
+        Optional<Rating> ratingOpt = this.ratingRepository.find(commentDTO.getRatingId());
+
+        if(!ratingOpt.isPresent())
+        {
+            throw new EntityNotFoundException("Rating whichs comment should be confirmed could not be found");
+        }
+
+        //creator_ids aus DB und Request vergleichen
+        if(!creatorId.equals(ratingOpt.get().getCreatorID()))
+        {
+            throw new UnauthorizedException("Unauthorized - only the creator of a rating can confirm its comment. ");
+        }
+
+        //-> Comment confirmen mittels Repo-Funktion
+        this.ratingRepository.confirm(commentDTO.getRatingId());
+
+        //validieren -> Es kommt nichts zurück es gibt nichts zum validieren
     }
 }

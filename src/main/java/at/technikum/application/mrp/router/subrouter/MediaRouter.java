@@ -21,9 +21,9 @@ public class MediaRouter extends SubRouter<MediaController> {
 
         register("/media/", true, Method.DELETE, controller::delete); //done
         register("/media/", true, Method.PUT, controller::update); //done
-        register("/media/",true,  Method.GET, controller::read);
+        register("/media/",true,  Method.GET, controller::read); /*Media Entry Details*/
 
-        register("/media",true,  Method.GET, controller::readAll);
+        register("/media",true,  Method.GET, controller::readAll); /*Alle Einträge sortiert und nach Auswahlkriterium*/
         register("/media",true,  Method.POST, controller::create); //done
 
     }
