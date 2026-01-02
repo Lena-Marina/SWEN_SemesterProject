@@ -30,7 +30,7 @@ public class ApplicationContext {
     RatingRepository ratingRepository = new RatingRepository(connectionPool);
 
     //Services
-    UserService userService = new UserService(userRepository);
+    UserService userService = new UserService(userRepository, ratingRepository);
     MediaService mediaService = new MediaService(mediaRepository, userRepository, favoriteRepository);
     RatingService ratingService = new RatingService(ratingRepository, mediaRepository, userRepository);
     AuthService authService = new AuthService(userRepository);

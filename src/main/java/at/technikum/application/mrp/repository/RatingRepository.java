@@ -300,6 +300,67 @@ public class RatingRepository implements MrpRepository<Rating>{
             throw new EntityNotSavedCorrectlyException("Could not like Rating: " + e.getMessage());
         }
     }
+    public List<Rating> findAllFrom(UUID userID)
+    {
+        List<Rating> userRatings = new ArrayList<>();
+
+        String selectRatingsSql =
+                "SELECT * FROM ratings WHERE creator_id = ?";
+
+        String selectMediaSql =
+                "SELECT * FROM media_entry WHERE media_id = ?";
+
+        try (Connection con = connectionPool.getConnection();
+             PreparedStatement ratingStmt = con.prepareStatement(selectRatingsSql);
+             PreparedStatement mediaStmt = con.prepareStatement(selectMediaSql)) {
+
+            // Zuerst Ratings laden
+            ratingStmt.setObject(1, userID);
+            ResultSet ratingRs = ratingStmt.executeQuery();
+
+            //für jedes Ergebnis, die informationen über das Rating speichern und...
+            while (ratingRs.next()) {
+                Rating rating = new Rating();
+
+                rating.setRatingId(ratingRs.getObject("rating_id", UUID.class));
+                rating.setCreatorId(ratingRs.getObject("creator_id", UUID.class));
+                rating.setStars(ratingRs.getInt("stars"));
+                rating.setConfirmed(ratingRs.getBoolean("confirmed"));
+                rating.setComment(ratingRs.getString("comment"));
+
+                UUID mediaId = ratingRs.getObject("media_id", UUID.class);
+
+                // ... das dazugehörige Media holen und Informationen über dieses speichern
+                mediaStmt.setObject(1, mediaId);
+                ResultSet mediaRs = mediaStmt.executeQuery();
+
+                if (mediaRs.next()) {
+                    Media media = new Media();
+                    media.setId(mediaRs.getObject("media_id", UUID.class));
+                    media.setCreatorID(mediaRs.getObject("creator_id", UUID.class));
+                    media.setTitle(mediaRs.getString("title"));
+                    media.setDescription(mediaRs.getString("description"));
+                    media.setMediaType(mediaRs.getString("type"));
+                    media.setReleaseYear(mediaRs.getInt("release_year"));
+                    media.setAgeRestriction(mediaRs.getInt("age_restriction"));
+
+                    rating.setMedia(media);
+                } else {
+                    throw new EntityNotFoundException(
+                            "Media not found for rating " + rating.getRatingId());
+                }
+
+                userRatings.add(rating);
+            }
+
+            return userRatings;
+
+        } catch (SQLException e) {
+            throw new EntityNotFoundException(
+                    "Could not load ratings for user: " + e.getMessage(), e);
+        }
+    }
+
 
 
     private  Rating mapToRating(ResultSet rs) throws SQLException

@@ -3,6 +3,7 @@ package at.technikum.application.mrp.controller;
 import at.technikum.application.common.Controller;
 import at.technikum.application.mrp.exception.NotJsonBodyException;
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
 import at.technikum.application.mrp.model.dto.UserCredentials;
@@ -16,6 +17,7 @@ import at.technikum.server.http.Status;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 
 /*in den Controllern extrahiere ich die Parameter und rufe die Service Funktionen auf*/
@@ -79,12 +81,12 @@ public class UserController extends Controller {
 
 
     public Response getRatings(Request request) {
-        String userID = request.extractIdAsString();
 
-        /*List<Ratings>*/ this.userService.getUsersRatings(userID);
+        UUID userID = request.extractIdAsUUID();
 
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "ratings von User mit id "+userID+ " Du hast die Funktion getRatings() im UserController erreicht");
+        List<Rating> userRatings = this.userService.getUserRatings(userID);
+
+        return json(userRatings, Status.OK);
     }
 
     public Response getFavourites(Request request) {

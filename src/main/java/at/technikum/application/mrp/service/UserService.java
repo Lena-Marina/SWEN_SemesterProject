@@ -9,9 +9,11 @@ import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.exception.InvalidEntityException;
 import at.technikum.application.mrp.model.Genre;
+import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCredentials;
 import at.technikum.application.mrp.model.dto.UserUpdate;
+import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
 
 import java.util.List;
@@ -21,9 +23,13 @@ import java.util.UUID;
 public class UserService {
 
     private UserRepository userRepository;
+    private RatingRepository ratingRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository,
+                       RatingRepository ratingRepository)
+    {
         this.userRepository = userRepository;
+        this.ratingRepository = ratingRepository;
     }
 
     public User registerUser(UserCredentials credentials) {
@@ -194,13 +200,21 @@ public class UserService {
         throw new EntityNotSavedCorrectlyException("User not safed correctly");
     }
 
-    public /*List<Rating>*/void getUsersRatings(String userID) {
-        //id validieren
+    public List<Rating> getUserRatings(UUID userID) {
+        //id validieren -> Muss nicht, hätte nicht in UUID übersetzt werden können, wenn es nicht UUID wäre
 
         //repo Funktion aufrufen
+        List<Rating> ratings = this.ratingRepository.findAllFrom(userID);
 
-        //erhaltene Liste validieren
+        //erhaltene Liste validieren? auf was prüfen?
+        //alle Kommentare von inhalten die nicht confirmed sind, auf "" setzen
+        for (Rating rating : ratings) {
+            if (!rating.getConfirmed()) {
+                rating.setComment("");
+            }
+        }
 
         //validierte Liste zurückgeben.
+        return ratings;
     }
 }
