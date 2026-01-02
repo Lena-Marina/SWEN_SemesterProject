@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -163,9 +164,103 @@ public class RatingRepository implements MrpRepository<Rating>{
 
 
     @Override
-    public Rating delete(UUID id) {
-        return null;
+    public Rating delete(UUID id)
+    {
+        String selectRatingSql =
+                "SELECT rating_id, stars, comment, confirmed, creator_id, media_id " +
+                        "FROM ratings WHERE rating_id = ?";
+
+        String selectLikesSql =
+                "SELECT user_id FROM liked_by WHERE rating_id = ?";
+
+        String selectMediaSql =
+                "SELECT * FROM media_entry WHERE media_id = ?";
+
+        String deleteLikesSql =
+                "DELETE FROM liked_by WHERE rating_id = ?";
+
+        String deleteRatingSql =
+                "DELETE FROM ratings WHERE rating_id = ?";
+
+        try (Connection con = connectionPool.getConnection()) {
+            con.setAutoCommit(false); //Transaktion öffnen
+
+            Rating deletedRating;
+            UUID mediaId;
+
+            // 1. Rating zum Zurückgeben Speichern
+            try (PreparedStatement stmt = con.prepareStatement(selectRatingSql)) {
+                stmt.setObject(1, id);
+                ResultSet rs = stmt.executeQuery();
+
+                if (!rs.next()) {
+                    con.rollback();
+                    throw new EntityNotFoundException("Rating not found");
+                }
+
+                deletedRating = mapToRating(rs);
+                mediaId = rs.getObject("media_id", UUID.class);
+            }
+
+            // 2. Einträge aus liked_by speichern
+            try (PreparedStatement stmt = con.prepareStatement(selectLikesSql)) {
+                stmt.setObject(1, id);
+                ResultSet rs = stmt.executeQuery();
+
+                List<UUID> likedBy = new ArrayList<>();
+                while (rs.next()) {
+                    likedBy.add(rs.getObject("user_id", UUID.class));
+                }
+
+                deletedRating.setLikedByList(likedBy);
+            }
+
+            // 3. Media holen, damit es in das Rating gespeichert werden kann
+            try (PreparedStatement stmt = con.prepareStatement(selectMediaSql)) {
+                stmt.setObject(1, mediaId);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                    Media media = new Media();
+                    media.setId(rs.getObject("media_id", UUID.class));
+                    media.setCreatorID(rs.getObject("creator_id", UUID.class));
+                    media.setTitle(rs.getString("title"));
+                    media.setDescription(rs.getString("description"));
+                    media.setMediaType(rs.getString("type"));
+                    media.setReleaseYear(rs.getInt("release_year"));
+                    media.setAgeRestriction(rs.getInt("age_restriction"));
+
+                    deletedRating.setMedia(media);
+                }
+            }
+
+            // 4. Likes löschen
+            try (PreparedStatement stmt = con.prepareStatement(deleteLikesSql)) {
+                stmt.setObject(1, id);
+                stmt.executeUpdate();
+            }
+
+            // 5. Rating löschen
+            try (PreparedStatement stmt = con.prepareStatement(deleteRatingSql)) {
+                stmt.setObject(1, id);
+
+                int affected = stmt.executeUpdate();
+                if (affected != 1) {
+                    con.rollback();
+                    throw new EntityNotSavedCorrectlyException("Rating not deleted");
+                }
+            }
+
+            con.commit(); // Transaktion beenden
+            return deletedRating;
+
+        } catch (SQLException e) {
+            throw new EntityNotSavedCorrectlyException(
+                    "Could not delete Rating: " + e.getMessage());
+        }
     }
+
+
 
     public void confirm(UUID ratingID)
     {

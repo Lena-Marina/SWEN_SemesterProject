@@ -30,7 +30,7 @@ public class RatingController extends Controller {
         ratingChangeDTO.setCreatorName(request.extractNameFromHeader());
 
         //Aufruf Service Funktion
-        RatingCreated updatedRating = this.ratingService.changeRating(ratingChangeDTO);
+        RatingReturned updatedRating = this.ratingService.changeRating(ratingChangeDTO);
 
         //Weil im unterricht besprochen: Abweichung von Spezifikation -> es wird das geupdatete Rating retourniert
         return json(updatedRating, Status.OK);
@@ -38,15 +38,16 @@ public class RatingController extends Controller {
 
     public Response delete(Request request) { //deleteRating
 
-        String ratingId = request.extractIdAsString();
+        UUID ratingId = request.extractIdAsUUID();
 
-        Rating deletedRating = this.ratingService.deleteRating(ratingId);
+        //nur der:die Ersteller:In darf Rating auch löschen!
+        String creatorName = request.extractNameFromHeader();
 
-        //validation des deleted Rating
 
-        //Response mit deleted Rating im Body erstellen - Response 204 ist definiert, dass er keinen Body mitschickt!
-        return new Response(Status.UNMARKED,  ContentType.TEXT_PLAIN , "Rating mit id " + deletedRating.getRatingId() + " gelöscht. - Du hast die Funktion delete() im RatingController erreicht");
-        //wenn Erfolg: Status: 204  Rating deleted
+        Rating deletedRating = this.ratingService.deleteRating(ratingId, creatorName);
+
+        //Abweichung von Spezifikation: wir schicken das Deleted Rating zurück, daher anderer Satuscode
+        return json(deletedRating, Status.OK);
     }
 
     public Response likeRating(Request request) {

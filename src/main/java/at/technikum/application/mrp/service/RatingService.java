@@ -28,7 +28,7 @@ public class RatingService {
         this.userRepository = userRepository;
     }
 
-    public RatingCreated createRating(RatingInput ratingDTO)
+    public RatingReturned createRating(RatingInput ratingDTO)
     {
         // DTO validieren -> Comment darf NULL sein!
         if(ratingDTO.getMediaId() == null
@@ -89,7 +89,7 @@ public class RatingService {
 
 
         //Das Rating in das passende RatingCreated DTO übertragen -> Damit via JSON zurückgegeben werden kann
-        RatingCreated createdRatingDTO = new RatingCreated();
+        RatingReturned createdRatingDTO = new RatingReturned();
         createdRatingDTO.setRatingId(createdRating.getRatingId());
         createdRatingDTO.setStars(createdRating.getStars());
         createdRatingDTO.setComment(createdRating.getComment());
@@ -138,7 +138,7 @@ public class RatingService {
         return this.ratingRepository.likeRating(likedByDTO.getRatingId(), senderID);
     }
 
-    public RatingCreated changeRating(RatingChange ratingDTO)
+    public RatingReturned changeRating(RatingChange ratingDTO)
     {
         //dto validieren
         if(ratingDTO.getMediaId() == null
@@ -179,7 +179,7 @@ public class RatingService {
         Rating changedRating = changedRatingOpt.get();
 
         // DTO für Konvertierung und Rückgabe
-        RatingCreated changedRatingDTO = new RatingCreated();
+        RatingReturned changedRatingDTO = new RatingReturned();
         changedRatingDTO.setRatingId(changedRating.getRatingId());
         changedRatingDTO.setStars(changedRating.getStars());
         changedRatingDTO.setComment(changedRating.getComment());
@@ -190,14 +190,32 @@ public class RatingService {
         return changedRatingDTO;
     }
 
-    public Rating deleteRating(String id)
+    public Rating deleteRating(UUID ratingID, String creatorName)
     {
-        //Repofunktion aufrufen!
-        //check if Rating belongs to user -> ich brauche als parameter sowohl User Id als auch Rating ID
+        //String validieren
+        if(creatorName == null || creatorName.equals(""))
+        {
+            throw new IllegalArgumentException("Token misses senderName");
+        }
+        //senderId herausfinden
+        UUID senderID = userRepository.getIdViaName(creatorName);
 
-        Rating deletedRating = new Rating();
-        deletedRating.setRatingId(UUID.fromString(id));
-        return deletedRating;
+        //creatorID herausfinden
+        Optional<Rating> ratingOpt = this.ratingRepository.find(ratingID);
+        if(!ratingOpt.isPresent())
+        {
+            throw new EntityNotFoundException("Rating not found!");
+        }
+        UUID creatorID = ratingOpt.get().getCreatorID();
+
+        //Darf nur gelöscht werden, wenn sender = creator
+        if(!creatorID.equals(senderID))
+        {
+            throw new UnauthorizedException("Users can not delete other user's ratings!");
+        }
+
+        //Repofunktion aufrufen und gleich retournieren -> keine Validation des zurück erhaltenen Objektes, weil ich es selbst zurückgeben möchte wenn Teile fehlen, da ich dann zumindest einen Teil wieder herstellen kann
+        return this.ratingRepository.delete(ratingID);
     }
 
     public void confirmComment(CommentConfirm commentDTO)

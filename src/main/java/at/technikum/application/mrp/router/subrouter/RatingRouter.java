@@ -17,8 +17,7 @@ public class RatingRouter extends SubRouter<RatingController> {
         register("/like", true, Method.POST, controller::likeRating); // Done
 
         register("/ratings/", true, Method.PUT, controller::update); // Done
-        register("/ratings/", true,  Method.DELETE, controller::delete); // 4. wsl Rating wieder zurückgeben damit Löschen theoretisch Rückgängig gemacht werden könnte
-
+        register("/ratings/", true,  Method.DELETE, controller::delete); // Done
     }
 
 }

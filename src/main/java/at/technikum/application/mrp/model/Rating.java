@@ -1,6 +1,9 @@
 package at.technikum.application.mrp.model;
 
 
+import at.technikum.application.mrp.model.dto.LikedBy;
+
+import java.util.List;
 import java.util.UUID;
 
 public class Rating {
@@ -11,6 +14,8 @@ public class Rating {
 
     private UUID creatorId;       // Wer hat die Bewertung abgegeben
     private Media media;     // Auf welchen MediaEntry sich die Bewertung bezieht
+
+    private List<UUID> likedByList;
 
     // SETTER
     public void setRatingId(UUID id){
@@ -40,6 +45,10 @@ public class Rating {
         this.media = deletedMedia;
     }
 
+    public void setLikedByList(List<UUID> likedByList) {
+        this.likedByList = likedByList;
+    }
+
     //GETTER
     public UUID getRatingId() {
         return ratingId;
@@ -63,6 +72,10 @@ public class Rating {
 
     public Media getMedia() {
         return media;
+    }
+
+    public List<UUID> getLikedByList() {
+        return likedByList;
     }
 }
 

@@ -2,7 +2,7 @@ package at.technikum.application.mrp.model.dto;
 
 import java.util.UUID;
 
-public class RatingCreated {
+public class RatingReturned {
     private UUID ratingId;
     private int stars;
     private String comment;
