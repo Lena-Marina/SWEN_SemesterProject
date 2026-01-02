@@ -6,7 +6,6 @@ import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
-import at.technikum.application.mrp.model.dto.MediaInput;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -329,7 +328,7 @@ public class MediaRepository implements MrpRepository<Media> {
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     Rating rating = new Rating();
-                    rating.setId(rs.getObject("rating_id", UUID.class));
+                    rating.setRatingId(rs.getObject("rating_id", UUID.class));
                     rating.setStars(rs.getInt("stars"));
                     rating.setComment(rs.getString("comment"));
                     rating.setConfirmed(rs.getBoolean("confirmed"));

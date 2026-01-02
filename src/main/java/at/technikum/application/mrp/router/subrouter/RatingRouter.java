@@ -16,7 +16,7 @@ public class RatingRouter extends SubRouter<RatingController> {
         register("/confirm", true, Method.POST, controller::confirmComment); // Done
         register("/like", true, Method.POST, controller::likeRating); // Done
 
-        register("/ratings/", true, Method.PUT, controller::update); // 3. //nicht vergessen: comment wieder unconfirmen //Darf nur von Ersteller*In gemacht werden!
+        register("/ratings/", true, Method.PUT, controller::update); // Done
         register("/ratings/", true,  Method.DELETE, controller::delete); // 4. wsl Rating wieder zurückgeben damit Löschen theoretisch Rückgängig gemacht werden könnte
 
     }

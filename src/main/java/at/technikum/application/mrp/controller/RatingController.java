@@ -2,9 +2,7 @@ package at.technikum.application.mrp.controller;
 
 import at.technikum.application.common.Controller;
 import at.technikum.application.mrp.model.Rating;
-import at.technikum.application.mrp.model.dto.CommentConfirm;
-import at.technikum.application.mrp.model.dto.LikedBy;
-import at.technikum.application.mrp.model.dto.RatingInput;
+import at.technikum.application.mrp.model.dto.*;
 import at.technikum.application.mrp.service.RatingService;
 import at.technikum.server.http.ContentType;
 import at.technikum.server.http.Request;
@@ -24,15 +22,18 @@ public class RatingController extends Controller {
     public Response update(Request request) //Update a Rating
     {
         //Dto erstellen
-        RatingInput dto = toObject(request.getBody(), RatingInput.class);
+        RatingChange ratingChangeDTO = toObject(request.getBody(), RatingChange.class);
         //id extrahieren und dto zufügen
-        dto.setMediaId(request.extractIdAsUUID());
+        ratingChangeDTO.setMediaId(request.extractIdAsUUID());
+
+        //name zu DTO hinzufügen
+        ratingChangeDTO.setCreatorName(request.extractNameFromHeader());
 
         //Aufruf Service Funktion
-        this.ratingService.changeRating(dto);
+        RatingCreated updatedRating = this.ratingService.changeRating(ratingChangeDTO);
 
-        //just for now:
-        return new Response(Status.OK, ContentType.TEXT_PLAIN, "Rating zu Media mit id "+ dto.getMediaId() +" geupdated - Du hast die Funktion update() im RatingController erreicht");
+        //Weil im unterricht besprochen: Abweichung von Spezifikation -> es wird das geupdatete Rating retourniert
+        return json(updatedRating, Status.OK);
     }
 
     public Response delete(Request request) { //deleteRating
@@ -44,7 +45,7 @@ public class RatingController extends Controller {
         //validation des deleted Rating
 
         //Response mit deleted Rating im Body erstellen - Response 204 ist definiert, dass er keinen Body mitschickt!
-        return new Response(Status.UNMARKED,  ContentType.TEXT_PLAIN , "Rating mit id " + deletedRating.getId() + " gelöscht. - Du hast die Funktion delete() im RatingController erreicht");
+        return new Response(Status.UNMARKED,  ContentType.TEXT_PLAIN , "Rating mit id " + deletedRating.getRatingId() + " gelöscht. - Du hast die Funktion delete() im RatingController erreicht");
         //wenn Erfolg: Status: 204  Rating deleted
     }
 

@@ -13,12 +13,8 @@ public class Rating {
     private Media media;     // Auf welchen MediaEntry sich die Bewertung bezieht
 
     // SETTER
-    public void setId(UUID id){
+    public void setRatingId(UUID id){
             this.ratingId=id;
-        }
-
-        public UUID getId(){
-            return this.ratingId;
         }
 
     public void setStars(int stars) {

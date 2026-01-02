@@ -5,7 +5,6 @@ import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
-import at.technikum.application.mrp.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -63,7 +62,7 @@ public class RatingRepository implements MrpRepository<Rating>{
         try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
         {
             // ? auffüllen
-            stmt.setObject(1, object.getId());
+            stmt.setObject(1, object.getRatingId());
             stmt.setObject(2, object.getCreatorID());
             stmt.setObject(3, object.getMedia().getId());
             stmt.setString(4, object.getComment());
@@ -84,7 +83,7 @@ public class RatingRepository implements MrpRepository<Rating>{
 
         try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql)){
             // ? Befüllen
-            stmt.setObject(1, object.getId());
+            stmt.setObject(1, object.getRatingId());
 
             // Statement ausführen
             ResultSet rs = stmt.executeQuery();
@@ -92,7 +91,7 @@ public class RatingRepository implements MrpRepository<Rating>{
             //Statement verarbeiten -> Optional des daraus erhaltenen Ratings retournieren
             if (rs.next()) {
                 Rating rating = new Rating();
-                rating.setId(rs.getObject("rating_id", UUID.class));
+                rating.setRatingId(rs.getObject("rating_id", UUID.class));
                 rating.setStars(rs.getInt("stars"));
                 rating.setComment(rs.getString("comment"));
                 rating.setConfirmed(rs.getBoolean("confirmed"));
@@ -117,9 +116,51 @@ public class RatingRepository implements MrpRepository<Rating>{
     }
 
     @Override
-    public Optional<Rating> update(Rating object) {
-        return Optional.empty();
+    public Optional<Rating> update(Rating object)
+    {
+        String updateSql =
+                "UPDATE ratings SET stars = ?, comment = ?, confirmed = ? WHERE rating_id = ?";
+        String selectSql =
+                "SELECT * FROM ratings WHERE rating_id = ?";
+
+        try (Connection con = connectionPool.getConnection()) {
+            con.setAutoCommit(false); // Einheitliche Transaktion
+
+            // Änderung Speichern
+            try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+                updateStmt.setInt(1, object.getStars());
+                updateStmt.setString(2, object.getComment());
+                updateStmt.setBoolean(3, object.getConfirmed());
+                updateStmt.setObject(4, object.getRatingId());
+
+                int affected = updateStmt.executeUpdate();
+                if (affected != 1) {
+                    con.rollback();
+                    return Optional.empty();
+                }
+            }
+
+            // Änderung fürs Zurückgeben auslesen
+            try (PreparedStatement selectStmt = con.prepareStatement(selectSql)) {
+                selectStmt.setObject(1, object.getRatingId());
+
+                ResultSet rs = selectStmt.executeQuery();
+                if (!rs.next()) {
+                    con.rollback();
+                    return Optional.empty();
+                }
+
+                Rating rating = mapToRating(rs);
+                con.commit(); // Transaktion beenden
+                return Optional.of(rating);
+            }
+
+        } catch (SQLException e) {
+            throw new EntityNotSavedCorrectlyException(
+                    "Could not update Rating: " + e.getMessage());
+        }
     }
+
 
     @Override
     public Rating delete(UUID id) {
@@ -170,13 +211,17 @@ public class RatingRepository implements MrpRepository<Rating>{
     {
         Rating rating = new Rating();
 
-        rating.setId(rs.getObject("rating_id", UUID.class));
+        rating.setRatingId(rs.getObject("rating_id", UUID.class));
         rating.setComment(rs.getString("comment"));
         rating.setStars(rs.getInt("stars"));
         rating.setConfirmed(rs.getBoolean("confirmed"));
         rating.setCreatorId(rs.getObject("creator_id", UUID.class));
 
         //Media aus DB holen und auch setzen?
+        Media media = new Media();
+        media.setId(rs.getObject("media_id", UUID.class));
+
+        rating.setMedia(media);
 
         return rating;
     }

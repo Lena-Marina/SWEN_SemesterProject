@@ -5,10 +5,7 @@ import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.exception.UnauthorizedException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
-import at.technikum.application.mrp.model.dto.CommentConfirm;
-import at.technikum.application.mrp.model.dto.LikedBy;
-import at.technikum.application.mrp.model.dto.RatingCreated;
-import at.technikum.application.mrp.model.dto.RatingInput;
+import at.technikum.application.mrp.model.dto.*;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
@@ -43,7 +40,7 @@ public class RatingService {
 
         // aus DTO -> Rating erstellen
         Rating rating = new Rating();
-        rating.setId(UUID.randomUUID());
+        rating.setRatingId(UUID.randomUUID());
         rating.setStars(ratingDTO.getStars());
         rating.setComment(ratingDTO.getComment());
         rating.setConfirmed(false); //er wird ja neu erstellt --> noch nicht confirmed
@@ -79,7 +76,7 @@ public class RatingService {
 
 
         // Validieren, dass dessen Inhalte mit denen die gespeichert werden sollten übereinstimmen
-        if (!createdRating.getId().equals(rating.getId())
+        if (!createdRating.getRatingId().equals(rating.getRatingId())
                 || !createdRating.getMedia().getId().equals(rating.getMedia().getId())
                 || createdRating.getStars() != rating.getStars()
                 || !Objects.equals(createdRating.getComment(), rating.getComment())
@@ -93,7 +90,7 @@ public class RatingService {
 
         //Das Rating in das passende RatingCreated DTO übertragen -> Damit via JSON zurückgegeben werden kann
         RatingCreated createdRatingDTO = new RatingCreated();
-        createdRatingDTO.setRatingId(createdRating.getId());
+        createdRatingDTO.setRatingId(createdRating.getRatingId());
         createdRatingDTO.setStars(createdRating.getStars());
         createdRatingDTO.setComment(createdRating.getComment());
         createdRatingDTO.setConfirmed(createdRating.getConfirmed());
@@ -141,14 +138,56 @@ public class RatingService {
         return this.ratingRepository.likeRating(likedByDTO.getRatingId(), senderID);
     }
 
-    public void changeRating(RatingInput rating_dto)
+    public RatingCreated changeRating(RatingChange ratingDTO)
     {
         //dto validieren
+        if(ratingDTO.getMediaId() == null
+        || ratingDTO.getStars() == null
+        || ratingDTO.getCreatorName() == null || ratingDTO.getCreatorName().equals("")
+        //comment ist optional -> darf Null sein!
+        ){
+            throw new IllegalArgumentException("RatingDTO misses either stars, mediaId or creatorName");
+        }
+
+        // Anfragesteller:in muss ident sein mit rating_creator
+        UUID changerID = userRepository.getIdViaName(ratingDTO.getCreatorName());
+        Optional<Rating> ratingOpt = this.ratingRepository.find(ratingDTO.getMediaId());
+        if(!ratingOpt.isPresent())
+        {
+            throw new EntityNotFoundException("Rating not found!");
+        }
+        if(!changerID.equals(ratingOpt.get().getCreatorID()))
+        {
+            throw new UnauthorizedException("Users can not change other user's ratings!");
+        }
+
+        //Repository erwartet ein RatingObjekt, daher DTO umwandeln
+        Rating rating = new Rating();
+        rating.setRatingId(ratingOpt.get().getRatingId()); //brauche ich um es zu finden
+        rating.setStars(ratingDTO.getStars()); //brauche ich, weil möglicherweise geändert
+        rating.setComment(ratingDTO.getComment()); //brauche ich, weil möglicherweise geändert
+        rating.setConfirmed(false); // ich gehe davon aus, dass der geupdatete Kommentar auch erst wieder bestätigt werden muss
+
 
         //Repo Funktion aufrufen
-        //check if Rating belongs to user -> ich brauche als parameter auch noch die User ID
+        Optional<Rating> changedRatingOpt = this.ratingRepository.update(rating);
 
-        //etwas zurückgeben
+        if(!changedRatingOpt.isPresent()){
+            throw new EntityNotSavedCorrectlyException("Rating not saved correctly");
+        }
+
+        Rating changedRating = changedRatingOpt.get();
+
+        // DTO für Konvertierung und Rückgabe
+        RatingCreated changedRatingDTO = new RatingCreated();
+        changedRatingDTO.setRatingId(changedRating.getRatingId());
+        changedRatingDTO.setStars(changedRating.getStars());
+        changedRatingDTO.setComment(changedRating.getComment());
+        changedRatingDTO.setConfirmed(changedRating.getConfirmed());
+        changedRatingDTO.setMediaId(changedRating.getMedia().getId());
+        changedRatingDTO.setCreatorId(changedRating.getCreatorID());
+
+        return changedRatingDTO;
     }
 
     public Rating deleteRating(String id)
@@ -157,7 +196,7 @@ public class RatingService {
         //check if Rating belongs to user -> ich brauche als parameter sowohl User Id als auch Rating ID
 
         Rating deletedRating = new Rating();
-        deletedRating.setId(UUID.fromString(id));
+        deletedRating.setRatingId(UUID.fromString(id));
         return deletedRating;
     }
 
