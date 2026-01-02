@@ -7,6 +7,7 @@ import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.User;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -143,6 +144,28 @@ public class RatingRepository implements MrpRepository<Rating>{
         }
     }
 
+    public UUID likeRating(UUID ratingID, UUID userID)
+    {
+        String sql = "INSERT INTO liked_by (rating_id, user_id) VALUES (?, ?)";
+
+        try (PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql)) {
+
+            stmt.setObject(1, ratingID);
+            stmt.setObject(2, userID);
+
+            int affected = stmt.executeUpdate(); //Wirft eine Exception, wenn nicht erfolgreich eingetragen
+            if (affected != 1) {
+                throw new EntityNotSavedCorrectlyException("Like was not saved");
+            }
+
+            return ratingID;
+
+        } catch (SQLException e) {
+            throw new EntityNotSavedCorrectlyException("Could not like Rating: " + e.getMessage());
+        }
+    }
+
+
     private  Rating mapToRating(ResultSet rs) throws SQLException
     {
         Rating rating = new Rating();
@@ -156,5 +179,32 @@ public class RatingRepository implements MrpRepository<Rating>{
         //Media aus DB holen und auch setzen?
 
         return rating;
+    }
+
+    public boolean likedBy(UUID ratingID, UUID userID)
+    {
+        String sql = "SELECT * FROM liked_by WHERE user_id=? AND rating_id=?";
+
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
+        {
+            // ? befüllen
+            stmt.setObject(1,userID);
+            stmt.setObject(2,ratingID);
+
+            // Statement ausführen
+            ResultSet rs = stmt.executeQuery();
+
+            // Resultat verwalten
+            if (!rs.next()) {
+                return false;
+            }
+            return true;
+
+        }catch(SQLException e)
+        {   // für mich ist es zum Debuggen jetzt praktisch, so genau zu schreiben wo der Fehler liegt,
+            // aber in der realität wäre es wsl schlecht den Namen der Tabelle in einer Exception zurück zu geben
+            // da so SQL Injektion einfacher wird?
+            throw new EntityNotFoundException("could not find row in liked_by" + e.getMessage());
+        }
     }
 }

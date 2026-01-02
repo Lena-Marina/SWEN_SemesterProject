@@ -6,6 +6,7 @@ import at.technikum.application.mrp.exception.UnauthorizedException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.dto.CommentConfirm;
+import at.technikum.application.mrp.model.dto.LikedBy;
 import at.technikum.application.mrp.model.dto.RatingCreated;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.repository.MediaRepository;
@@ -21,7 +22,10 @@ public class RatingService {
     private MediaRepository mediaRepository;
     private UserRepository userRepository;
 
-    public RatingService(RatingRepository ratingRepository, MediaRepository mediaRepository,  UserRepository userRepository) {
+    public RatingService(RatingRepository ratingRepository,
+                         MediaRepository mediaRepository,
+                         UserRepository userRepository
+                         ) {
         this.ratingRepository = ratingRepository;
         this.mediaRepository = mediaRepository;
         this.userRepository = userRepository;
@@ -100,13 +104,41 @@ public class RatingService {
         return createdRatingDTO;
     }
 
-    public void likeRating(String id)
+    public UUID likeRating(LikedBy likedByDTO)
     {
-        //id validieren.
+        // Validierung
+        if(likedByDTO.getSenderName().isEmpty() || likedByDTO.getSenderName().equals("")){
+            throw new IllegalArgumentException("LikedByDTO misses senderName");
+        }
 
-        //Repo Funktion aufrufen
+        // kontrolle: User darf nicht eigenes Rating liken
+        UUID senderID = userRepository.getIdViaName(likedByDTO.getSenderName());
 
-        //eventuell geliktes Rating zurückgeben.
+        Optional<Rating> ratingToLike = this.ratingRepository.find(likedByDTO.getRatingId());
+        if(!ratingToLike.isPresent())
+        {
+            throw new EntityNotFoundException("Rating to be liked not found!");
+        }
+        UUID creatorID = ratingToLike.get().getCreatorID();
+
+        if(senderID.equals(creatorID))
+        {
+            throw new UnauthorizedException("Users can not like their own rating!");
+        }
+
+        // Kontrolle: User:in darf Rating nur 1x liken
+            //also eigentlich wollen wir ein find() in einem LikeRepository machen und ein Empty Optional zurückbekommen
+            //okay nach dem Umsetzen ist mir klar geworden, dass das unsinnig ist, da wir keine zusätzlichen Informationen
+            // in der Tabelle haben -> ich denke eine boolean likedBy() funktion im RatingsRepo macht mehr Sinn
+        boolean alreadyLiked = this.ratingRepository.likedBy(likedByDTO.getRatingId(), senderID);
+
+        if(alreadyLiked)
+        {
+            throw new UnauthorizedException("A user can like the same rating only once!");
+        }
+
+        // Rating liken
+        return this.ratingRepository.likeRating(likedByDTO.getRatingId(), senderID);
     }
 
     public void changeRating(RatingInput rating_dto)
