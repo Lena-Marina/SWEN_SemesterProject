@@ -5,6 +5,7 @@ import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
+import at.technikum.application.mrp.model.helper.RecommendationHelper;
 import at.technikum.application.mrp.model.util.ModelMapper;
 
 import java.sql.Connection;
@@ -44,7 +45,7 @@ public class RatingRepository implements MrpRepository<Rating>{
             }
 
             //Optional von Rating zurückgeben
-            return Optional.of(mapToRating(rs));
+            return Optional.of(mapper.mapToRating(rs));
 
 
         }catch(SQLException e){
@@ -68,7 +69,7 @@ public class RatingRepository implements MrpRepository<Rating>{
             // ? auffüllen
             stmt.setObject(1, object.getRatingId());
             stmt.setObject(2, object.getCreatorID());
-            stmt.setObject(3, object.getMedia().getId());
+            stmt.setObject(3, object.getMediaID());
             stmt.setString(4, object.getComment());
             stmt.setInt(5, object.getStars());
             stmt.setBoolean(6, object.getConfirmed());
@@ -101,11 +102,7 @@ public class RatingRepository implements MrpRepository<Rating>{
                 rating.setConfirmed(rs.getBoolean("confirmed"));
 
                 rating.setCreatorId(rs.getObject("creator_id", UUID.class));
-
-                // Media-Referenz -> dafür muss ich wieder ein Media Objekt erstellen
-                Media media = new Media();
-                media.setId(rs.getObject("media_id", UUID.class));
-                rating.setMedia(media);
+                rating.setMediaId(rs.getObject("media_id", UUID.class));
 
                 return Optional.of(rating);
             }
@@ -154,7 +151,7 @@ public class RatingRepository implements MrpRepository<Rating>{
                     return Optional.empty();
                 }
 
-                Rating rating = mapToRating(rs);
+                Rating rating = mapper.mapToRating(rs);
                 con.commit(); // Transaktion beenden
                 return Optional.of(rating);
             }
@@ -175,9 +172,6 @@ public class RatingRepository implements MrpRepository<Rating>{
 
         String selectLikesSql =
                 "SELECT user_id FROM liked_by WHERE rating_id = ?";
-
-        String selectMediaSql =
-                "SELECT * FROM media_entry WHERE media_id = ?";
 
         String deleteLikesSql =
                 "DELETE FROM liked_by WHERE rating_id = ?";
@@ -201,8 +195,7 @@ public class RatingRepository implements MrpRepository<Rating>{
                     throw new EntityNotFoundException("Rating not found");
                 }
 
-                deletedRating = mapToRating(rs);
-                mediaId = rs.getObject("media_id", UUID.class);
+                deletedRating = mapper.mapToRating(rs);
             }
 
             // 2. Einträge aus liked_by speichern
@@ -218,32 +211,13 @@ public class RatingRepository implements MrpRepository<Rating>{
                 deletedRating.setLikedByList(likedBy);
             }
 
-            // 3. Media holen, damit es in das Rating gespeichert werden kann
-            try (PreparedStatement stmt = con.prepareStatement(selectMediaSql)) {
-                stmt.setObject(1, mediaId);
-                ResultSet rs = stmt.executeQuery();
-
-                if (rs.next()) {
-                    Media media = new Media();
-                    media.setId(rs.getObject("media_id", UUID.class));
-                    media.setCreatorID(rs.getObject("creator_id", UUID.class));
-                    media.setTitle(rs.getString("title"));
-                    media.setDescription(rs.getString("description"));
-                    media.setMediaType(rs.getString("type"));
-                    media.setReleaseYear(rs.getInt("release_year"));
-                    media.setAgeRestriction(rs.getInt("age_restriction"));
-
-                    deletedRating.setMedia(media);
-                }
-            }
-
-            // 4. Likes löschen
+            // 3. Likes löschen
             try (PreparedStatement stmt = con.prepareStatement(deleteLikesSql)) {
                 stmt.setObject(1, id);
                 stmt.executeUpdate();
             }
 
-            // 5. Rating löschen
+            // 4. Rating löschen
             try (PreparedStatement stmt = con.prepareStatement(deleteRatingSql)) {
                 stmt.setObject(1, id);
 
@@ -310,18 +284,15 @@ public class RatingRepository implements MrpRepository<Rating>{
         String selectRatingsSql =
                 "SELECT * FROM ratings WHERE creator_id = ?";
 
-        String selectMediaSql =
-                "SELECT * FROM media_entry WHERE media_id = ?";
-
         try (Connection con = connectionPool.getConnection();
              PreparedStatement ratingStmt = con.prepareStatement(selectRatingsSql);
-             PreparedStatement mediaStmt = con.prepareStatement(selectMediaSql)) {
+             ) {
 
             // Zuerst Ratings laden
             ratingStmt.setObject(1, userID);
             ResultSet ratingRs = ratingStmt.executeQuery();
 
-            //für jedes Ergebnis, die informationen über das Rating speichern und...
+            //für jedes Ergebnis, die informationen über das Rating speichern
             while (ratingRs.next()) {
                 Rating rating = new Rating();
 
@@ -330,28 +301,7 @@ public class RatingRepository implements MrpRepository<Rating>{
                 rating.setStars(ratingRs.getInt("stars"));
                 rating.setConfirmed(ratingRs.getBoolean("confirmed"));
                 rating.setComment(ratingRs.getString("comment"));
-
-                UUID mediaId = ratingRs.getObject("media_id", UUID.class);
-
-                // ... das dazugehörige Media holen und Informationen über dieses speichern
-                mediaStmt.setObject(1, mediaId);
-                ResultSet mediaRs = mediaStmt.executeQuery();
-
-                if (mediaRs.next()) {
-                    Media media = new Media();
-                    media.setId(mediaRs.getObject("media_id", UUID.class));
-                    media.setCreatorID(mediaRs.getObject("creator_id", UUID.class));
-                    media.setTitle(mediaRs.getString("title"));
-                    media.setDescription(mediaRs.getString("description"));
-                    media.setMediaType(mediaRs.getString("type"));
-                    media.setReleaseYear(mediaRs.getInt("release_year"));
-                    media.setAgeRestriction(mediaRs.getInt("age_restriction"));
-
-                    rating.setMedia(media);
-                } else {
-                    throw new EntityNotFoundException(
-                            "Media not found for rating " + rating.getRatingId());
-                }
+                rating.setMediaId(ratingRs.getObject("media_id", UUID.class));
 
                 userRatings.add(rating);
             }
@@ -364,26 +314,6 @@ public class RatingRepository implements MrpRepository<Rating>{
         }
     }
 
-
-
-    private  Rating mapToRating(ResultSet rs) throws SQLException
-    {
-        Rating rating = new Rating();
-
-        rating.setRatingId(rs.getObject("rating_id", UUID.class));
-        rating.setComment(rs.getString("comment"));
-        rating.setStars(rs.getInt("stars"));
-        rating.setConfirmed(rs.getBoolean("confirmed"));
-        rating.setCreatorId(rs.getObject("creator_id", UUID.class));
-
-        //Media aus DB holen und auch setzen?
-        Media media = new Media();
-        media.setId(rs.getObject("media_id", UUID.class));
-
-        rating.setMedia(media);
-
-        return rating;
-    }
 
     public boolean likedBy(UUID ratingID, UUID userID)
     {
@@ -411,4 +341,62 @@ public class RatingRepository implements MrpRepository<Rating>{
             throw new EntityNotFoundException("could not find row in liked_by" + e.getMessage());
         }
     }
+
+    public RecommendationHelper getTypeWithStars(UUID ratingId) {
+        String sql = "SELECT me.type, r.stars " +
+                "FROM ratings r " +
+                "JOIN media_entry me ON me.media_id = r.media_id " +
+                "WHERE r.rating_id = ?";
+
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql))
+        {
+            // ? befüllen
+            stmt.setObject(1, ratingId);
+
+            // stmt ausführen
+            ResultSet rs = stmt.executeQuery();
+
+            // Ergebnis auswerten
+            if(!rs.next()) {
+                throw new EntityNotFoundException("could not find row in ratings");
+            }
+            RecommendationHelper recom = new RecommendationHelper();
+            recom.setStars(rs.getInt("stars"));
+            recom.setName(rs.getString("type"));
+            return recom;
+
+
+        }catch(SQLException e)
+        {
+            throw new EntityNotFoundException("could not find rating with id " + ratingId + "in ratings AND/OR: " + e.getMessage());
+        }
+
+    }
+
+    public List<RecommendationHelper> getGenresWithStars(UUID ratingId) {
+        String sql = "SELECT g.name, r.stars " +
+                "FROM ratings r " +
+                "JOIN media_entry me ON me.media_id = r.media_id " +
+                "JOIN is_genre ig ON me.media_id = ig.media_id " +
+                "JOIN genre g ON ig.genre_id = g.genre_id " +
+                "WHERE r.rating_id = ?";
+
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql)) {
+            stmt.setObject(1, ratingId);
+            ResultSet rs = stmt.executeQuery();
+
+            List<RecommendationHelper> recoms = new ArrayList<>();
+            while(rs.next()) {
+                RecommendationHelper recom = new RecommendationHelper();
+                recom.setStars(rs.getInt("stars"));
+                recom.setName(rs.getString("name")); // entspricht dem Genre-Name
+                recoms.add(recom);
+            }
+            return recoms;
+
+        } catch(SQLException e) {
+            throw new EntityNotFoundException("Could not get genres for rating " + ratingId + ": " + e.getMessage());
+        }
+    }
+
 }

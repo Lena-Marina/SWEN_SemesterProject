@@ -2,38 +2,112 @@ package at.technikum.application.mrp.service;
 
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.exception.UnauthorizedException;
+import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
+import at.technikum.application.mrp.model.helper.RecommendationHelper;
 import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.MediaRepository;
+import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MediaService {
 
     private MediaRepository mediaRepository;
     private UserRepository userRepository;
     private FavoriteRepository favoriteRepository;
+    private RatingRepository ratingRepository;
 
-    public MediaService(MediaRepository mediaRepository,  UserRepository userRepository, FavoriteRepository favoriteRepository) {
+    public MediaService(MediaRepository mediaRepository,
+                        UserRepository userRepository,
+                        FavoriteRepository favoriteRepository,
+                        RatingRepository ratingRepository) {
         this.mediaRepository = mediaRepository;
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
+        this.ratingRepository = ratingRepository;
     }
 
-    public List<Media> getRecommendation(RecommendationRequest dto)
-    {
-       //just for now - Mockdaten/ später unterscheidung nach type und weitergabe an Repo:
+    public List<Media> getRecommendation(RecommendationRequest dto) {
+        // Validation
+        if (!"genre".equals(dto.getType()) && !"content".equals(dto.getType())) {
+            throw new IllegalArgumentException("QueryParam 'type' for recommendations has to be either 'genre' or 'content'");
+        }
+
+        //Alle Ratings von dem user finden
+        List<Rating> userRatings = this.ratingRepository.findAllFrom(dto.getUserId());
+        //DEBUGGING
+        System.out.println("DEBUGGING: in MediaService::getRecommendation() List<Rating> userRatings: ");
+        for (Rating rating : userRatings) {
+            System.out.println(rating.getRatingId());
+        }
+
+        //Je nach type eine andere Repo Funktion aufrufen, um recommendations zu befüllen (Weil Logik, will ich das hier und nicht im Repo)
+        List<RecommendationHelper> recoms = new ArrayList<>();
+        if (dto.getType().equals("content")) {
+
+            for (Rating rating : userRatings) {
+                RecommendationHelper recom = this.ratingRepository.getTypeWithStars(rating.getRatingId());
+                recoms.add(recom);
+            }
+
+        } else if (dto.getType().equals("genre")) {
+            for (Rating rating : userRatings) {
+                List<RecommendationHelper> recomList = this.ratingRepository.getGenresWithStars(rating.getRatingId());
+                recoms.addAll(recomList);
+            }
+        }
+        //DEBUGGING
+        System.out.println("DEBUGGING: in MediaService::getRecommendation() List<RecommendationHelper> recoms: ");
+        for (RecommendationHelper recom : recoms) {
+            System.out.println(recom.getName());
+        }
+
+        //auswerten was insgesamt die meisten Sterne hat
+        Map<String, Integer> starsPerName = new HashMap<>();
+        for (RecommendationHelper recom : recoms) {
+            starsPerName.merge(recom.getName(), recom.getStars(), Integer::sum);
+        }
+        //DEBUGGING
+        System.out.println("DEBUGGING: in MediaService::getRecommendation() Map<String, Integer> starsPerName:");
+        for (Map.Entry<String, Integer> entry : starsPerName.entrySet()) {
+            System.out.println("DEBUGGING:   Name: " + entry.getKey() + ", Total Stars: " + entry.getValue());
+        }
+
+        // Sortieren nach höchster Summe
+        List<Map.Entry<String, Integer>> sortedEntries = starsPerName.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .toList();
+
+        //DEBUGGING
+        System.out.println("DEBUGGING: in MediaService::getRecommendation() List<Map.Entry<String, Integer>> sortedEntries:");
+        for (Map.Entry<String, Integer> entry : sortedEntries) {
+            System.out.println("DEBUGGING:   Name: " + entry.getKey() + ", Total Stars: " + entry.getValue());
+        }
+
+        //ja nachdem ob genre oder content unterschiedliche Funktionen aufrufen um alle dazu passenden media_entrys zu bekommen
         List<Media> recommendations = new ArrayList<>();
-        //recommendations.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
-        //recommendations.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
+
+        if (!sortedEntries.isEmpty()) {
+            String topName = sortedEntries.get(0).getKey();
+            //DEBUGGING
+            System.out.println("DEBUGGING: in MediaService::getRecommendation() | topName: " + topName);
+            System.out.println("DEBUGGING: in MediaService::getRecommendation() | type: " + dto.getType());
+            if (dto.getType().equals("genre")) {
+                recommendations = this.mediaRepository.findAllWithGenre(topName);
+            } else if (dto.getType().equals("content")) {
+                recommendations = this.mediaRepository.findAllWithType(topName);
+            }
+        }
+        //Keine validierung für eine leere Liste -> Wenn User keine Ratings verfasst, bekommt User keine Recommendations
+        // In echt hätte man hier wsl eine Basis Liste mit aktuell gepushten Titeln?
 
         return recommendations;
     }

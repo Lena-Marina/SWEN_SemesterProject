@@ -28,7 +28,7 @@ public class RatingService {
         this.userRepository = userRepository;
     }
 
-    public RatingReturned createRating(RatingInput ratingDTO)
+    public Rating createRating(RatingInput ratingDTO)
     {
         // DTO validieren -> Comment darf NULL sein!
         if(ratingDTO.getMediaId() == null
@@ -45,9 +45,7 @@ public class RatingService {
         rating.setComment(ratingDTO.getComment());
         rating.setConfirmed(false); //er wird ja neu erstellt --> noch nicht confirmed
         //media ist ein media Objekt -> es erhält nur die UUID, da nur diese Relevant für das Speichern des Ratings ist
-        Media media = new Media();
-        media.setId(ratingDTO.getMediaId());
-        rating.setMedia(media);
+        rating.setMediaId(ratingDTO.getMediaId());
         //user-id finden wir über den Namen aus dem Token
         rating.setCreatorId(this.userRepository.getIdViaName(ratingDTO.getCreatorName()));
 
@@ -77,7 +75,7 @@ public class RatingService {
 
         // Validieren, dass dessen Inhalte mit denen die gespeichert werden sollten übereinstimmen
         if (!createdRating.getRatingId().equals(rating.getRatingId())
-                || !createdRating.getMedia().getId().equals(rating.getMedia().getId())
+                || !createdRating.getMediaID().equals(rating.getMediaID())
                 || createdRating.getStars() != rating.getStars()
                 || !Objects.equals(createdRating.getComment(), rating.getComment())
                 || createdRating.getConfirmed() != rating.getConfirmed()
@@ -87,18 +85,8 @@ public class RatingService {
                     "saved Rating differs from rating that should have been saved");
         }
 
-
-        //Das Rating in das passende RatingCreated DTO übertragen -> Damit via JSON zurückgegeben werden kann
-        RatingReturned createdRatingDTO = new RatingReturned();
-        createdRatingDTO.setRatingId(createdRating.getRatingId());
-        createdRatingDTO.setStars(createdRating.getStars());
-        createdRatingDTO.setComment(createdRating.getComment());
-        createdRatingDTO.setConfirmed(createdRating.getConfirmed());
-        createdRatingDTO.setMediaId(createdRating.getMedia().getId()); //das ist die einzig relevante Zeile wegen der ich das mache
-        createdRatingDTO.setCreatorId(createdRating.getCreatorID());
-
         //erstelltes zurückgeben
-        return createdRatingDTO;
+        return createdRating;
     }
 
     public UUID likeRating(LikedBy likedByDTO)
@@ -184,7 +172,7 @@ public class RatingService {
         changedRatingDTO.setStars(changedRating.getStars());
         changedRatingDTO.setComment(changedRating.getComment());
         changedRatingDTO.setConfirmed(changedRating.getConfirmed());
-        changedRatingDTO.setMediaId(changedRating.getMedia().getId());
+        changedRatingDTO.setMediaId(changedRating.getMediaID());
         changedRatingDTO.setCreatorId(changedRating.getCreatorID());
 
         return changedRatingDTO;

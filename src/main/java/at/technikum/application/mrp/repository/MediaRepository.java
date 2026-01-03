@@ -308,7 +308,7 @@ public class MediaRepository implements MrpRepository<Media> {
                     rating.setComment(rs.getString("comment"));
                     rating.setConfirmed(rs.getBoolean("confirmed"));
                     rating.setCreatorId(rs.getObject("creator_id", UUID.class));
-                    rating.setMedia(deletedMedia);
+                    rating.setMediaId(rs.getObject("media_id", UUID.class));
                     ratings.add(rating);
                 }
             }
@@ -352,4 +352,130 @@ public class MediaRepository implements MrpRepository<Media> {
         // 10. Media zurückgeben
         return deletedMedia;
     }
+
+    public List<Media> findAllWithGenre(String genreName) {
+        String sql = "SELECT me.* " +
+                "FROM media_entry me " +
+                "JOIN is_genre ig ON me.media_id = ig.media_id " +
+                "JOIN genre g ON ig.genre_id = g.genre_id " +
+                "WHERE g.name = ?";
+
+        List<Media> mediaList = new ArrayList<>();
+
+        try (Connection con = connectionPool.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql);
+             PreparedStatement genreStmt = con.prepareStatement(
+                     "SELECT g.name FROM is_genre ig JOIN genre g ON ig.genre_id = g.genre_id WHERE ig.media_id = ?");
+             PreparedStatement ratingStmt = con.prepareStatement(
+                     "SELECT * FROM ratings r WHERE r.media_id = ?");
+             PreparedStatement likedByStmt = con.prepareStatement(
+                     "SELECT user_id FROM liked_by WHERE rating_id = ?")) {
+
+            //Medias finden
+            stmt.setString(1, genreName);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Media media = mapper.mapToMedia(rs);
+
+                // Da Media auch Genres enthält die auch laden
+                genreStmt.setObject(1, media.getId());
+                ResultSet genreRs = genreStmt.executeQuery();
+                List<Genre> genres = new ArrayList<>();
+                while (genreRs.next()) {
+                    genres.add(Genre.fromString(genreRs.getString("name")));
+                }
+                media.setGenres(genres);
+
+                // Da Media auch Ratings enthält, die auch laden
+                ratingStmt.setObject(1, media.getId());
+                ResultSet ratingRs = ratingStmt.executeQuery();
+                List<Rating> ratings = new ArrayList<>();
+                while (ratingRs.next()) {
+                    Rating rating = mapper.mapToRating(ratingRs);
+
+                    // Da die Ratings in Media auch die likedBy Liste enthalten, auch die laden
+                    likedByStmt.setObject(1, rating.getRatingId());
+                    ResultSet likedRs = likedByStmt.executeQuery();
+                    List<UUID> likedBy = new ArrayList<>();
+                    while (likedRs.next()) {
+                        likedBy.add(likedRs.getObject("user_id", UUID.class));
+                    }
+                    rating.setLikedByList(likedBy);
+
+
+                    ratings.add(rating);
+                }
+                media.setRatings(ratings);
+
+                mediaList.add(media);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not find media with genre " + genreName + e.getMessage());
+        }
+
+        return mediaList;
+    }
+
+    public List<Media> findAllWithType(String topName) {
+        String sql = "SELECT * FROM media_entry WHERE type = ?";
+        List<Media> mediaList = new ArrayList<>();
+
+        try (Connection con = connectionPool.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql);
+             PreparedStatement genreStmt = con.prepareStatement(
+                     "SELECT g.name FROM is_genre ig JOIN genre g ON ig.genre_id = g.genre_id WHERE ig.media_id = ?");
+             PreparedStatement ratingStmt = con.prepareStatement(
+                     "SELECT * FROM ratings r WHERE r.media_id = ?");
+             PreparedStatement likedByStmt = con.prepareStatement(
+                     "SELECT user_id FROM liked_by WHERE rating_id = ?")) {
+
+            // 1. Medien nach Typ abfragen
+            stmt.setString(1, topName);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Media media = mapper.mapToMedia(rs);
+
+                // 2. Genres für jedes Medium laden
+                genreStmt.setObject(1, media.getId());
+                ResultSet genreRs = genreStmt.executeQuery();
+                List<Genre> genres = new ArrayList<>();
+                while (genreRs.next()) {
+                    genres.add(Genre.fromString(genreRs.getString("name")));
+                }
+                media.setGenres(genres);
+
+                // 3. Ratings für jedes Medium laden
+                ratingStmt.setObject(1, media.getId());
+                ResultSet ratingRs = ratingStmt.executeQuery();
+                List<Rating> ratings = new ArrayList<>();
+                while (ratingRs.next()) {
+                    Rating rating = mapper.mapToRating(ratingRs);
+
+                    // 4. likedBy für jede Bewertung laden
+                    likedByStmt.setObject(1, rating.getRatingId());
+                    ResultSet likedRs = likedByStmt.executeQuery();
+                    List<UUID> likedBy = new ArrayList<>();
+                    while (likedRs.next()) {
+                        likedBy.add(likedRs.getObject("user_id", UUID.class));
+                    }
+                    rating.setLikedByList(likedBy);
+
+                    // Media-Referenz entfällt, nur mediaId bleibt im Rating
+                    ratings.add(rating);
+                }
+                media.setRatings(ratings);
+
+                mediaList.add(media);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not find media with type " + topName + e.getMessage());
+        }
+
+        return mediaList;
+    }
+
 }

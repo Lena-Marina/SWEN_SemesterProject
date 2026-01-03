@@ -12,7 +12,8 @@ public class Request {
     private String path;
     private String body;
     private String authorizationHeader; //alle header speichern oder "ich brauche eh nur den authorisation header" ->also wäre auch nur ein String für diesen okay
-    private Map<String, String> queryParams = new HashMap<>(); //okay aber hier macht eine Map Sinn, weil ich ja konkret key-value paare abbilden will, oder?
+    private Map<String, String> queryParams = new HashMap<>(); //Zugriff auf queryParams z.B.: String type = request.getQueryParams().get("type");
+
 
     public Method getMethod() {
         return method;
@@ -52,6 +53,8 @@ public class Request {
     public void setQueryParams(Map<String, String> queryParams) {
         this.queryParams = queryParams;
     }
+
+
 
     public String extractIdAsString() { //Momentan mache ich es noch als String, weil ich nicht weiß wie ich
         //die echten UUIDs in Postmann geben soll

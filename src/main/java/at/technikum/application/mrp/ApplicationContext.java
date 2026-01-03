@@ -35,7 +35,7 @@ public class ApplicationContext {
 
     //Services
     UserService userService = new UserService(userRepository, ratingRepository, favoriteRepository);
-    MediaService mediaService = new MediaService(mediaRepository, userRepository, favoriteRepository);
+    MediaService mediaService = new MediaService(mediaRepository, userRepository, favoriteRepository, ratingRepository);
     RatingService ratingService = new RatingService(ratingRepository, mediaRepository, userRepository);
     AuthService authService = new AuthService(userRepository);
 

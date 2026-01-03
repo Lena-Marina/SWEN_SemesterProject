@@ -129,9 +129,6 @@ public class FavoriteRepository {
 
                     rating.setLikedByList(likedBy);
 
-                    //6.) in Ratings gibt es das Media auf das es sich bezieht
-                    rating.setMedia(media);
-
                     ratings.add(rating);
                 }
 

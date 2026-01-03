@@ -18,7 +18,7 @@ public class UserRouter extends SubRouter<UserController> {
         register("/profile", true, Method.GET, controller::read); //Done
         register("/profile", true, Method.PUT, controller::update); //Done
         register("/ratings", true, Method.GET, controller::getRatings); // Done
-        register("/favorites", true, Method.GET, controller::getFavourites); // 1.)
+        register("/favorites", true, Method.GET, controller::getFavourites); // Done?
         register("/recommendations",true,  Method.GET, controller::getRecommendations);  // 2.) receives recommendations based on previous rating behavior and content similarity // -> Vorschläge von Genre die gut bewertet wurden
     }
 

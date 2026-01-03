@@ -2,6 +2,7 @@ package at.technikum.application.mrp.controller;
 
 import at.technikum.application.common.Controller;
 import at.technikum.application.mrp.model.Media;
+import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingReturned;
@@ -172,7 +173,7 @@ public class MediaController extends Controller {
         rating_dto.setCreatorName(request.extractNameFromHeader());
 
         //DTO an Service weitergeben.
-        RatingReturned savedRatingDTO = this.ratingService.createRating(rating_dto);
+        Rating savedRatingDTO = this.ratingService.createRating(rating_dto);
 
         // JSON-Response zurückgeben mit Status 201 Created
         return json(savedRatingDTO, Status.CREATED);

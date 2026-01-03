@@ -1,15 +1,17 @@
 package at.technikum.application.mrp.model.dto;
 
+import java.util.UUID;
+
 public class RecommendationRequest {
-    String userId; //soll später UUID sein, denke ich
+    UUID userId;
     String type; //möglichkeiten: content und genre
 
-    public RecommendationRequest(String userId, String type) {
+    public RecommendationRequest(UUID userId, String type) {
         this.userId = userId;
         this.type = type;
     }
 
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 

@@ -100,24 +100,17 @@ public class UserController extends Controller {
     public Response getRecommendations(Request request) {
 
         //User ID aus Pfad filtern
-        String id = request.extractIdAsString(); //throwed eine Exception wenn es nicht klappt
+        UUID userID = request.extractIdAsUUID();
 
-        //querys filtern | möglichkeiten: genre und content - schauen ob type mitgegeben wurde.
-
-        String type = null;
-        if (request.getQueryParams() != null) {
-            type = request.getQueryParams().get("type");
-        } // Da die query nicht required ist, in den spezifikationen, muss es auch möglich sein, dass es null ist.
-        //Daher keine Exception if == null
+        //Filter aus Query-Param: "type" auslesen |  Möglichkeiten: genre und content - schauen ob type mitgegeben wurde.
+        String type = request.getQueryParams().get("type");
 
         //DTO aus den Infos machen.
-        RecommendationRequest dto = new RecommendationRequest(id, type);
+        RecommendationRequest dto = new RecommendationRequest(userID, type);
 
         //Service Funktion aufrufen.
         List<Media> recommendations = this.mediaService.getRecommendation(dto);
 
-
-        //just for now:
         return listToJson(recommendations, Status.OK);
     }
 

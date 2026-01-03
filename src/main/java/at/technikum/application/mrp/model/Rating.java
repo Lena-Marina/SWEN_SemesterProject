@@ -13,10 +13,9 @@ public class Rating {
     private String comment;
     private boolean confirmed;  // Kommentare müssen bestätigt werden
 
+    //für diese beiden habe ich mich entschieden nur mit UUIDS zu arbeiten, da ich sosnt in einen Zyklus komme -> Media enhält Ratings und jedes Rating enthält ein Media
     private UUID creatorId;       // Wer hat die Bewertung abgegeben
-
-    @JsonIgnore   //ich brauche die Annotation, da ich sonst beim serialisieren in eine Endlosschleife komme -> ein Media hat Ratings und ein Rating hat ein Media
-    private Media media;     // Auf welchen MediaEntry sich die Bewertung bezieht
+    private UUID mediaId;     // Auf welchen MediaEntry sich die Bewertung bezieht
 
     private List<UUID> likedByList;
 
@@ -44,8 +43,8 @@ public class Rating {
         this.creatorId = userId;
     }
 
-    public void setMedia(Media deletedMedia) {
-        this.media = deletedMedia;
+    public void setMediaId(UUID mediaId) {
+        this.mediaId = mediaId;
     }
 
     public void setLikedByList(List<UUID> likedByList) {
@@ -73,8 +72,8 @@ public class Rating {
         return creatorId;
     }
 
-    public Media getMedia() {
-        return media;
+    public UUID getMediaID() {
+        return mediaId;
     }
 
     public List<UUID> getLikedByList() {

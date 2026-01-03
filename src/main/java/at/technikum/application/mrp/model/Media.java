@@ -15,6 +15,7 @@ public class Media {
         private Integer releaseYear;
         private List<Genre> genres;
         private Integer ageRestriction;
+        private Float averageScore;
         private UUID creatorId;
 
         private List<UUID> favoritedBy; // UUIDS der Users, die dieses Medium als Favorit markiert haben
@@ -91,6 +92,9 @@ public class Media {
     public void setAgeRestriction(int ageRestriction) {
         this.ageRestriction = ageRestriction;
     }
+
+    public void setAverageScore(Float averageScore) { this.averageScore = averageScore; }
+    public Float getAverageScore() { return  averageScore;}
 
     public List<UUID> getFavoritedBy() {
         return favoritedBy;

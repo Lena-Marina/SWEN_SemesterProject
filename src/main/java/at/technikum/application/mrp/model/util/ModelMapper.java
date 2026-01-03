@@ -83,12 +83,11 @@ public class ModelMapper {
             rating.setCreatorId(ratingRs.getObject("creator_id", UUID.class));
             rating.setStars(ratingRs.getInt("stars"));
             rating.setConfirmed(ratingRs.getBoolean("confirmed"));
+            rating.setMediaId(ratingRs.getObject("media_id", UUID.class));
 
             // Kommentar nur setzen, wenn confirmed == true? nein das gehört in den Service, hätte ich gesagt
             rating.setComment(ratingRs.getString("comment"));
 
-
-            // Media MUSS später selbst genauer beladen werden, da sonst JSON serialisierung nicht funktioniert
 
             // likedBy muss auch später selbst genauer befüllt werden, wenn gebraucht
             rating.setLikedByList(new ArrayList<>());
