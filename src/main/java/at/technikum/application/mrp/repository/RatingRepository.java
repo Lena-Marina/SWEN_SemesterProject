@@ -5,6 +5,7 @@ import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
+import at.technikum.application.mrp.model.helper.RatingStatistic;
 import at.technikum.application.mrp.model.helper.RecommendationHelper;
 import at.technikum.application.mrp.model.util.ModelMapper;
 
@@ -397,6 +398,35 @@ public class RatingRepository implements MrpRepository<Rating>{
         } catch(SQLException e) {
             throw new EntityNotFoundException("Could not get genres for rating " + ratingId + ": " + e.getMessage());
         }
+    }
+
+    public RatingStatistic getRatingStatistic(UUID mediaID) {
+        String sql = "SELECT stars FROM ratings WHERE media_id=?";
+
+        RatingStatistic rst = new RatingStatistic();
+        rst.setNumberOfRatings(0);
+        rst.setSumOfStars(0);
+
+        try (PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql)) {
+            stmt.setObject(1, mediaID);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int stars = rs.getInt("stars");
+                rst.setSumOfStars(rst.getSumOfStars() + stars);
+                rst.setNumberOfRatings(rst.getNumberOfRatings() + 1);
+            }
+
+            if (rst.getNumberOfRatings() == 0) {
+                throw new EntityNotFoundException("Could not find ratings for media id " + mediaID);
+            }
+
+        } catch (SQLException e) {
+            throw new EntityNotFoundException("Problem in getRatingStatistic(): " + e.getMessage());
+        }
+
+        return rst;
     }
 
 }

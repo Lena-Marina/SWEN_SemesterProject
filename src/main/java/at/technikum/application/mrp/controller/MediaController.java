@@ -66,11 +66,10 @@ public class MediaController extends Controller {
 
 
     public Response read(Request request) {
-        String mediaID = request.extractIdAsString();
+        UUID mediaID = request.extractIdAsUUID();
+        //jede:r darf ein Media lesen, daher muss ich creatorName nicht aus dem Header auslesen
 
         Media media = this.mediaService.getMediaByID(mediaID);
-
-        //media validieren
 
         return json(media, Status.OK);
     }

@@ -9,6 +9,7 @@ import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
+import at.technikum.application.mrp.model.helper.RatingStatistic;
 import at.technikum.application.mrp.model.helper.RecommendationHelper;
 import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.MediaRepository;
@@ -262,18 +263,42 @@ public class MediaService {
         return deletedMedia;
     }
 
-    public Media getMediaByID(String mediaID) {
-        //mediaID validieren
-
+    public Media getMediaByID(UUID mediaID) {
 
         //RepoFunktion aufrufen
-        Media media = new Media();
-        //media.setId(mediaID);
-        media.setTitle("Media mit ID " + mediaID);
+        Optional<Media> mediaOpt = this.mediaRepository.find(mediaID);
 
         //media Validieren
+        if(!mediaOpt.isPresent())
+        {
+            throw new EntityNotSavedCorrectlyException("no media found");
+        }
+
+        Media media = mediaOpt.get();
+
+        //Kommentare in Ratings löschen, wenn nicht freigegeben
+        List<Rating> mediaRatings = media.getRatings();
+        for(Rating rating : mediaRatings)
+        {
+            if(!rating.getConfirmed())
+            {
+                rating.setComment("");
+            }
+        }
+        media.setRatings(mediaRatings);
+
+        //weitere Validation?
+
+        //Average Score berechnen -> Business "Logik" deswegen hier und nicht schon in find()
+        media.setAverageScore(this.getAverageScore(mediaID));
 
         return media;
+    }
+
+    private Float getAverageScore(UUID mediaID) {
+        RatingStatistic rst = this.ratingRepository.getRatingStatistic(mediaID);
+
+        return rst.getSumOfStars()/rst.getNumberOfRatings();
     }
 
     public Media createMedia(MediaInput mediaDTO) {

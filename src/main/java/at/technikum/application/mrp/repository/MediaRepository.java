@@ -37,14 +37,62 @@ public class MediaRepository implements MrpRepository<Media> {
             ResultSet rs = stmt.executeQuery();
 
             if (!rs.next()) {
-                return Optional.empty(); // User existiert nicht
+                return Optional.empty();
             }
 
-            return Optional.of(mapper.mapToMedia(rs));
-        } catch (Exception e) {
-            throw new EntityNotFoundException(e.getMessage());
+            // 1. Media Grunddaten
+            Media media = mapper.mapToMedia(rs);
+
+            // 2. Genres befüllen
+            String genreSql = "SELECT g.name FROM is_genre ig JOIN genre g ON ig.genre_id = g.genre_id WHERE ig.media_id = ?";
+            try (PreparedStatement genreStmt = connectionPool.getConnection().prepareStatement(genreSql)) {
+                genreStmt.setObject(1, id);
+                ResultSet genreRs = genreStmt.executeQuery();
+                List<Genre> genres = new ArrayList<>();
+                while (genreRs.next()) {
+                    genres.add(Genre.fromString(genreRs.getString("name")));
+                }
+                media.setGenres(genres);
+            }
+
+            // 3. Ratings befüllen
+            String ratingSql = "SELECT * FROM ratings WHERE media_id = ?";
+            try (PreparedStatement ratingStmt = connectionPool.getConnection().prepareStatement(ratingSql)) {
+                ratingStmt.setObject(1, id);
+                ResultSet ratingRs = ratingStmt.executeQuery();
+                List<Rating> ratings = new ArrayList<>();
+                while (ratingRs.next()) {
+                    Rating rating = new Rating();
+                    rating.setRatingId(ratingRs.getObject("rating_id", UUID.class));
+                    rating.setStars(ratingRs.getInt("stars"));
+                    rating.setCreatorId(ratingRs.getObject("creator_id", UUID.class));
+                    rating.setMediaId(ratingRs.getObject("media_id", UUID.class));
+                    rating.setLikedByList(new ArrayList<>()); // befüllen?
+                    rating.setComment(ratingRs.getString("comment"));
+                    ratings.add(rating);
+                }
+                media.setRatings(ratings);
+            }
+
+            // 4. FavoritedBy befüllen
+            String favSql = "SELECT user_id FROM favorites WHERE media_id = ?";
+            try (PreparedStatement favStmt = connectionPool.getConnection().prepareStatement(favSql)) {
+                favStmt.setObject(1, id);
+                ResultSet favRs = favStmt.executeQuery();
+                List<UUID> favoritedBy = new ArrayList<>();
+                while (favRs.next()) {
+                    favoritedBy.add(favRs.getObject("user_id", UUID.class));
+                }
+                media.setFavoritedBy(favoritedBy);
+            }
+
+            return Optional.of(media);
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not find media with id " + id + e.getMessage());
         }
     }
+
 
 
 
@@ -477,5 +525,4 @@ public class MediaRepository implements MrpRepository<Media> {
 
         return mediaList;
     }
-
 }
