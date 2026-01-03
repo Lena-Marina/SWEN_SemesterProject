@@ -6,23 +6,21 @@ import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
+import at.technikum.application.mrp.model.dto.MediaQuery;
 import at.technikum.application.mrp.model.util.ModelMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MediaRepository implements MrpRepository<Media> {
     private final ConnectionPool connectionPool;
     private final ModelMapper mapper;
 
-    public MediaRepository(ConnectionPool connectionPool, ModelMapper mapper)
-    {
+    public MediaRepository(ConnectionPool connectionPool, ModelMapper mapper) {
         this.connectionPool = connectionPool;
         this.mapper = mapper;
     }
@@ -92,8 +90,6 @@ public class MediaRepository implements MrpRepository<Media> {
             throw new RuntimeException("Could not find media with id " + id + e.getMessage());
         }
     }
-
-
 
 
     @Override
@@ -313,11 +309,11 @@ public class MediaRepository implements MrpRepository<Media> {
             // 2️. Genres aus is_genre JOIN genre (weil das die namen enthält) laden
             List<Genre> genres = new ArrayList<>();
             String sqlGenres = """
-            SELECT g.name
-            FROM is_genre ig
-            JOIN genre g ON ig.genre_id = g.genre_id
-            WHERE ig.media_id = ?
-        """;
+                        SELECT g.name
+                        FROM is_genre ig
+                        JOIN genre g ON ig.genre_id = g.genre_id
+                        WHERE ig.media_id = ?
+                    """;
             try (PreparedStatement stmt = conn.prepareStatement(sqlGenres)) {
                 stmt.setObject(1, mediaID);
                 ResultSet rs = stmt.executeQuery();
@@ -342,10 +338,10 @@ public class MediaRepository implements MrpRepository<Media> {
             // 4. Ratings aus ratings laden
             List<Rating> ratings = new ArrayList<>();
             String sqlRatings = """
-            SELECT rating_id, stars, comment, confirmed, creator_id
-            FROM ratings
-            WHERE media_id = ?
-        """;
+                        SELECT rating_id, stars, comment, confirmed, creator_id
+                        FROM ratings
+                        WHERE media_id = ?
+                    """;
             try (PreparedStatement stmt = conn.prepareStatement(sqlRatings)) {
                 stmt.setObject(1, mediaID);
                 ResultSet rs = stmt.executeQuery();
@@ -525,4 +521,175 @@ public class MediaRepository implements MrpRepository<Media> {
 
         return mediaList;
     }
+
+
+    public List<Media> findFiltered(MediaQuery params) {
+        /*Die Tabelle die wir aufbauen ist für alle gleich
+         * die QueryParams ändern nur die WHERE klausel
+         * (und das SORT BY)
+         *
+         * Die Tabelle muss media_entry mit is_genre und is_genre mit genre Joinen
+         *
+         * Außerdem braucht sie eine zusätlziche Spalte "rating" welche den average score (Summe der stars der Einträge in ratings zu der jeweiligen media_id dividiert durch die Anzahl der Einträge)
+         * */
+
+        List<Media> mediaList = new ArrayList<>();
+        List<Object> parameters = new ArrayList<>();
+
+        // --- 1) Hauptquery bauen ---
+        StringBuilder sql = new StringBuilder("""
+                    SELECT
+                        me.*,
+                        rating.avg_rating,
+                        STRING_AGG(g.name, ',') AS genres
+                    FROM media_entry me
+                    LEFT JOIN (
+                        SELECT media_id, AVG(stars) AS avg_rating
+                        FROM ratings
+                        GROUP BY media_id
+                    ) rating ON me.media_id = rating.media_id
+                    LEFT JOIN is_genre ig ON me.media_id = ig.media_id
+                    LEFT JOIN genre g ON ig.genre_id = g.genre_id
+                    WHERE 1=1
+                """);
+
+        if (params.getTitle() != null) {
+            sql.append(" AND me.title LIKE ?");
+            parameters.add("%" + params.getTitle() + "%");
+        }
+        if (params.getGenre() != null) {
+            sql.append(" AND g.name LIKE ?");
+            parameters.add("%" + params.getGenre() + "%");
+        }
+        if (params.getMediaType() != null) {
+            sql.append(" AND me.media_type LIKE ?");
+            parameters.add("%" + params.getMediaType() + "%");
+        }
+        if (params.getReleaseYear() != null) {
+            sql.append(" AND me.release_year = ?");
+            parameters.add(params.getReleaseYear());
+        }
+        if (params.getAgeRestriction() != null) {
+            sql.append(" AND me.age_restriction = ?");
+            parameters.add(params.getAgeRestriction());
+        }
+        if (params.getRating() != null) {
+            sql.append(" AND rating.avg_rating >= ?");
+            parameters.add(params.getRating());
+        }
+
+        sql.append(" GROUP BY me.media_id, rating.avg_rating");
+
+        if ("title".equals(params.getSortBy())) {
+            sql.append(" ORDER BY me.title");
+        } else if ("year".equals(params.getSortBy())) {
+            sql.append(" ORDER BY me.release_year");
+        } else if ("score".equals(params.getSortBy())) {
+            sql.append(" ORDER BY rating.avg_rating");
+        }
+
+        // --- 2) Medien abrufen ---
+        Map<UUID, Media> mediaMap = new HashMap<>();
+        try (
+                PreparedStatement stmt = connectionPool.getConnection().prepareStatement(sql.toString())) {
+            for (int i = 0; i < parameters.size(); i++) {
+                stmt.setObject(i + 1, parameters.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Media media = mapper.mapToMedia(rs);
+                media.setAverageScore(rs.getFloat("avg_rating"));
+
+                // Genres in Liste umwandeln
+                String genreString = rs.getString("genres");
+                if (genreString != null && !genreString.isEmpty()) {
+                    List<Genre> genreList = Arrays.stream(genreString.split(","))
+                            .map(String::trim)
+                            .map(name -> {
+                                try {
+                                    return Genre.valueOf(name.toUpperCase());
+                                } catch (IllegalArgumentException ex) {
+                                    return null;
+                                }
+                            })
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+                    media.setGenres(genreList);
+                } else {
+                    media.setGenres(new ArrayList<>());
+                }
+
+                mediaMap.put(media.getId(), media);
+            }
+        } catch (
+                SQLException e) {
+            throw new RuntimeException("Error fetching filtered media: " + e.getMessage(), e);
+        }
+
+        if (mediaMap.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // --- 3) Alle Ratings für die gefundenen Medien auf einmal abrufen ---
+        List<UUID> mediaIds = new ArrayList<>(mediaMap.keySet());
+        String inClause = mediaIds.stream().map(id -> "?").collect(Collectors.joining(","));
+        String ratingSql = "SELECT * FROM ratings WHERE media_id IN (" + inClause + ")";
+
+        try (
+                PreparedStatement stmt = connectionPool.getConnection().prepareStatement(ratingSql)) {
+            for (int i = 0; i < mediaIds.size(); i++) {
+                stmt.setObject(i + 1, mediaIds.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Rating rating = mapper.mapToRating(rs);
+                Media media = mediaMap.get(rating.getMediaID());
+                if (media != null) {
+                    if (media.getRatings() == null) {
+                        media.setRatings(new ArrayList<>());
+                    }
+                    media.getRatings().add(rating);
+                }
+            }
+        } catch (
+                SQLException e) {
+            throw new RuntimeException("Error fetching ratings: " + e.getMessage(), e);
+        }
+
+        // --- 4) Alle favoritedBy für die Medien abrufen ---
+        String favoriteSql = "SELECT media_id, user_id FROM favorites WHERE media_id IN (" + inClause + ")";
+        try (
+                PreparedStatement stmt = connectionPool.getConnection().prepareStatement(favoriteSql)) {
+            for (int i = 0; i < mediaIds.size(); i++) {
+                stmt.setObject(i + 1, mediaIds.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                UUID mediaId = (UUID) rs.getObject("media_id");
+                UUID userId = (UUID) rs.getObject("user_id");
+
+                Media media = mediaMap.get(mediaId);
+                if (media != null) {
+                    if (media.getFavoritedBy() == null) {
+                        media.setFavoritedBy(new ArrayList<>());
+                    }
+                    media.getFavoritedBy().add(userId);
+                }
+            }
+        } catch (
+                SQLException e) {
+            throw new RuntimeException("Error fetching favorites: " + e.getMessage(), e);
+        }
+
+        // --- 5) Ergebnis zurückgeben ---
+        mediaList.addAll(mediaMap.values());
+        return mediaList;
+    }
+
+
 }
+
+

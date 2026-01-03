@@ -40,6 +40,8 @@ public class MediaController extends Controller {
             mediaQuery.setTitle(request.getQueryParams().get("title"));
             mediaQuery.setGenre(request.getQueryParams().get("genre"));
             mediaQuery.setMediaType(request.getQueryParams().get("mediaType"));
+
+            // bei den Zahlen muss ich erst schauen ob sie gesetzt wurden, da wenn ich versuche eine Zahl aus einem nicht gesetzten Param zu machen eine Exception geworfen wird
             String releaseYearParam = request.getQueryParams().get("releaseYear");
             if (releaseYearParam != null) {
                 mediaQuery.setReleaseYear(Integer.parseInt(releaseYearParam));
@@ -57,7 +59,7 @@ public class MediaController extends Controller {
         }
 
         //Funktion des Service aufrufen
-        List<Media> filteredMedia = this.mediaService.getAllMedia(mediaQuery);
+        List<Media> filteredMedia = this.mediaService.getFilteredMedia(mediaQuery);
 
         //return new Response(Status.OK, ContentType.TEXT_PLAIN, "funktion read() im MediaController mit der mediaId: " + mediaID + " aufgerufen");
         //bis bessere Lösung gefunden

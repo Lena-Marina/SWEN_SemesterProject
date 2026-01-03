@@ -23,7 +23,7 @@ public class MediaRouter extends SubRouter<MediaController> {
         register("/media/", true, Method.PUT, controller::update); //done
         register("/media/",true,  Method.GET, controller::read); // done
 
-        register("/media",true,  Method.GET, controller::readAll); /* 4.) Alle Einträge sortiert und nach Auswahlkriterium + Average nicht vergessen!*/
+        register("/media",true,  Method.GET, controller::readAll); // done aber nicht kontrolliert
         register("/media",true,  Method.POST, controller::create); //done
     }
 

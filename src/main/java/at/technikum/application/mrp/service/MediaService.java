@@ -113,13 +113,11 @@ public class MediaService {
         return recommendations;
     }
 
-    public void markAsFavorite(UUID mediaID, String username)
-    {
+    public void markAsFavorite(UUID mediaID, String username) {
         // user_id herausfinden
         UUID userID = userRepository.getIdViaName(username);
 
-        if(userID == null)
-        {
+        if (userID == null) {
             throw new IllegalArgumentException(username + " not in DB");
         }
 
@@ -127,13 +125,11 @@ public class MediaService {
 
     }
 
-    public void unmarkAsFavorite(UUID mediaID, String username)
-    {
+    public void unmarkAsFavorite(UUID mediaID, String username) {
         //user_id herausfinden
         UUID userID = userRepository.getIdViaName(username);
 
-        if(userID == null)
-        {
+        if (userID == null) {
             throw new IllegalArgumentException(username + " not in DB");
         }
 
@@ -141,8 +137,7 @@ public class MediaService {
 
     }
 
-    public void createRating(RatingInput ratingInput)
-    {
+    public void createRating(RatingInput ratingInput) {
         //DTO validieren
 
         //Repo-funktion aufrufen
@@ -150,37 +145,54 @@ public class MediaService {
         //erstelltes Rating oder bewertetes Media zurückgeben
     }
 
-    public List<Media> getAllMedia(MediaQuery mediaQuery){
-        //DTO validieren
+    public List<Media> getFilteredMedia(MediaQuery mediaQuery) {
+        //DTO Validieren? -> es darf ja alles Null sein, ich könnte prüfen ob die Strings "" sind
+        if ("".equals(mediaQuery.getTitle()) ||
+                "".equals(mediaQuery.getMediaType()) ||
+                "".equals(mediaQuery.getGenre()) ||
+                "".equals(mediaQuery.getSortBy())) {
+            throw new IllegalArgumentException("Empty Strings are not allowed as QueryParams");
+        }
 
-        //fake Liste returnieren
-        List<Media> filteredList = new ArrayList<>(); //stattdessn Repo-Funktion aufrufen
-        //filteredList.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
-        //filteredList.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
 
-        //Liste validieren
+        /* Im Repository soll der SQL String aufgebaut werden, sodass er nur nach jenen Params filtered die nicht Null sind.
+         * Diese Funktion belasse ich im Repository, da wir ja wollen, dass die höheren Schichten nichts über SQL wissen
+         * Für den Fall, dass in Zukunft die Datenbank ausgewechselt werden soll.
+         *
+         * den Average Score habe ich bisher im Service berechnet
+         * -> es müsste aber theoretisch möglich sein bei der Abfrage eine Spalte dazuzugeben
+         * welche diesen enthält
+         *
+         * Was passiert dann noch hier im Service?
+         *
+         * falls das Optional leer ist, sollte ich eine leere Liste zurück schicken
+         *
+         *
+         * */
 
-        return filteredList;
+        List<Media> filteredMediaList = this.mediaRepository.findFiltered(mediaQuery);
+
+        return filteredMediaList;
     }
 
-    public Media updateMedia(MediaInput mediaDTO){
+    public Media updateMedia(MediaInput mediaDTO) {
         /*Ich hätte es genrell so verstanden, dass alle Informationen die ab jetzt
-        * in der DB sein sollen mit dem Request geliefert werden - nicht nur Änderungen
-        * Dass also auch alte Informationen wieder mitgeschickt werden.
-        * (z.B. Wenn der MediaEntry früher das Genre HORROR hatte
-        * und jetzt das Genre COMEDY ergänzt werden soll,
-        * enthält der Request ein Array, dass sowohl HORROR als auch COMEDY enthält
-        * Daher: ich habe alle alten genre-verknüpfungen gelöscht und neue erstellt
-        *
-        * Ich prüfe also NICHT, was bereits in der DB vorhanden ist und ergänze nur,
-        * das ich annehme, dass auch Genres entfernt werden können.*/
+         * in der DB sein sollen mit dem Request geliefert werden - nicht nur Änderungen
+         * Dass also auch alte Informationen wieder mitgeschickt werden.
+         * (z.B. Wenn der MediaEntry früher das Genre HORROR hatte
+         * und jetzt das Genre COMEDY ergänzt werden soll,
+         * enthält der Request ein Array, dass sowohl HORROR als auch COMEDY enthält
+         * Daher: ich habe alle alten genre-verknüpfungen gelöscht und neue erstellt
+         *
+         * Ich prüfe also NICHT, was bereits in der DB vorhanden ist und ergänze nur,
+         * da ich annehme, dass auch Genres entfernt werden können.*/
         //DTO validieren
-        if(mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
+        if (mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
                 || mediaDTO.getDescription() == null || mediaDTO.getDescription().isBlank()
                 || mediaDTO.getReleaseYear() == null
                 || mediaDTO.getAgeRestriction() == null
                 || mediaDTO.getCreatorName() == null || mediaDTO.getCreatorName().isBlank()
-        ){
+        ) {
             throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
         }
 
@@ -193,8 +205,7 @@ public class MediaService {
         System.out.println("DEBUG: originalCreatorName= " + originalCreatorName);
         System.out.println("DEBUG: creatorNameNow = " + mediaDTO.getCreatorName());
 
-        if(!(originalCreatorName.equals(mediaDTO.getCreatorName())))
-        {
+        if (!(originalCreatorName.equals(mediaDTO.getCreatorName()))) {
             throw new UnauthorizedException("users can only edit their own Media_Entrys");
         }
 
@@ -216,19 +227,18 @@ public class MediaService {
 
         //geupdatetes Media validieren -> Optional entpacken usw
         //media validieren
-        if(!updatedMediaOpt.isPresent()){
+        if (!updatedMediaOpt.isPresent()) {
             throw new EntityNotSavedCorrectlyException("saved media was not returned from DB");
         }
 
         Media updatedMedia = updatedMediaOpt.get();
 
-        if(updatedMedia.getId() == null
+        if (updatedMedia.getId() == null
                 || updatedMedia.getCreatorID() == null
                 || updatedMedia.getTitle() == null || updatedMedia.getTitle().isBlank()
                 || updatedMedia.getDescription() == null || updatedMedia.getDescription().isBlank()
                 || updatedMedia.getMediaType() == null || updatedMedia.getMediaType().isBlank()
-        )
-        {
+        ) {
             throw new EntityNotSavedCorrectlyException("updated Media does not contain all necessary fields");
         }
 
@@ -246,8 +256,7 @@ public class MediaService {
         UUID creatorID = this.mediaRepository.getCreatorIdViaMediaEntryID(mediaID);
 
         //deleterID und creatirID müssen gleich sein
-        if(!deleterID.equals(creatorID))
-        {
+        if (!deleterID.equals(creatorID)) {
             throw new UnauthorizedException("only the creator of a mediaEntry may destroy it");
         }
 
@@ -269,8 +278,7 @@ public class MediaService {
         Optional<Media> mediaOpt = this.mediaRepository.find(mediaID);
 
         //media Validieren
-        if(!mediaOpt.isPresent())
-        {
+        if (!mediaOpt.isPresent()) {
             throw new EntityNotSavedCorrectlyException("no media found");
         }
 
@@ -278,10 +286,8 @@ public class MediaService {
 
         //Kommentare in Ratings löschen, wenn nicht freigegeben
         List<Rating> mediaRatings = media.getRatings();
-        for(Rating rating : mediaRatings)
-        {
-            if(!rating.getConfirmed())
-            {
+        for (Rating rating : mediaRatings) {
+            if (!rating.getConfirmed()) {
                 rating.setComment("");
             }
         }
@@ -298,17 +304,17 @@ public class MediaService {
     private Float getAverageScore(UUID mediaID) {
         RatingStatistic rst = this.ratingRepository.getRatingStatistic(mediaID);
 
-        return rst.getSumOfStars()/rst.getNumberOfRatings();
+        return rst.getSumOfStars() / rst.getNumberOfRatings();
     }
 
     public Media createMedia(MediaInput mediaDTO) {
         //DTO validieren
-        if(mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
+        if (mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
                 || mediaDTO.getDescription() == null || mediaDTO.getDescription().isBlank()
                 || mediaDTO.getReleaseYear() == null
                 || mediaDTO.getAgeRestriction() == null
                 || mediaDTO.getCreatorName() == null || mediaDTO.getCreatorName().isBlank()
-        ){
+        ) {
             throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
         }
         //Genre validieren? Braucht es ein Genre oder darf es auch keines haben? Ich denke es darf keines haben, dann taucht es halt bei Suchen nach Genre nicht auf
@@ -348,19 +354,18 @@ public class MediaService {
         Optional<Media> createdMediaOpt = this.mediaRepository.create(media);
 
         //media validieren
-        if(!createdMediaOpt.isPresent()){
+        if (!createdMediaOpt.isPresent()) {
             throw new EntityNotSavedCorrectlyException("saved media was not returned from DB");
         }
 
         Media createdMedia = createdMediaOpt.get();
 
-        if(createdMedia.getId() == null
+        if (createdMedia.getId() == null
                 || createdMedia.getCreatorID() == null
                 || createdMedia.getTitle() == null || createdMedia.getTitle().isBlank()
                 || createdMedia.getDescription() == null || createdMedia.getDescription().isBlank()
                 || createdMedia.getMediaType() == null || createdMedia.getMediaType().isBlank()
-        )
-        {
+        ) {
             throw new EntityNotSavedCorrectlyException("saved Media does not contain all necessary fields");
         }
 

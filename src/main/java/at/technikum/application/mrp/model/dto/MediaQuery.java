@@ -4,9 +4,9 @@ public class MediaQuery {
     String title;
     String genre;
     String mediaType;
-    int releaseYear;
-    int ageRestriction;
-    int rating;
+    Integer releaseYear; //ich brauche hier Wrapper, damit ich unterscheiden kann zwischen: Param nicht gesetzt (Null) und releaseYear = 0
+    Integer ageRestriction;
+    Number rating;
     String sortBy;
 
     //SETTER
@@ -19,22 +19,38 @@ public class MediaQuery {
     public void setMediaType(String mediaType) {
         this.mediaType = mediaType;
     }
-    public void setReleaseYear(int releaseYear) {
+    public void setReleaseYear(Integer releaseYear) {
         this.releaseYear = releaseYear;
     }
-    public void setAgeRestriction(int ageRestriction) {
+    public void setAgeRestriction(Integer ageRestriction) {
         this.ageRestriction = ageRestriction;
     }
-    public void setRating(int rating) {
+    public void setRating(Number rating) {
         this.rating = rating;
     }
-    public void setSortBy(String sortBy) {
-        if(sortBy != "title" && sortBy != "year" && sortBy != "score" && sortBy != null)
-        {
-            //später durch eigene Exception austauschen
-            throw new RuntimeException("Invalid sort by");
-        }
-        this.sortBy = sortBy;
+    public void setSortBy(String sortBy) { this.sortBy = sortBy; }
+
+    //GETTER
+    public String getTitle() {
+        return title;
+    }
+    public String getGenre() {
+        return genre;
+    }
+    public String getMediaType() {
+        return mediaType;
+    }
+    public Integer getReleaseYear() {
+        return releaseYear;
+    }
+    public Integer getAgeRestriction() {
+        return ageRestriction;
+    }
+    public Number getRating() {
+        return rating;
+    }
+    public String getSortBy() {
+        return sortBy;
     }
 
 
