@@ -2,6 +2,7 @@ package at.technikum.application.mrp.model;
 
 
 import at.technikum.application.mrp.model.dto.LikedBy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,8 @@ public class Rating {
     private boolean confirmed;  // Kommentare müssen bestätigt werden
 
     private UUID creatorId;       // Wer hat die Bewertung abgegeben
+
+    @JsonIgnore   //ich brauche die Annotation, da ich sonst beim serialisieren in eine Endlosschleife komme -> ein Media hat Ratings und ein Rating hat ein Media
     private Media media;     // Auf welchen MediaEntry sich die Bewertung bezieht
 
     private List<UUID> likedByList;

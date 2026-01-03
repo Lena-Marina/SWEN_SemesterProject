@@ -5,6 +5,7 @@ import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.User;
+import at.technikum.application.mrp.model.util.ModelMapper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,9 +19,11 @@ import java.util.UUID;
 public class UserRepository implements MrpRepository<User>{
 
     private final ConnectionPool connectionPool;
+    private final ModelMapper mapper;
 
-    public UserRepository(ConnectionPool connectionPool) {
+    public UserRepository(ConnectionPool connectionPool,  ModelMapper mapper) {
         this.connectionPool = connectionPool;
+        this.mapper = mapper;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class UserRepository implements MrpRepository<User>{
                 return Optional.empty(); // User existiert nicht
             }
 
-            return Optional.of(mapToUser(rs));
+            return Optional.of(mapper.mapToUser(rs));
         } catch (Exception e) {
             throw new EntityNotFoundException(e.getMessage());
         }
@@ -53,7 +56,7 @@ public class UserRepository implements MrpRepository<User>{
                     return Optional.empty();
                 }
                 //Sollte ich noch die Listen befüllen? -> muss ich nicht, da ich eigentlich nur prüfen muss ob Username und Passwort in der DB sind
-                return Optional.of(mapToUser(rs));
+                return Optional.of(mapper.mapToUser(rs));
             }
         }
         catch (SQLException e) {
@@ -122,7 +125,7 @@ public class UserRepository implements MrpRepository<User>{
             if (!rs.next()) {
                 return Optional.empty(); // User existiert nicht
             }
-            return Optional.of(mapToUser(rs));
+            return Optional.of(mapper.mapToUser(rs));
         }
         catch (SQLException e) {
             throw new EntityNotSavedCorrectlyException(e.getMessage());
@@ -175,7 +178,7 @@ public class UserRepository implements MrpRepository<User>{
         {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
-                users.add(mapToUser(rs));
+                users.add(mapper.mapToUser(rs));
             }
         }
         catch (SQLException e) {
@@ -210,35 +213,5 @@ public class UserRepository implements MrpRepository<User>{
     }
 
 
-    private User mapToUser(ResultSet rs) throws SQLException{
-        User user = new User();
 
-        String uuidString = rs.getString("user_id");
-        if (uuidString != null) {
-            user.setId(UUID.fromString(uuidString));
-        }
-
-        // einfache Strings
-        //DEBUGGING
-        System.out.println("---------------------------------");
-        System.out.println("DEBUG in UserRepository::mapToUser() ");
-        System.out.println("DEBUG: username = " + rs.getString("username"));
-
-        user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("hashed_pw"));
-        user.setEmail(rs.getString("email"));
-
-        //fav Genre ist ein Enum, daher der extra Wrap - Ein Enum darf niemals Null sein, deshalb brauche ich die extra Abfrage!
-        String favGenre = rs.getString("fav_genre");
-        if (favGenre != null) {
-            user.setFavoriteGenre(Genre.valueOf(favGenre)); //Das ist der Name des Genres!, da dieser unique ist, suchen wir in den DB über den namen!
-        }
-
-        // Listen leer initialisieren
-        user.setFavorites(new ArrayList<>());
-        user.setRatings(new ArrayList<>());
-        user.setRecommendations(new ArrayList<>());
-
-        return user;
-    }
 }

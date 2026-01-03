@@ -5,6 +5,7 @@ import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
+import at.technikum.application.mrp.model.util.ModelMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,9 +18,11 @@ import java.util.UUID;
 
 public class RatingRepository implements MrpRepository<Rating>{
     private final ConnectionPool connectionPool;
+    private final ModelMapper mapper;
 
-    public RatingRepository(ConnectionPool connectionPool) {
+    public RatingRepository(ConnectionPool connectionPool,  ModelMapper mapper) {
         this.connectionPool = connectionPool;
+        this.mapper = mapper;
     }
 
     @Override

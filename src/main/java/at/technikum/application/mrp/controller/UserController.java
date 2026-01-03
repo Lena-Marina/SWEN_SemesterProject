@@ -90,13 +90,10 @@ public class UserController extends Controller {
     }
 
     public Response getFavourites(Request request) {
-        String userId = request.extractIdAsString();
+        UUID userId = request.extractIdAsUUID();
 
-        List<Media> favouriteMedias = this.mediaService.getUsersFavourites(userId);
+        List<Media> favouriteMedias = this.userService.getUsersFavourites(userId);
 
-        //favouriteMedias validieren
-
-        //just for now:
         return json(favouriteMedias, Status.OK);
     }
 

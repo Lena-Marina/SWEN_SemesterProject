@@ -268,14 +268,4 @@ public class MediaService {
         return createdMedia;
     }
 
-    public List<Media> getUsersFavourites(String userId) {
-
-        //fake Liste returnieren
-        List<Media> favourites = new ArrayList<>(); //stattdessn Repo-Funktion aufrufen
-        //favourites.add(new Media("1234", "Mein Freund Harvey", "movie", 1950,12 ));
-        //favourites.add(new Media("12345", "Ame & Yuki", "movie", 2012, 12));
-
-        return favourites;
-
-    }
 }

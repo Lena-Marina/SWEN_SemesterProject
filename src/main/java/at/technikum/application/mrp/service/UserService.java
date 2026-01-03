@@ -9,10 +9,12 @@ import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.exception.InvalidEntityException;
 import at.technikum.application.mrp.model.Genre;
+import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.User;
 import at.technikum.application.mrp.model.dto.UserCredentials;
 import at.technikum.application.mrp.model.dto.UserUpdate;
+import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
 
@@ -24,12 +26,15 @@ public class UserService {
 
     private UserRepository userRepository;
     private RatingRepository ratingRepository;
+    private FavoriteRepository favoriteRepository;
 
     public UserService(UserRepository userRepository,
-                       RatingRepository ratingRepository)
+                       RatingRepository ratingRepository,
+                       FavoriteRepository favoriteRepository)
     {
         this.userRepository = userRepository;
         this.ratingRepository = ratingRepository;
+        this.favoriteRepository = favoriteRepository;
     }
 
     public User registerUser(UserCredentials credentials) {
@@ -216,5 +221,27 @@ public class UserService {
 
         //validierte Liste zurückgeben.
         return ratings;
+    }
+
+    public List<Media> getUsersFavourites(UUID userId) {
+
+        // keine Validation notwendig, muss bereits valide UUID sein.
+
+        List<Media> favourites = this.favoriteRepository.findAllFrom(userId);
+
+        // Validation
+        // Leere liste ist okay -> der User hat keine favorites
+
+        //Kommentare "" setzen, wenn rating nicht confirmed
+        for (Media media : favourites) {
+            media.getRatings().forEach(rating -> {
+                if (!rating.getConfirmed()) {
+                    rating.setComment("");
+                }
+            });
+        }
+
+        return favourites;
+
     }
 }

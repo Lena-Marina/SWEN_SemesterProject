@@ -6,6 +6,7 @@ import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
+import at.technikum.application.mrp.model.util.ModelMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,9 +19,12 @@ import java.util.UUID;
 
 public class MediaRepository implements MrpRepository<Media> {
     private final ConnectionPool connectionPool;
+    private final ModelMapper mapper;
 
-    public MediaRepository(ConnectionPool connectionPool) {
+    public MediaRepository(ConnectionPool connectionPool, ModelMapper mapper)
+    {
         this.connectionPool = connectionPool;
+        this.mapper = mapper;
     }
 
 
@@ -36,42 +40,13 @@ public class MediaRepository implements MrpRepository<Media> {
                 return Optional.empty(); // User existiert nicht
             }
 
-            return Optional.of(mapToMedia(rs));
+            return Optional.of(mapper.mapToMedia(rs));
         } catch (Exception e) {
             throw new EntityNotFoundException(e.getMessage());
         }
     }
 
-    private Media mapToMedia(ResultSet rs) throws SQLException {
-        Media media = new Media();
 
-        // UUIDs aus DB auslesen
-        String mediaIdStr = rs.getString("media_id");
-        if (mediaIdStr != null) {
-            media.setId(UUID.fromString(mediaIdStr));
-        }
-
-        String creatorIdStr = rs.getString("creator_id");
-        if (creatorIdStr != null) {
-            media.setCreatorID(UUID.fromString(creatorIdStr));
-        }
-
-        // einfache Strings
-        media.setTitle(rs.getString("title"));
-        media.setDescription(rs.getString("description"));
-        media.setMediaType(rs.getString("type"));
-
-        // int-Werte
-        media.setReleaseYear(rs.getInt("release_year"));
-        media.setAgeRestriction(rs.getInt("age_restriction"));
-
-        // Todo: leere Listen befüllen initialisieren
-        media.setGenres(new ArrayList<>());
-        media.setFavoritedBy(new ArrayList<>());
-        media.setRatings(new ArrayList<>());
-
-        return media;
-    }
 
     @Override
     public List<Media> findAll() {

@@ -3,6 +3,7 @@ package at.technikum.application.mrp;
 import at.technikum.application.common.ConnectionPool;
 import at.technikum.application.common.SubRouter;
 import at.technikum.application.mrp.controller.*;
+import at.technikum.application.mrp.model.util.ModelMapper;
 import at.technikum.application.mrp.repository.*;
 import at.technikum.application.mrp.router.MainRouter;
 import at.technikum.application.mrp.router.subrouter.*;
@@ -23,14 +24,17 @@ public class ApplicationContext {
             "swen1db", // secretManager.get("DB_PW")
             "mrpdb");
 
+    //ModelMapper -> damit Mapping Funktionen von allen Repositorys benutzt werden können, die sie brauchen
+    private final ModelMapper modelMapper = new ModelMapper();
+
     //Repositorys erhalten den ConnectionPool
-    UserRepository userRepository = new UserRepository(connectionPool);
-    MediaRepository mediaRepository = new MediaRepository(connectionPool);
-    FavoriteRepository favoriteRepository = new FavoriteRepository(connectionPool);
-    RatingRepository ratingRepository = new RatingRepository(connectionPool);
+    UserRepository userRepository = new UserRepository(connectionPool, modelMapper);
+    MediaRepository mediaRepository = new MediaRepository(connectionPool, modelMapper);
+    FavoriteRepository favoriteRepository = new FavoriteRepository(connectionPool, modelMapper);
+    RatingRepository ratingRepository = new RatingRepository(connectionPool, modelMapper);
 
     //Services
-    UserService userService = new UserService(userRepository, ratingRepository);
+    UserService userService = new UserService(userRepository, ratingRepository, favoriteRepository);
     MediaService mediaService = new MediaService(mediaRepository, userRepository, favoriteRepository);
     RatingService ratingService = new RatingService(ratingRepository, mediaRepository, userRepository);
     AuthService authService = new AuthService(userRepository);
