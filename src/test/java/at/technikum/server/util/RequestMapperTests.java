@@ -11,7 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -19,7 +18,7 @@ import static org.mockito.Mockito.*;
 //Nur zum leichteren Anschauen -> gehört nicht zu diesem Projekt und sollte vor der letzten abgabe gelöscht werden!
 
 @ExtendWith(MockitoExtension.class)
-class RequestMapperTest {
+class RequestMapperTests {
 
     private RequestMapper requestMapper = new RequestMapper();
 

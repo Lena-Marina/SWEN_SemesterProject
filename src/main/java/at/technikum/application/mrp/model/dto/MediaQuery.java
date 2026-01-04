@@ -6,7 +6,7 @@ public class MediaQuery {
     String mediaType;
     Integer releaseYear; //ich brauche hier Wrapper, damit ich unterscheiden kann zwischen: Param nicht gesetzt (Null) und releaseYear = 0
     Integer ageRestriction;
-    Number rating;
+    Integer rating;
     String sortBy;
 
     //SETTER
@@ -25,7 +25,7 @@ public class MediaQuery {
     public void setAgeRestriction(Integer ageRestriction) {
         this.ageRestriction = ageRestriction;
     }
-    public void setRating(Number rating) {
+    public void setRating(Integer rating) {
         this.rating = rating;
     }
     public void setSortBy(String sortBy) { this.sortBy = sortBy; }
@@ -46,7 +46,7 @@ public class MediaQuery {
     public Integer getAgeRestriction() {
         return ageRestriction;
     }
-    public Number getRating() {
+    public Integer getRating() {
         return rating;
     }
     public String getSortBy() {

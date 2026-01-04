@@ -1,3 +1,5 @@
+
+Unterricht:
 Request Mapper -> Was kann man testen?
 
 RequestMapperTest.java
@@ -27,3 +29,47 @@ aber 100% Code Coverage bedeutet nicht, dass wir auch tatsächlich relevante Sac
 
 "Wenn ihr eure Anwendung testet, wsl könnt ihr euch auf den Service-Layer beschränken",
     -> Daher: Repo mocken
+
+Unterlagen:
+    // Test der normale Funktionalität prüft
+    // Test mit abnormal inputs
+        // Equivalenzklassen
+        // Boundary Value
+        //
+
+    //Asserts
+        //fail()
+        //assertTrue()
+        //assertFalse()
+        //assertEquals()
+        //assertNull()
+        //assertNotNull()
+        //assertSame() -> refere to same Objekt
+        //assertNotSame()
+
+    //Annotations
+        //@Test
+        //@BeforeEach: Executed before each test. It is used to prepare the test environment (e.g., read input data, initialize the class).
+        //@AfterEach
+        //@BeforeAll für Zeitintensive Dinge (wie Verbindung mit Database) Methoden müssen static sein
+        //@AfterAll
+
+    //Testdoubles
+        //Test Stub
+
+        //Mock Object
+            //codierte Erwartungen die festgelegt werden, bevor die Methode im Test aufgerufen wird
+        //Test Spy
+            //z.B. Mockito - Asserts?
+        //
+
+    @Test
+    //Aussagekräftiger Name in snake_font(?) das mit den _ halt
+    {
+        //setup | arrange
+
+        //call | act
+
+        //assertion | assert
+    }
+}

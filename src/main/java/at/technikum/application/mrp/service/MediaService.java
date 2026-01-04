@@ -153,7 +153,32 @@ public class MediaService {
                 "".equals(mediaQuery.getSortBy())) {
             throw new IllegalArgumentException("Empty Strings are not allowed as QueryParams");
         }
-
+        // muss validieren, dass mediaQuery.getGenre() einem akzeptierten Genre entspricht da mediaQuery das genre als String speichert
+        try {
+            Genre.valueOf(mediaQuery.getGenre());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid genre: " + mediaQuery.getGenre());
+        }
+        // muss validieren, dass mediaQuery.getMediaType() einem der akzeptierten mediaTypes entpricht
+        if(!mediaQuery.getMediaType().equals("movie")
+        && !mediaQuery.getMediaType().equals("series")
+        && !mediaQuery.getMediaType().equals("game")) {
+            throw new IllegalArgumentException("Invalid media type: " + mediaQuery.getMediaType());
+        }
+        // muss validieren, dass mediaQuery.getReleaseYear() ein valides Jahr ist (>= 0 && < this.year?)
+        int thisYear = java.time.Year.now().getValue();
+        if(mediaQuery.getReleaseYear() < 0 || mediaQuery.getReleaseYear() > thisYear) {
+            throw new IllegalArgumentException("Invalid release year (can not be < 0 or > today): " + mediaQuery.getReleaseYear());
+        }
+        // muss validieren, dass mediaQuery.getAgeRestriction() eine valide AgeRestriction ist
+        if(mediaQuery.getAgeRestriction() < 0 ||  mediaQuery.getAgeRestriction() > 18) {
+            throw new IllegalArgumentException("Invalid age restriction (has to be int between 0 and 18): " + mediaQuery.getAgeRestriction());
+        }
+        // muss validieren, dass mediaQuery.getRating() eine valides Rating ist (entspricht star value)
+        if(mediaQuery.getRating() < 1 || mediaQuery.getRating() > 5)
+        {
+            throw new IllegalArgumentException("Invalid rating (has to be int between 1 and 5): " + mediaQuery.getRating());
+        }
 
         /* Im Repository soll der SQL String aufgebaut werden, sodass er nur nach jenen Params filtered die nicht Null sind.
          * Diese Funktion belasse ich im Repository, da wir ja wollen, dass die höheren Schichten nichts über SQL wissen
@@ -164,10 +189,6 @@ public class MediaService {
          * welche diesen enthält
          *
          * Was passiert dann noch hier im Service?
-         *
-         * falls das Optional leer ist, sollte ich eine leere Liste zurück schicken
-         *
-         *
          * */
 
         List<Media> filteredMediaList = this.mediaRepository.findFiltered(mediaQuery);
