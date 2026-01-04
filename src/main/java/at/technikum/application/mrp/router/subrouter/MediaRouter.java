@@ -23,7 +23,7 @@ public class MediaRouter extends SubRouter<MediaController> {
         register("/media/", true, Method.PUT, controller::update); //done
         register("/media/",true,  Method.GET, controller::read); // done
 
-        register("/media",true,  Method.GET, controller::readAll); // 1.) Comments in den Ratings noch auf "" setzen!  done aber nicht kontrolliert
+        register("/media",true,  Method.GET, controller::readAll); // done
         register("/media",true,  Method.POST, controller::create); //done
     }
 

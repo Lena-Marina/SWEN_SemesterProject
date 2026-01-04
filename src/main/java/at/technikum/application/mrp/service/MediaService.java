@@ -15,6 +15,7 @@ import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
+import at.technikum.application.mrp.service.util.RatingValidator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,15 +26,18 @@ public class MediaService {
     private UserRepository userRepository;
     private FavoriteRepository favoriteRepository;
     private RatingRepository ratingRepository;
+    private RatingValidator ratingValidator;
 
     public MediaService(MediaRepository mediaRepository,
                         UserRepository userRepository,
                         FavoriteRepository favoriteRepository,
-                        RatingRepository ratingRepository) {
+                        RatingRepository ratingRepository,
+                        RatingValidator ratingValidator) {
         this.mediaRepository = mediaRepository;
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
         this.ratingRepository = ratingRepository;
+        this.ratingValidator = ratingValidator;
     }
 
     public List<Media> getRecommendation(RecommendationRequest dto) {
@@ -109,6 +113,11 @@ public class MediaService {
         }
         //Keine validierung für eine leere Liste -> Wenn User keine Ratings verfasst, bekommt User keine Recommendations
         // In echt hätte man hier wsl eine Basis Liste mit aktuell gepushten Titeln?
+
+        // "" aus comments der Ratings entfernen, wenn !confirmed
+        for(Media media : recommendations){
+            ratingValidator.removeCommentsIfNotConfirmedFromMedia(media);
+        }
 
         return recommendations;
     }
@@ -189,9 +198,15 @@ public class MediaService {
          * welche diesen enthält
          *
          * Was passiert dann noch hier im Service?
+         * -> Commentare in den ratings auf "" setzen, wenn nicht confirmed
          * */
 
         List<Media> filteredMediaList = this.mediaRepository.findFiltered(mediaQuery);
+
+        //Kommentare in den Ratings der Medias auf "" setzen, wenn !confirmed
+        for(Media media : filteredMediaList) {
+            ratingValidator.removeCommentsIfNotConfirmedFromMedia(media);
+        }
 
         return filteredMediaList;
     }
@@ -254,14 +269,7 @@ public class MediaService {
 
         Media updatedMedia = updatedMediaOpt.get();
 
-        if (updatedMedia.getId() == null
-                || updatedMedia.getCreatorID() == null
-                || updatedMedia.getTitle() == null || updatedMedia.getTitle().isBlank()
-                || updatedMedia.getDescription() == null || updatedMedia.getDescription().isBlank()
-                || updatedMedia.getMediaType() == null || updatedMedia.getMediaType().isBlank()
-        ) {
-            throw new EntityNotSavedCorrectlyException("updated Media does not contain all necessary fields");
-        }
+        ratingValidator.removeCommentsIfNotConfirmedFromMedia(updatedMedia);
 
         return updatedMedia;
     }
@@ -284,6 +292,7 @@ public class MediaService {
 
         Media deletedMedia = this.mediaRepository.delete(mediaID); //Repofunktion aufrufen
 
+        ratingValidator.removeCommentsIfNotConfirmedFromMedia(deletedMedia);
         //Validation -> was gehört hier geprüft? Basis Sachen dürfen nicht leer sein, Listen schon
         // die andere Frage ist, was bedeutet es, wenn hier etwas unvollständig ist?
         // ich will keine Exception werfen, denn dann ist alles verloren.
@@ -306,13 +315,7 @@ public class MediaService {
         Media media = mediaOpt.get();
 
         //Kommentare in Ratings löschen, wenn nicht freigegeben
-        List<Rating> mediaRatings = media.getRatings();
-        for (Rating rating : mediaRatings) {
-            if (!rating.getConfirmed()) {
-                rating.setComment("");
-            }
-        }
-        media.setRatings(mediaRatings);
+        ratingValidator.removeCommentsIfNotConfirmedFromMedia(media);
 
         //weitere Validation?
 
@@ -392,5 +395,7 @@ public class MediaService {
 
         return createdMedia;
     }
+
+
 
 }

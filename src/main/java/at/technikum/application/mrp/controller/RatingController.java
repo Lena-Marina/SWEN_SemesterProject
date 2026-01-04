@@ -30,7 +30,7 @@ public class RatingController extends Controller {
         ratingChangeDTO.setCreatorName(request.extractNameFromHeader());
 
         //Aufruf Service Funktion
-        RatingReturned updatedRating = this.ratingService.changeRating(ratingChangeDTO);
+        Rating updatedRating = this.ratingService.changeRating(ratingChangeDTO);
 
         //Weil im unterricht besprochen: Abweichung von Spezifikation -> es wird das geupdatete Rating retourniert
         return json(updatedRating, Status.OK);

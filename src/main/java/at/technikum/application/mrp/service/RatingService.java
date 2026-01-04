@@ -9,6 +9,7 @@ import at.technikum.application.mrp.model.dto.*;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
+import at.technikum.application.mrp.service.util.RatingValidator;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -16,16 +17,16 @@ import java.util.UUID;
 
 public class RatingService {
     private RatingRepository ratingRepository;
-    private MediaRepository mediaRepository;
     private UserRepository userRepository;
+    private RatingValidator ratingValidator;
 
     public RatingService(RatingRepository ratingRepository,
-                         MediaRepository mediaRepository,
-                         UserRepository userRepository
+                         UserRepository userRepository,
+                         RatingValidator ratingValidator
                          ) {
         this.ratingRepository = ratingRepository;
-        this.mediaRepository = mediaRepository;
         this.userRepository = userRepository;
+        this.ratingValidator = ratingValidator;
     }
 
     public Rating createRating(RatingInput ratingDTO)
@@ -44,7 +45,6 @@ public class RatingService {
         rating.setStars(ratingDTO.getStars());
         rating.setComment(ratingDTO.getComment());
         rating.setConfirmed(false); //er wird ja neu erstellt --> noch nicht confirmed
-        //media ist ein media Objekt -> es erhält nur die UUID, da nur diese Relevant für das Speichern des Ratings ist
         rating.setMediaId(ratingDTO.getMediaId());
         //user-id finden wir über den Namen aus dem Token
         rating.setCreatorId(this.userRepository.getIdViaName(ratingDTO.getCreatorName()));
@@ -126,7 +126,7 @@ public class RatingService {
         return this.ratingRepository.likeRating(likedByDTO.getRatingId(), senderID);
     }
 
-    public RatingReturned changeRating(RatingChange ratingDTO)
+    public Rating changeRating(RatingChange ratingDTO)
     {
         //dto validieren
         if(ratingDTO.getMediaId() == null
@@ -166,16 +166,10 @@ public class RatingService {
 
         Rating changedRating = changedRatingOpt.get();
 
-        // DTO für Konvertierung und Rückgabe
-        RatingReturned changedRatingDTO = new RatingReturned();
-        changedRatingDTO.setRatingId(changedRating.getRatingId());
-        changedRatingDTO.setStars(changedRating.getStars());
-        changedRatingDTO.setComment(changedRating.getComment());
-        changedRatingDTO.setConfirmed(changedRating.getConfirmed());
-        changedRatingDTO.setMediaId(changedRating.getMediaID());
-        changedRatingDTO.setCreatorId(changedRating.getCreatorID());
+        //Kommentar entfernen, falls nicht confirmed
+        ratingValidator.removeCommentIfNotConfirmed(changedRating);
 
-        return changedRatingDTO;
+        return changedRating;
     }
 
     public Rating deleteRating(UUID ratingID, String creatorName)
