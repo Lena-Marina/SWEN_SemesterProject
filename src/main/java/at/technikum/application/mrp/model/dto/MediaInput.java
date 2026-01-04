@@ -87,5 +87,32 @@ public class MediaInput {
         return creatorName;
     }
 
+    //Validator -> void throws exception if not correct
+    public void validateMediaInput(MediaInput mediaDTO)
+    {
+        if (mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
+                || mediaDTO.getDescription() == null || mediaDTO.getDescription().isBlank()
+                || mediaDTO.getReleaseYear() == null
+                || mediaDTO.getAgeRestriction() == null
+                || mediaDTO.getCreatorName() == null || mediaDTO.getCreatorName().isBlank()
+        ) {
+            throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
+        }
+        //Genre validieren -> Werden in MediaInput als Genre gespeichert, ist somit fix einer der erlaubten Begriffe
+
+        //mediaType validieren
+        if (!"series".equals(mediaDTO.getMediaType()) &&
+                !"movie".equals(mediaDTO.getMediaType()) &&
+                !"game".equals(mediaDTO.getMediaType())) {
+            throw new IllegalArgumentException("mediaType can only be series, movie or game");
+        }
+
+        //releaseYear validieren
+        int thisYear = java.time.Year.now().getValue();
+        if(mediaDTO.getReleaseYear() < 0 || mediaDTO.getReleaseYear() > thisYear) {
+            throw new IllegalArgumentException("releaseYear must be between 0 and thisYear");
+        }
+    }
+
 
 }

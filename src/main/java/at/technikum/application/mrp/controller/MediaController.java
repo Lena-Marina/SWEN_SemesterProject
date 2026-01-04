@@ -61,8 +61,7 @@ public class MediaController extends Controller {
         //Funktion des Service aufrufen
         List<Media> filteredMedia = this.mediaService.getFilteredMedia(mediaQuery);
 
-        //return new Response(Status.OK, ContentType.TEXT_PLAIN, "funktion read() im MediaController mit der mediaId: " + mediaID + " aufgerufen");
-        //bis bessere Lösung gefunden
+
         return listToJson(filteredMedia, Status.OK);
     }
 
@@ -87,9 +86,7 @@ public class MediaController extends Controller {
         //DTO an service weitergeben
         Media createdMedia = mediaService.createMedia(mediaInput);
 
-        //createdMedia validieren
 
-        //just for now:
         return this.json(createdMedia, Status.CREATED);
     }
 

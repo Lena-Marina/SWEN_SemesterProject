@@ -278,15 +278,17 @@ public class RatingRepository implements MrpRepository<Rating>{
             throw new EntityNotSavedCorrectlyException("Could not like Rating: " + e.getMessage());
         }
     }
+
     public List<Rating> findAllFrom(UUID userID)
     {
         List<Rating> userRatings = new ArrayList<>();
 
-        String selectRatingsSql =
-                "SELECT * FROM ratings WHERE creator_id = ?";
+        String selectRatingsSql = "SELECT * FROM ratings WHERE creator_id = ?";
+        String selectLikesSql = "SELECT user_id FROM liked_by WHERE rating_id = ?";
 
         try (Connection con = connectionPool.getConnection();
              PreparedStatement ratingStmt = con.prepareStatement(selectRatingsSql);
+             PreparedStatement likesStmt = con.prepareStatement(selectLikesSql);
              ) {
 
             // Zuerst Ratings laden
@@ -295,15 +297,19 @@ public class RatingRepository implements MrpRepository<Rating>{
 
             //für jedes Ergebnis, die informationen über das Rating speichern
             while (ratingRs.next()) {
-                Rating rating = new Rating();
+                //"basis" Felder des Ratings befüllen
+                Rating rating = mapper.mapToRating(ratingRs);
 
-                rating.setRatingId(ratingRs.getObject("rating_id", UUID.class));
-                rating.setCreatorId(ratingRs.getObject("creator_id", UUID.class));
-                rating.setStars(ratingRs.getInt("stars"));
-                rating.setConfirmed(ratingRs.getBoolean("confirmed"));
-                rating.setComment(ratingRs.getString("comment"));
-                rating.setMediaId(ratingRs.getObject("media_id", UUID.class));
+                //liked_by liste laden und zum Rating dazugeben
+                List<UUID> likedBy = new ArrayList<>();
 
+                //? von likesStmt laden
+                likesStmt.setObject(1, ratingRs.getObject("rating_id", UUID.class));
+                ResultSet likesRs = likesStmt.executeQuery();
+                while (likesRs.next()) {
+                    likedBy.add(likesRs.getObject("user_id", UUID.class));
+                }
+                rating.setLikedByList(likedBy);
                 userRatings.add(rating);
             }
 

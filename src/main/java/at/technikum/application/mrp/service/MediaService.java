@@ -167,30 +167,42 @@ public class MediaService {
             throw new IllegalArgumentException("Empty Strings are not allowed as QueryParams");
         }
         // muss validieren, dass mediaQuery.getGenre() einem akzeptierten Genre entspricht da mediaQuery das genre als String speichert
-        try {
-            Genre.valueOf(mediaQuery.getGenre());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid genre: " + mediaQuery.getGenre());
+        String genreStr = mediaQuery.getGenre();
+        if (genreStr != null) {
+            try {
+                Genre.valueOf(genreStr);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid genre: " + genreStr);
+            }
         }
         // muss validieren, dass mediaQuery.getMediaType() einem der akzeptierten mediaTypes entpricht
-        if(!mediaQuery.getMediaType().equals("movie")
-        && !mediaQuery.getMediaType().equals("series")
-        && !mediaQuery.getMediaType().equals("game")) {
-            throw new IllegalArgumentException("Invalid media type: " + mediaQuery.getMediaType());
+        String mediaType = mediaQuery.getMediaType();
+        if (mediaType != null &&
+                !mediaType.equals("movie") &&
+                !mediaType.equals("series") &&
+                !mediaType.equals("game")) {
+            throw new IllegalArgumentException("Invalid media type: " + mediaType);
         }
         // muss validieren, dass mediaQuery.getReleaseYear() ein valides Jahr ist (>= 0 && < this.year?)
+        Integer releaseYear = mediaQuery.getReleaseYear();
         int thisYear = java.time.Year.now().getValue();
-        if(mediaQuery.getReleaseYear() < 0 || mediaQuery.getReleaseYear() > thisYear) {
-            throw new IllegalArgumentException("Invalid release year (can not be < 0 or > today): " + mediaQuery.getReleaseYear());
+        if (releaseYear != null && (releaseYear < 0 || releaseYear > thisYear)) {
+            throw new IllegalArgumentException("Invalid release year (0-" + thisYear + "): " + releaseYear);
         }
         // muss validieren, dass mediaQuery.getAgeRestriction() eine valide AgeRestriction ist
-        if(mediaQuery.getAgeRestriction() < 0 ||  mediaQuery.getAgeRestriction() > 18) {
-            throw new IllegalArgumentException("Invalid age restriction (has to be int between 0 and 18): " + mediaQuery.getAgeRestriction());
+        Integer ageRestriction = mediaQuery.getAgeRestriction();
+        if (ageRestriction != null && (ageRestriction < 0 || ageRestriction > 18)) {
+            throw new IllegalArgumentException("Invalid age restriction (0-18): " + ageRestriction);
         }
         // muss validieren, dass mediaQuery.getRating() eine valides Rating ist (entspricht star value)
-        if(mediaQuery.getRating() < 1 || mediaQuery.getRating() > 5)
-        {
-            throw new IllegalArgumentException("Invalid rating (has to be int between 1 and 5): " + mediaQuery.getRating());
+        Number rating = mediaQuery.getRating();
+        if (rating != null && (rating.intValue() < 1 || rating.intValue() > 5)) {
+            throw new IllegalArgumentException("Invalid rating (1-5): " + rating);
+        }
+        //sort by auch auf seine erlaubten Werte validieren
+        String sortBy = mediaQuery.getSortBy();
+        if (sortBy != null && !List.of("title", "year", "score").contains(sortBy)) {
+            throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
         }
 
         /* Im Repository soll der SQL String aufgebaut werden, sodass er nur nach jenen Params filtered die nicht Null sind.
@@ -227,14 +239,7 @@ public class MediaService {
          * Ich prüfe also NICHT, was bereits in der DB vorhanden ist und ergänze nur,
          * da ich annehme, dass auch Genres entfernt werden können.*/
         //DTO validieren
-        if (mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
-                || mediaDTO.getDescription() == null || mediaDTO.getDescription().isBlank()
-                || mediaDTO.getReleaseYear() == null
-                || mediaDTO.getAgeRestriction() == null
-                || mediaDTO.getCreatorName() == null || mediaDTO.getCreatorName().isBlank()
-        ) {
-            throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
-        }
+        mediaDTO.validateMediaInput(mediaDTO);
 
         //Prüfen ob Anfragesteller:in authorisiert ist
         checkPermission(mediaDTO.getId(), mediaDTO.getCreatorName());
@@ -318,16 +323,9 @@ public class MediaService {
     }
 
     public Media createMedia(MediaInput mediaDTO) {
-        //DTO validieren
-        if (mediaDTO.getTitle() == null || mediaDTO.getTitle().isBlank()
-                || mediaDTO.getDescription() == null || mediaDTO.getDescription().isBlank()
-                || mediaDTO.getReleaseYear() == null
-                || mediaDTO.getAgeRestriction() == null
-                || mediaDTO.getCreatorName() == null || mediaDTO.getCreatorName().isBlank()
-        ) {
-            throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
-        }
-        //Genre validieren? Braucht es ein Genre oder darf es auch keines haben? Ich denke es darf keines haben, dann taucht es halt bei Suchen nach Genre nicht auf
+
+        //DTO validieren -> wirft exception wenn ein Fehler darin ist
+        mediaDTO.validateMediaInput(mediaDTO);
 
         //Media_ID dazugeben
         mediaDTO.setId(UUID.randomUUID());
