@@ -157,9 +157,6 @@ public class MediaController extends Controller {
     }
 
     public Response rate(Request request) {
-        //DEBUGGING
-        System.out.println("---------------------------------");
-        System.out.println("DEBUG in MediaController::rate() ");
 
         //Dto erstellen
         RatingInput rating_dto = toObject(request.getBody(), RatingInput.class);

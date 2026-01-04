@@ -39,15 +39,21 @@ public class RatingService {
             throw new IllegalArgumentException("RatingDTO misses either stars, mediaId or creatorName");
         }
 
+        //prüfen ob diese:r User:in bereits dieses Medium gerated hat, denn wenn das so ist, darf er:sie das nicht mehr tun!
+        UUID userId = this.userRepository.getIdViaName(ratingDTO.getCreatorName());
+        boolean alreadyRated = this.ratingRepository.alreadyRatedByUser(ratingDTO.getMediaId(), userId);
+        if(alreadyRated){
+            throw new UnauthorizedException("User can only rate same media once");
+        }
+
         // aus DTO -> Rating erstellen
         Rating rating = new Rating();
         rating.setRatingId(UUID.randomUUID());
         rating.setStars(ratingDTO.getStars());
         rating.setComment(ratingDTO.getComment());
-        rating.setConfirmed(false); //er wird ja neu erstellt --> noch nicht confirmed
+        rating.setConfirmed(false); //er wird ja neu erstellt -> noch nicht confirmed
         rating.setMediaId(ratingDTO.getMediaId());
-        //user-id finden wir über den Namen aus dem Token
-        rating.setCreatorId(this.userRepository.getIdViaName(ratingDTO.getCreatorName()));
+        rating.setCreatorId(userId); //user-id habe ich ja oben schon geholt
 
         //Repo-Funktion aufrufen.
         Optional<Rating> createdRatingOpt = this.ratingRepository.create(rating);
@@ -57,17 +63,6 @@ public class RatingService {
         {
             throw new EntityNotSavedCorrectlyException("Rating not saved correctly");
         }
-
-        /* Folgendes Probelm ist aufgetreten: Beim Serialisieren des Ratings (im Controller)
-        * Ist das nicht möglich, da versucht wird das Media in Rating ebenfalls zu serialisieren.
-        * Zu dem Media haben wir aber nicht alle Informationen (nur die ID)
-        * Lösungesmöglichkeiten:
-        * 1.) Tatsächlich das ganze Media in der DB abfragen
-        *   -> ich mag diese Lösung nicht, da es mir wie ein unnötiger DB Zugriff vorkommt
-        * 2.) Nicht einen Response, sondern ein DTO zurückgeben, welches nicht ein ganzes Media,
-        * sondern nur die UUID des Medias enthält.
-        *   -> Das Entspricht zwar nicht ganz der Schichtenlogik, die wir besprochen haben,
-        *   kommt mir in diesem Fall aber wie die bessere Lösung vor?*/
 
         //Rating das vom Repo zurückgegeben wird befreien
         Rating createdRating = createdRatingOpt.get();
@@ -84,6 +79,8 @@ public class RatingService {
             throw new EntityNotSavedCorrectlyException(
                     "saved Rating differs from rating that should have been saved");
         }
+
+        //hier gebe ich schon jedenfalls den Comment wieder mit
 
         //erstelltes zurückgeben
         return createdRating;

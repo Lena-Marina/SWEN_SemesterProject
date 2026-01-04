@@ -4,6 +4,7 @@ import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.User;
+import at.technikum.application.mrp.model.dto.RatingInput;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

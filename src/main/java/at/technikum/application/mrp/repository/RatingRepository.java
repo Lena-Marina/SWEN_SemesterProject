@@ -3,6 +3,7 @@ package at.technikum.application.mrp.repository;
 import at.technikum.application.common.ConnectionPool;
 import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
+import at.technikum.application.mrp.exception.UnauthorizedException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.helper.RatingStatistic;
@@ -435,4 +436,26 @@ public class RatingRepository implements MrpRepository<Rating>{
         return rst;
     }
 
+    public boolean alreadyRatedByUser(UUID mediaId, UUID userId) {
+        String sql = "SELECT * from ratings WHERE media_id = ? AND creator_id = ?";
+
+        try(PreparedStatement stmt = this.connectionPool.getConnection().prepareStatement(sql)){
+            // ? befüllen
+            stmt.setObject(1, mediaId);
+            stmt.setObject(2, userId);
+
+            // stmt ausführen
+            ResultSet rs = stmt.executeQuery();
+
+            //Ergebnis verarbeiten
+            if(!rs.next()) {
+                return false;
+            }
+            return true;
+
+        }catch(SQLException e)
+        {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 }

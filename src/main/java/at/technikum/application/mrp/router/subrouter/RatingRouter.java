@@ -16,8 +16,9 @@ public class RatingRouter extends SubRouter<RatingController> {
         register("/confirm", true, Method.POST, controller::confirmComment); // Done
         register("/like", true, Method.POST, controller::likeRating); // Done
 
-        register("/ratings/", true, Method.PUT, controller::update); // Done
+        register("/ratings/", true, Method.PUT, controller::update);  // Done
         register("/ratings/", true,  Method.DELETE, controller::delete); // Done
+                                                                                            //create Rating fängt mit media/ an und ist daher im MediaRouter
     }
 
 }

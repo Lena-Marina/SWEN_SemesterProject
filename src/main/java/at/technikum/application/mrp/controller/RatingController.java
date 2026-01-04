@@ -23,6 +23,7 @@ public class RatingController extends Controller {
     {
         //Dto erstellen
         RatingChange ratingChangeDTO = toObject(request.getBody(), RatingChange.class);
+
         //id extrahieren und dto zufügen
         ratingChangeDTO.setMediaId(request.extractIdAsUUID());
 
