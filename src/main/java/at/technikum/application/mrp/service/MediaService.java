@@ -40,6 +40,18 @@ public class MediaService {
         this.ratingValidator = ratingValidator;
     }
 
+    protected void checkPermission(UUID mediaID, String requesterName) {
+        // deleter/ requester ID über Name ermitteln
+        UUID requesterID = userRepository.getIdViaName(requesterName);
+
+        // creator ID über MediaID ermitteln
+        UUID creatorID = mediaRepository.getCreatorIdViaMediaEntryID(mediaID);
+
+        if (!requesterID.equals(creatorID)) {
+            throw new UnauthorizedException("Only the creator of a media entry may perform this action");
+        }
+    }
+
     public List<Media> getRecommendation(RecommendationRequest dto) {
         // Validation
         if (!"genre".equals(dto.getType()) && !"content".equals(dto.getType())) {
@@ -146,14 +158,6 @@ public class MediaService {
 
     }
 
-    public void createRating(RatingInput ratingInput) {
-        //DTO validieren
-
-        //Repo-funktion aufrufen
-
-        //erstelltes Rating oder bewertetes Media zurückgeben
-    }
-
     public List<Media> getFilteredMedia(MediaQuery mediaQuery) {
         //DTO Validieren? -> es darf ja alles Null sein, ich könnte prüfen ob die Strings "" sind
         if ("".equals(mediaQuery.getTitle()) ||
@@ -232,18 +236,8 @@ public class MediaService {
             throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
         }
 
-        //check ob Anfragesteller auch creator ist
-        String originalCreatorName = this.mediaRepository.getCreatorNameByMediaID(mediaDTO.getId());
-
-        //DEBUGGING
-        System.out.println("---------------------------------");
-        System.out.println("DEBUG Freigabe des Updatens eines Media Entrys in MediaService::updateMedia() ");
-        System.out.println("DEBUG: originalCreatorName= " + originalCreatorName);
-        System.out.println("DEBUG: creatorNameNow = " + mediaDTO.getCreatorName());
-
-        if (!(originalCreatorName.equals(mediaDTO.getCreatorName()))) {
-            throw new UnauthorizedException("users can only edit their own Media_Entrys");
-        }
+        //Prüfen ob Anfragesteller:in authorisiert ist
+        checkPermission(mediaDTO.getId(), mediaDTO.getCreatorName());
 
         //Media Objekt aus DTO erstellen
         Media media = new Media();
@@ -254,6 +248,7 @@ public class MediaService {
         media.setAgeRestriction(mediaDTO.getAgeRestriction());
         media.setMediaType(mediaDTO.getMediaType());
         media.setGenres(mediaDTO.getGenres());
+
         //Creator_ID ermitteln
         UUID creatorId = this.userRepository.getIdViaName(mediaDTO.getCreatorName());
         media.setCreatorID(creatorId);
@@ -278,17 +273,8 @@ public class MediaService {
 
         //MediaID validieren -> Ist es eine valide UUID? --> muss sein, denn sonst hätte ich sie nicht als UUID entgegen nehmen können
 
-        //deleterID über namen herausfinden
-        UUID deleterID = this.userRepository.getIdViaName(deleterName);
-
-        //creatorID über mediaID herausfinden
-        UUID creatorID = this.mediaRepository.getCreatorIdViaMediaEntryID(mediaID);
-
-        //deleterID und creatirID müssen gleich sein
-        if (!deleterID.equals(creatorID)) {
-            throw new UnauthorizedException("only the creator of a mediaEntry may destroy it");
-        }
-
+        //Prüfen ob Anfragesteller:in authorisiert ist
+        checkPermission(mediaID, deleterName);
 
         Media deletedMedia = this.mediaRepository.delete(mediaID); //Repofunktion aufrufen
 

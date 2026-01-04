@@ -24,7 +24,7 @@ public class MediaRouter extends SubRouter<MediaController> {
         register("/media/",true,  Method.GET, controller::read); // done
 
         register("/media",true,  Method.GET, controller::readAll); // done
-        register("/media",true,  Method.POST, controller::create); //done
+        register("/media",true,  Method.POST, controller::create); //erlaube ich nur series, movie und game?
     }
 
 }
