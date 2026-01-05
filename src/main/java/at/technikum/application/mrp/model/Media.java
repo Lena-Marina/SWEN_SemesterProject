@@ -69,7 +69,7 @@ public class Media {
         this.mediaType = mediaType;
     }
 
-    public int getReleaseYear() {
+    public Integer getReleaseYear() {
         return releaseYear;
     }
 
@@ -85,7 +85,7 @@ public class Media {
         this.genres = genres;
     }
 
-    public int getAgeRestriction() {
+    public Integer getAgeRestriction() {
         return ageRestriction;
     }
 

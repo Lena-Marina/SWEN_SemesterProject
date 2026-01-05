@@ -55,6 +55,10 @@ public class ModelMapper {
         media.setGenres(mediaDTO.getGenres());
         media.setCreatorID(creatorId);
 
+        //Listen die nicht im DTO vorhanden sind werden nur leer erstellt
+        media.setFavoritedBy(new ArrayList<>());
+        media.setRatings(new ArrayList<>());
+
         return media;
     }
 

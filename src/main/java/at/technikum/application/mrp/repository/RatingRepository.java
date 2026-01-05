@@ -425,10 +425,6 @@ public class RatingRepository implements MrpRepository<Rating>{
                 rst.setNumberOfRatings(rst.getNumberOfRatings() + 1);
             }
 
-            if (rst.getNumberOfRatings() == 0) {
-                throw new EntityNotFoundException("Could not find ratings for media id " + mediaID);
-            }
-
         } catch (SQLException e) {
             throw new EntityNotFoundException("Problem in getRatingStatistic(): " + e.getMessage());
         }

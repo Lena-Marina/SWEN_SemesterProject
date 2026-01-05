@@ -6,6 +6,7 @@ import at.technikum.application.mrp.exception.UnauthorizedException;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.dto.*;
+import at.technikum.application.mrp.model.util.ModelValidator;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
@@ -18,15 +19,15 @@ import java.util.UUID;
 public class RatingService {
     private RatingRepository ratingRepository;
     private UserRepository userRepository;
-    private RatingValidator ratingValidator;
+    private ModelValidator validator;
 
     public RatingService(RatingRepository ratingRepository,
                          UserRepository userRepository,
-                         RatingValidator ratingValidator
+                         ModelValidator modelValidator
                          ) {
         this.ratingRepository = ratingRepository;
         this.userRepository = userRepository;
-        this.ratingValidator = ratingValidator;
+        this.validator = modelValidator;
     }
 
     public Rating createRating(RatingInput ratingDTO)
@@ -164,7 +165,7 @@ public class RatingService {
         Rating changedRating = changedRatingOpt.get();
 
         //Kommentar entfernen, falls nicht confirmed
-        ratingValidator.removeCommentIfNotConfirmed(changedRating);
+        validator.removeCommentIfNotConfirmed(changedRating);
 
         return changedRating;
     }

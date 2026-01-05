@@ -4,6 +4,7 @@ import at.technikum.application.common.ConnectionPool;
 import at.technikum.application.common.SubRouter;
 import at.technikum.application.mrp.controller.*;
 import at.technikum.application.mrp.model.util.ModelMapper;
+import at.technikum.application.mrp.model.util.ModelValidator;
 import at.technikum.application.mrp.repository.*;
 import at.technikum.application.mrp.router.MainRouter;
 import at.technikum.application.mrp.router.subrouter.*;
@@ -28,8 +29,8 @@ public class ApplicationContext {
     //ModelMapper -> damit Mapping Funktionen von allen Repositorys benutzt werden können, die sie brauchen
     private final ModelMapper modelMapper = new ModelMapper();
 
-    //RatingValidator
-    private final RatingValidator ratingValidator = new RatingValidator();
+    //ModelValidator
+    private final ModelValidator modelValidator = new ModelValidator();
 
     //Repositorys erhalten den ConnectionPool
     UserRepository userRepository = new UserRepository(connectionPool, modelMapper);
@@ -39,8 +40,8 @@ public class ApplicationContext {
 
     //Services
     UserService userService = new UserService(userRepository, ratingRepository, favoriteRepository);
-    MediaService mediaService = new MediaService(mediaRepository, userRepository, favoriteRepository, ratingRepository, ratingValidator, modelMapper);
-    RatingService ratingService = new RatingService(ratingRepository, userRepository, ratingValidator);
+    MediaService mediaService = new MediaService(mediaRepository, userRepository, favoriteRepository, ratingRepository, modelValidator, modelMapper);
+    RatingService ratingService = new RatingService(ratingRepository, userRepository, modelValidator);
     AuthService authService = new AuthService(userRepository);
 
     //Controller

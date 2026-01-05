@@ -175,6 +175,12 @@ public class MediaServiceTests {
 
     /*Validation eines Mediums testen -> hier könnte ich boundary limit gut umsetzen
      * (in age_restriction und release_year) */
+
+    /*Avg Score berechnung validieren -> Aber eigentlich passiert das interessante
+    hier in der DB, welche zu testen nicht meine Verantwortung ist...
+    in der Business logik mache ich nur eine einfache division, die muss ich denke ich
+    eher nicht testen
+    * */
 }
 
 

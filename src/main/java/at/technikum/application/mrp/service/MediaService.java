@@ -7,19 +7,17 @@ import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.MediaQuery;
-import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
 import at.technikum.application.mrp.model.helper.RatingStatistic;
 import at.technikum.application.mrp.model.helper.RecommendationHelper;
 import at.technikum.application.mrp.model.util.ModelMapper;
+import at.technikum.application.mrp.model.util.ModelValidator;
 import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
-import at.technikum.application.mrp.service.util.RatingValidator;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MediaService {
 
@@ -28,20 +26,20 @@ public class MediaService {
     private FavoriteRepository favoriteRepository;
     private RatingRepository ratingRepository;
 
-    private RatingValidator ratingValidator;
+    private ModelValidator validator;
     private ModelMapper mapper;
 
     public MediaService(MediaRepository mediaRepository,
                         UserRepository userRepository,
                         FavoriteRepository favoriteRepository,
                         RatingRepository ratingRepository,
-                        RatingValidator ratingValidator,
+                        ModelValidator modelValidator,
                         ModelMapper mapper) {
         this.mediaRepository = mediaRepository;
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
         this.ratingRepository = ratingRepository;
-        this.ratingValidator = ratingValidator;
+        this.validator = modelValidator;
         this.mapper = mapper;
     }
 
@@ -129,10 +127,13 @@ public class MediaService {
         //Keine validierung für eine leere Liste -> Wenn User keine Ratings verfasst, bekommt User keine Recommendations
         // In echt hätte man hier wsl eine Basis Liste mit aktuell gepushten Titeln?
 
-        // "" aus comments der Ratings entfernen, wenn !confirmed
+        // "" aus comments der Ratings entfernen, wenn !confirmed und media validieren
         for(Media media : recommendations){
-            ratingValidator.removeCommentsIfNotConfirmedFromMedia(media);
+            validator.removeCommentsIfNotConfirmedFromMedia(media);
+            media.setAverageScore(this.getAverageScore(media.getId()));
+            validator.validateMediaOrThrow(media);
         }
+
 
         return recommendations;
     }
@@ -222,10 +223,12 @@ public class MediaService {
 
         List<Media> filteredMediaList = this.mediaRepository.findFiltered(mediaQuery);
 
-        //Kommentare in den Ratings der Medias auf "" setzen, wenn !confirmed
+        //Kommentare in den Ratings der Medias auf "" setzen, wenn !confirmed und media selbst validieren
         for(Media media : filteredMediaList) {
-            ratingValidator.removeCommentsIfNotConfirmedFromMedia(media);
+            validator.removeCommentsIfNotConfirmedFromMedia(media);
+            validator.validateMediaOrThrow(media);
         }
+
 
         return filteredMediaList;
     }
@@ -252,6 +255,11 @@ public class MediaService {
 
         //Media Objekt aus DTO erstellen (mit creatorId)
         Media media = mapper.mapToMedia(mediaDTO, creatorId);
+        media.setAverageScore(this.getAverageScore(media.getId()));
+
+        //media validieren
+        validator.validateMediaOrThrow(media);
+
 
         //MediaEntry mittels Repo-Funktion updaten
         Optional<Media> updatedMediaOpt = this.mediaRepository.update(media);
@@ -264,7 +272,11 @@ public class MediaService {
 
         Media updatedMedia = updatedMediaOpt.get();
 
-        ratingValidator.removeCommentsIfNotConfirmedFromMedia(updatedMedia);
+        // Kommentare von ratings entfernen
+        validator.removeCommentsIfNotConfirmedFromMedia(updatedMedia);
+
+        //media validieren
+        validator.validateMediaOrThrow(updatedMedia);
 
         return updatedMedia;
     }
@@ -278,12 +290,13 @@ public class MediaService {
 
         Media deletedMedia = this.mediaRepository.delete(mediaID); //Repofunktion aufrufen
 
-        ratingValidator.removeCommentsIfNotConfirmedFromMedia(deletedMedia);
+        validator.removeCommentsIfNotConfirmedFromMedia(deletedMedia);
         //Validation -> was gehört hier geprüft? Basis Sachen dürfen nicht leer sein, Listen schon
         // die andere Frage ist, was bedeutet es, wenn hier etwas unvollständig ist?
         // ich will keine Exception werfen, denn dann ist alles verloren.
         // wenn ein Teil der Informationen beim Löschen verloren gegangen ist,
         // ist das nicht immer noch besser als wenn alle verloren gegangen sind?
+        // Aber es darf ja trotzdem nicht Null sein, damit es in JSON übersetzt werden kann
 
         return deletedMedia;
     }
@@ -301,9 +314,13 @@ public class MediaService {
         Media media = mediaOpt.get();
 
         //Kommentare in Ratings löschen, wenn nicht freigegeben
-        ratingValidator.removeCommentsIfNotConfirmedFromMedia(media);
+        validator.removeCommentsIfNotConfirmedFromMedia(media);
 
-        //weitere Validation?
+        //avg score herausfinden
+        media.setAverageScore(this.getAverageScore(media.getId()));
+
+        //Media selbst validieren
+        validator.validateMediaOrThrow(media);
 
         //Average Score berechnen -> Business "Logik" deswegen hier und nicht schon in find()
         media.setAverageScore(this.getAverageScore(mediaID));
@@ -328,19 +345,6 @@ public class MediaService {
         //Creator_ID ermitteln
         UUID creatorId = this.userRepository.getIdViaName(mediaDTO.getCreatorName());
 
-
-        //DEBUGGING
-        System.out.println("---------------------------------");
-        System.out.println("DEBUG erhaltenes DTO in MediaService::createMedia() ");
-        System.out.println("DEBUG: ID= " + mediaDTO.getId());
-        System.out.println("DEBUG: title = " + mediaDTO.getTitle());
-        System.out.println("DEBUG: description = " + mediaDTO.getDescription());
-        System.out.println("DEBUG: mediaType= " + mediaDTO.getMediaType());
-        System.out.println("DEBUG: releaseYear= " + mediaDTO.getReleaseYear());
-        System.out.println("DEBUG: Genres = " + mediaDTO.getGenres());
-        System.out.println("DEBUG: AgeRestriction = " + mediaDTO.getAgeRestriction());
-        System.out.println("DEBUG: CreatorID = " + creatorId);
-
         //Repo Funktion erwartet ein Media Objekt, nicht das DTO (Weil ich ja mit Templates gearbeitet habe, lässt sich das jetzt auch nicht so leicht ändern
         Media media = mapper.mapToMedia(mediaDTO, creatorId);
 
@@ -354,6 +358,9 @@ public class MediaService {
 
         Media createdMedia = createdMediaOpt.get();
 
+        //Für ein frisch erstelltes Medium gibt es keine Ratings, daher muss ich die Kommentare nicht "" setzen
+
+        /*//ToDo: media Selbst validieren
         if (createdMedia.getId() == null
                 || createdMedia.getCreatorID() == null
                 || createdMedia.getTitle() == null || createdMedia.getTitle().isBlank()
@@ -361,7 +368,8 @@ public class MediaService {
                 || createdMedia.getMediaType() == null || createdMedia.getMediaType().isBlank()
         ) {
             throw new EntityNotSavedCorrectlyException("saved Media does not contain all necessary fields");
-        }
+        }*/
+        validator.validateMediaOrThrow(createdMedia);
 
         return createdMedia;
     }

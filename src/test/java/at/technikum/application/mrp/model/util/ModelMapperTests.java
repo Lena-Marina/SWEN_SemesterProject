@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ModelMapperTests {
     /*
@@ -47,9 +46,10 @@ public class ModelMapperTests {
         // Act
         Media media = mapper.mapToMedia(dto, creatorId);
 
-        // Assert
+        // Assert - ein Media wurde erstellt:
         assertNotNull(media);
 
+        //Assert - alles aus dem DTO wurde übernommen:
         assertEquals(mediaId, media.getId());
         assertEquals("Interstellar", media.getTitle());
         assertEquals("Sci-Fi Movie", media.getDescription());
@@ -58,6 +58,12 @@ public class ModelMapperTests {
         assertEquals("movie", media.getMediaType());
         assertEquals(List.of(Genre.SCI_FI, Genre.DRAMA), media.getGenres());
         assertEquals(creatorId, media.getCreatorID());
+
+        //Assert - im DTO unbekannte Listen wurden auch erstellt, sind aber leer:
+        assertNotNull(media.getFavoritedBy());
+        assertTrue(media.getFavoritedBy().isEmpty());
+        assertNotNull(media.getRatings());
+        assertTrue(media.getRatings().isEmpty());
     }
 }
 

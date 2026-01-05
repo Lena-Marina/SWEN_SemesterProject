@@ -96,7 +96,7 @@ public class MediaInput {
                 || mediaDTO.getAgeRestriction() == null
                 || mediaDTO.getCreatorName() == null || mediaDTO.getCreatorName().isBlank()
         ) {
-            throw new IllegalArgumentException("MediaEntry does not contain all neccessary fields");
+            throw new IllegalArgumentException("MediaInput does not contain all neccessary fields");
         }
         //Genre validieren -> Werden in MediaInput als Genre gespeichert, ist somit fix einer der erlaubten Begriffe
 
@@ -112,6 +112,7 @@ public class MediaInput {
         if(mediaDTO.getReleaseYear() < 0 || mediaDTO.getReleaseYear() > thisYear) {
             throw new IllegalArgumentException("releaseYear must be between 0 and thisYear");
         }
+
     }
 
 
