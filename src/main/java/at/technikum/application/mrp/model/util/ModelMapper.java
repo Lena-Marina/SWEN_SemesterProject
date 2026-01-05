@@ -4,6 +4,7 @@ import at.technikum.application.mrp.model.Genre;
 import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.User;
+import at.technikum.application.mrp.model.dto.MediaInput;
 import at.technikum.application.mrp.model.dto.RatingInput;
 
 import java.sql.ResultSet;
@@ -43,7 +44,22 @@ public class ModelMapper {
         return media;
     }
 
-    public User mapToUser(ResultSet rs) throws SQLException{
+    public Media mapToMedia(MediaInput mediaDTO, UUID creatorId) {
+        Media media = new Media();
+        media.setId(mediaDTO.getId());
+        media.setTitle(mediaDTO.getTitle());
+        media.setDescription(mediaDTO.getDescription());
+        media.setReleaseYear(mediaDTO.getReleaseYear());
+        media.setAgeRestriction(mediaDTO.getAgeRestriction());
+        media.setMediaType(mediaDTO.getMediaType());
+        media.setGenres(mediaDTO.getGenres());
+        media.setCreatorID(creatorId);
+
+        return media;
+    }
+
+
+        public User mapToUser(ResultSet rs) throws SQLException{
         User user = new User();
 
         String uuidString = rs.getString("user_id");

@@ -11,6 +11,7 @@ import at.technikum.application.mrp.model.dto.RatingInput;
 import at.technikum.application.mrp.model.dto.RecommendationRequest;
 import at.technikum.application.mrp.model.helper.RatingStatistic;
 import at.technikum.application.mrp.model.helper.RecommendationHelper;
+import at.technikum.application.mrp.model.util.ModelMapper;
 import at.technikum.application.mrp.repository.FavoriteRepository;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
@@ -26,18 +27,22 @@ public class MediaService {
     private UserRepository userRepository;
     private FavoriteRepository favoriteRepository;
     private RatingRepository ratingRepository;
+
     private RatingValidator ratingValidator;
+    private ModelMapper mapper;
 
     public MediaService(MediaRepository mediaRepository,
                         UserRepository userRepository,
                         FavoriteRepository favoriteRepository,
                         RatingRepository ratingRepository,
-                        RatingValidator ratingValidator) {
+                        RatingValidator ratingValidator,
+                        ModelMapper mapper) {
         this.mediaRepository = mediaRepository;
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
         this.ratingRepository = ratingRepository;
         this.ratingValidator = ratingValidator;
+        this.mapper = mapper;
     }
 
     protected void checkPermission(UUID mediaID, String requesterName) {
@@ -242,19 +247,11 @@ public class MediaService {
         //Prüfen ob Anfragesteller:in authorisiert ist
         checkPermission(mediaDTO.getId(), mediaDTO.getCreatorName());
 
-        //Media Objekt aus DTO erstellen
-        Media media = new Media();
-        media.setId(mediaDTO.getId());
-        media.setTitle(mediaDTO.getTitle());
-        media.setDescription(mediaDTO.getDescription());
-        media.setReleaseYear(mediaDTO.getReleaseYear());
-        media.setAgeRestriction(mediaDTO.getAgeRestriction());
-        media.setMediaType(mediaDTO.getMediaType());
-        media.setGenres(mediaDTO.getGenres());
-
         //Creator_ID ermitteln
         UUID creatorId = this.userRepository.getIdViaName(mediaDTO.getCreatorName());
-        media.setCreatorID(creatorId);
+
+        //Media Objekt aus DTO erstellen (mit creatorId)
+        Media media = mapper.mapToMedia(mediaDTO, creatorId);
 
         //MediaEntry mittels Repo-Funktion updaten
         Optional<Media> updatedMediaOpt = this.mediaRepository.update(media);
@@ -345,16 +342,7 @@ public class MediaService {
         System.out.println("DEBUG: CreatorID = " + creatorId);
 
         //Repo Funktion erwartet ein Media Objekt, nicht das DTO (Weil ich ja mit Templates gearbeitet habe, lässt sich das jetzt auch nicht so leicht ändern
-        Media media = new Media();
-        media.setId(mediaDTO.getId());
-        media.setTitle(mediaDTO.getTitle());
-        media.setDescription(mediaDTO.getDescription());
-        media.setReleaseYear(mediaDTO.getReleaseYear());
-        media.setAgeRestriction(mediaDTO.getAgeRestriction());
-        media.setMediaType(mediaDTO.getMediaType());
-        media.setGenres(mediaDTO.getGenres());
-        media.setCreatorID(creatorId);
-
+        Media media = mapper.mapToMedia(mediaDTO, creatorId);
 
         //Repo funktion aufrufen
         Optional<Media> createdMediaOpt = this.mediaRepository.create(media);
