@@ -13,7 +13,6 @@ import at.technikum.application.mrp.service.AuthService;
 import at.technikum.application.mrp.service.MediaService;
 import at.technikum.application.mrp.service.RatingService;
 import at.technikum.application.mrp.service.UserService;
-import at.technikum.application.mrp.service.util.RatingValidator;
 import at.technikum.server.util.RequestMapper;
 
 public class ApplicationContext {

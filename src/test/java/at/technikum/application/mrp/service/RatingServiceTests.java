@@ -110,6 +110,4 @@ public class RatingServiceTests {
     * gehört zur business Logik: Recommendation system based on rating history & similarity
     * */
 
-
-
 }

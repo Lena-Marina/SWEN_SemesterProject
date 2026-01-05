@@ -7,7 +7,6 @@ import at.technikum.application.mrp.model.helper.RecommendationHelper;
 import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
-import at.technikum.application.mrp.service.util.RatingValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -43,9 +42,6 @@ public class MediaServiceTests {
 
     @Mock
     RatingRepository ratingRepository;
-
-    @Mock
-    RatingValidator ratingValidator;
 
     @InjectMocks
     MediaService mediaService;
@@ -173,13 +169,10 @@ public class MediaServiceTests {
         verify(ratingRepository, never()).getTypeWithStars(any());
     }
 
-    /*Validation eines Mediums testen -> hier könnte ich boundary limit gut umsetzen
-     * (in age_restriction und release_year) */
-
     /*Avg Score berechnung validieren -> Aber eigentlich passiert das interessante
     hier in der DB, welche zu testen nicht meine Verantwortung ist...
     in der Business logik mache ich nur eine einfache division, die muss ich denke ich
-    eher nicht testen
+    eher nicht testen?
     * */
 }
 

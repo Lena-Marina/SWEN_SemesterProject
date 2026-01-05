@@ -3,14 +3,11 @@ package at.technikum.application.mrp.service;
 import at.technikum.application.mrp.exception.EntityNotFoundException;
 import at.technikum.application.mrp.exception.EntityNotSavedCorrectlyException;
 import at.technikum.application.mrp.exception.UnauthorizedException;
-import at.technikum.application.mrp.model.Media;
 import at.technikum.application.mrp.model.Rating;
 import at.technikum.application.mrp.model.dto.*;
 import at.technikum.application.mrp.model.util.ModelValidator;
-import at.technikum.application.mrp.repository.MediaRepository;
 import at.technikum.application.mrp.repository.RatingRepository;
 import at.technikum.application.mrp.repository.UserRepository;
-import at.technikum.application.mrp.service.util.RatingValidator;
 
 import java.util.Objects;
 import java.util.Optional;
