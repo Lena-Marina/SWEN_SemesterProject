@@ -11,11 +11,21 @@ public class RecommendationRequest {
         this.type = type;
     }
 
+    public RecommendationRequest(){}
+
     public UUID getUserId() {
         return userId;
     }
 
     public String getType() {
         return type;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public void setType(String content) {
+        this.type = content;
     }
 }

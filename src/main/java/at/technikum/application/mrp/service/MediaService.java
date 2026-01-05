@@ -54,17 +54,15 @@ public class MediaService {
 
     public List<Media> getRecommendation(RecommendationRequest dto) {
         // Validation
+        if(dto.getType() == null){
+            throw new IllegalArgumentException("RecommendationRequest must have Queryparameter 'type'");
+        }
         if (!"genre".equals(dto.getType()) && !"content".equals(dto.getType())) {
             throw new IllegalArgumentException("QueryParam 'type' for recommendations has to be either 'genre' or 'content'");
         }
 
         //Alle Ratings von dem user finden
         List<Rating> userRatings = this.ratingRepository.findAllFrom(dto.getUserId());
-        //DEBUGGING
-        System.out.println("DEBUGGING: in MediaService::getRecommendation() List<Rating> userRatings: ");
-        for (Rating rating : userRatings) {
-            System.out.println(rating.getRatingId());
-        }
 
         //Je nach type eine andere Repo Funktion aufrufen, um recommendations zu befüllen (Weil Logik, will ich das hier und nicht im Repo)
         List<RecommendationHelper> recoms = new ArrayList<>();

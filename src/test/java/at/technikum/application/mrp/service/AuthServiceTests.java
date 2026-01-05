@@ -47,7 +47,7 @@ class AuthServiceTests {
         verify(userRepositoryMock, times(1)) //verify prüft ob und wie oft die Methode aufgerufen wurde
                 .findByCredentials("max", "1234");  //ist die Methode die im Mock Objekt aufgerufen werden soll
                                                                         //anstelle ihres tatsächlichen Rückgabewertes wird aber das oben
-                                                                        //mit "when" angegebene Optional of das eine User Objekt zurück gegeben
+                                                                        //mit "when" angegebene Optional of das eine User Objekt zurückgegeben
     }
 
 

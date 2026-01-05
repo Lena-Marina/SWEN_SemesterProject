@@ -35,7 +35,7 @@ public class ModelMapper {
         media.setReleaseYear(rs.getInt("release_year"));
         media.setAgeRestriction(rs.getInt("age_restriction"));
 
-        // Todo: leere Listen befüllen initialisieren
+        // Listen werden nur leer erstellt und müssen außerhalb befüllt werden!
         media.setGenres(new ArrayList<>());
         media.setFavoritedBy(new ArrayList<>());
         media.setRatings(new ArrayList<>());
