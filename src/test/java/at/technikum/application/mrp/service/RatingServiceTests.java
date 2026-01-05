@@ -40,7 +40,7 @@ public class RatingServiceTests {
     RatingService ratingService;
 
     @Test
-    void given_user_already_rated_media_when_createRating_then_throws_UnauthorizedException() {
+    void test_given_user_already_rated_media_when_createRating_then_throws_UnauthorizedException() {
         // setup | arrange
         UUID mediaId = UUID.fromString("10000000-0000-0000-0000-000000000001");
         UUID userId = UUID.fromString("20000000-0000-0000-0000-000000000002");
@@ -65,7 +65,7 @@ public class RatingServiceTests {
     }
 
     @Test //Gegentest
-    void given_user_has_not_rated_media_when_createRating_then_throws_no_Exception()
+    void test_given_user_has_not_rated_media_when_createRating_then_throws_no_Exception()
     {
         // setup | arrange
         UUID mediaId = UUID.fromString("10000000-0000-0000-0000-000000000001");

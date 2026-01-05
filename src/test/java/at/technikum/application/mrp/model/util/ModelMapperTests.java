@@ -29,7 +29,7 @@ public class ModelMapperTests {
     }
 
     @Test
-    void given_valid_mediaInput_when_mapToMedia_then_all_fields_are_mapped_correctly() {
+    void test_given_valid_mediaInput_when_mapToMedia_then_all_fields_are_mapped_correctly() {
         // Arrange
         UUID mediaId = UUID.fromString("10000000-0000-0000-0000-000000000001");
         UUID creatorId = UUID.fromString("20000000-0000-0000-0000-000000000002");

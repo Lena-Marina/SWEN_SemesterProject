@@ -22,7 +22,7 @@ public class ModelValidatorTests {
      * */
     //Tests für einzelne Ratings
     @Test
-    void given_unconfirmed_rating_when_removeCommentIfNotConfirmed_then_comment_is_cleared() {
+    void test_given_unconfirmed_rating_when_removeCommentIfNotConfirmed_then_comment_is_cleared() {
         // Arrange
         Rating rating = new Rating();
         rating.setConfirmed(false);
@@ -36,7 +36,7 @@ public class ModelValidatorTests {
     }
 
     @Test
-    void given_confirmed_rating_when_removeCommentIfNotConfirmed_then_comment_remains() {
+    void test_given_confirmed_rating_when_removeCommentIfNotConfirmed_then_comment_remains() {
         // Arrange
         Rating rating = new Rating();
         rating.setConfirmed(true);
@@ -51,7 +51,7 @@ public class ModelValidatorTests {
 
     //Tests für Media
     @Test
-    void given_unconfirmed_rating_when_removeCommentsIfNotConfirmedFromMedia_then_comment_is_cleared() {
+    void test_given_unconfirmed_rating_when_removeCommentsIfNotConfirmedFromMedia_then_comment_is_cleared() {
         // Arrange
         Rating r1 = new Rating();
         r1.setConfirmed(false);
@@ -73,7 +73,7 @@ public class ModelValidatorTests {
     }
 
     @Test
-    void given_no_ratings_when_removeCommentsIfNotConfirmedFromMedia_then_nothing_happens() {
+    void test_given_no_ratings_when_removeCommentsIfNotConfirmedFromMedia_then_nothing_happens() {
         // Arrange
         Media media = new Media();
         media.setRatings(null);
@@ -110,7 +110,7 @@ public class ModelValidatorTests {
     }
 
     @Test
-    void given_valid_media_when_validateMediaOrThrow_then_no_exception_is_thrown() {
+    void test_given_valid_media_when_validateMediaOrThrow_then_no_exception_is_thrown() {
         // Arrange
         Media media = createValidMedia();
 
@@ -119,7 +119,7 @@ public class ModelValidatorTests {
     }
 
     @Test
-    void given_null_media_when_validateMediaOrThrow_then_throws_exception() {
+    void test_given_null_media_when_validateMediaOrThrow_then_throws_exception() {
         // Act & Assert
         IllegalArgumentException ex =
                 assertThrows(IllegalArgumentException.class,
@@ -129,7 +129,7 @@ public class ModelValidatorTests {
     }
 
     @Test
-    void given_invalid_mediaType_when_validateMediaOrThrow_then_throws_exception() {
+    void test_given_invalid_mediaType_when_validateMediaOrThrow_then_throws_exception() {
         // Arrange
         Media media = createValidMedia();
         media.setMediaType("book");
@@ -144,7 +144,7 @@ public class ModelValidatorTests {
     }
 
     @Test //erlaubt ist alles >= 0 und <=18 -> Boundarys -1 und 19
-    void given_ageRestriction_out_of_bounds_when_validateMediaOrThrow_then_throws_exception() {
+    void test_given_ageRestriction_out_of_bounds_when_validateMediaOrThrow_then_throws_exception() {
         // Arrange
         Media media1 = createValidMedia();
         media1.setAgeRestriction(19);
@@ -167,7 +167,7 @@ public class ModelValidatorTests {
     }
 
     @Test //release Year muss zwischen 0 und der aktuellen Jahreszahl liegen -> Boundarys nächstesJahrJahreszahl und -1
-    void given_releaseYear_out_of_bounds_when_validateMediaOrThrow_then_throws_exception() {
+    void test_given_releaseYear_out_of_bounds_when_validateMediaOrThrow_then_throws_exception() {
         // Arrange
         int currentYear = LocalDate.now().getYear();
         Media media1 = createValidMedia();
@@ -191,7 +191,7 @@ public class ModelValidatorTests {
     }
 
     @Test //Average score muss zwischen 0 und 5 liegen -> Boundarys 5.1 und -0.1
-    void given_averageScore_above_5_when_validateMediaOrThrow_then_throws_exception() {
+    void test_given_averageScore_above_5_when_validateMediaOrThrow_then_throws_exception() {
         // Arrange
         Media media1 = createValidMedia();
         media1.setAverageScore(5.1f);
@@ -214,7 +214,7 @@ public class ModelValidatorTests {
     }
 
     @Test //Alle listen auf initialisierung testen
-    void given_uninitialized_list_when_validateMediaOrThrow_then_throws_exception() {
+    void test_given_uninitialized_list_when_validateMediaOrThrow_then_throws_exception() {
         // Arrange
         Media media1 = createValidMedia();
         media1.setGenres(null);

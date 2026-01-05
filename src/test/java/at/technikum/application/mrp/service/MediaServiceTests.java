@@ -52,7 +52,7 @@ public class MediaServiceTests {
     }
 
     @Test
-    void given_same_uuid_when_checkPermission_then_no_exception() {
+    void test_given_same_uuid_when_checkPermission_then_no_exception() {
         UUID mediaID = UUID.randomUUID();
         UUID userID = UUID.randomUUID();
         String requesterName = "Lena1";
@@ -66,7 +66,7 @@ public class MediaServiceTests {
     }
 
     @Test
-    void given_different_uuid_when_checkPermission_then_throws_UnauthorizedException() {
+    void test_given_different_uuid_when_checkPermission_then_throws_UnauthorizedException() {
         UUID mediaID = UUID.fromString("10000000-0000-0000-0000-000000000001");
         UUID userID = UUID.fromString("20000000-0000-0000-0000-000000000002");
         UUID creatorID = UUID.fromString("30000000-0000-0000-0000-000000000003"); //für den winzigen Fall, dass mir randomUUID die selbe generiert werden würde -> dann würde der Test ja failen
@@ -102,7 +102,7 @@ public class MediaServiceTests {
     * gehört zur Business Logik: Recommendation system based on rating history & similarity
     */
     @Test
-    void given_type_content_when_getRecommendation_then_calls_getTypeWithStars() {
+    void test_given_type_content_when_getRecommendation_then_calls_getTypeWithStars() {
         // Arrange
         UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000001");
         UUID ratingId = UUID.fromString("00000000-0000-0000-0000-000000000002");
@@ -136,7 +136,7 @@ public class MediaServiceTests {
     }
 
     @Test
-    void given_type_genre_when_getRecommendation_then_calls_getGenresWithStars() {
+    void test_given_type_genre_when_getRecommendation_then_calls_getGenresWithStars() {
         // arrange
         UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000003");
         UUID ratingId = UUID.fromString("00000000-0000-0000-0000-000000000004");
